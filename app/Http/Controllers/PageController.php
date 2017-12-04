@@ -35,8 +35,8 @@ class PageController extends Controller
 		$page->delete();
 		return redirect(route('admin.pages'));	
 	}
-	public function view($pageName=NULL){
-		if($pageName == NULL){
+	public function view($pageName=null){
+		if($pageName == null){
 			$frontPage = PageModel::where("isfront",true)->get(["alias"])->first();
 			if( $frontPage->count() == 0 ){ // There is no front page
 				abort(404);
@@ -53,6 +53,8 @@ class PageController extends Controller
 
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('alias',$pageName)->first();
+// 없으면 빈 칸을 띄우게함
+		if(count($page)<1) return redirect('/');
 
 // Process tags
 		$contents = $this->renderPageContent( $page->contents );

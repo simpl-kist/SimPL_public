@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 use App\CmsEnvModel;
+use App\User;
 use App\SolverModel;
 use App\PluginModel;
 use App\JobModel;
@@ -41,7 +44,8 @@ class AdminController extends Controller
 		return view("admin.general",compact('env'));
 	}
 	public function users(){
-		return view("admin.users");
+		$user = User::where('id',Auth::user()->id)->first();
+		return view("admin.users")->with('user',$user);
 	}
 	public function pages(){
 		return view("admin.pages");
