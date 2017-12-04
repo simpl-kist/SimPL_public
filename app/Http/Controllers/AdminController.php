@@ -10,7 +10,8 @@ use App\JobModel;
 use App\Repository;
 class AdminController extends Controller
 {
-	public function index(){
+
+	 public function index(){
 		return view("admin.index");
 	}
 	public function jobs(){
@@ -31,6 +32,9 @@ class AdminController extends Controller
 	public function repository(){
 		$repos = Repository::get();
 		return view('admin.repository',compact('repos'));
+	}
+	public function dashboard(){
+		return view('admin.dashboard');
 	}
 	public function general(){
 		$m = CmsEnvModel::get();

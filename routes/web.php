@@ -10,11 +10,22 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Auth::routes();
 Route::get('/','IndexController@index'); 
 /*Route::get('/admin/', function () {
     return view('admin.index');
 });*/
+Route::group(['prefix'=>'hello','as'=>'world'],function(){
+		Route::get('/mino',[
+				'as'=>'.mino',
+				'uses'=>'HelloController@mino'
+				]);
+				Route::get('/schan',function(){
+				return view("schan");
+			});
+		});
+
+
 Route::group(['prefix' => 'admin', 'as' => 'admin.'],function(){
 	Route::get('/',[
 		'as' => 'index',
@@ -23,6 +34,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'],function(){
 	Route::get('/jobs',[
 		'as' => 'jobs',
 		'uses' => 'AdminController@jobs'
+	]);
+	Route::get('/dashboard',[
+		'as' => 'dashboard',
+		'uses' => 'AdminController@dashboard'
 	]);
 	Route::get('/general',[
 		'as' => 'general',
