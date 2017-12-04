@@ -11,8 +11,9 @@ General
 	<th>Name</th>
 	<th>Alias</th>
 	<th>Role</th>
+	<th>Author</th>
 	<th>Registered</th>
-
+	
 	<th colspan=3></th>
 </thead>
 <tbody>
@@ -21,6 +22,7 @@ General
 		<td>{{$plugin->name}}</td>
 		<td>{{$plugin->alias}}</td>
 		<td>{{$plugin->role}}</td>
+		<td>{{$plugin->author}}</td>
 		<td>{{$plugin->created_at}}</td>
 		<td>
 			<a href={{route('admin.plugins.modify',$plugin->id)}}>Modify</a>

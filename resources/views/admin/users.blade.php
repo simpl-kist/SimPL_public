@@ -6,6 +6,7 @@ General
 <?php
 $user = json_decode($user)
 ?>
+{{Auth::user()}}
 <h2>Users</h2>
 <table class=table>
 	<thead>

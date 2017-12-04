@@ -12,6 +12,7 @@ General
 			<th>Front</th>
 			<th>Title</th>
 			<th>Alias</th>
+			<th>Author</th>
 			<th>Registered</th>
 			<th colspan=3></th>
 		</tr>
@@ -29,6 +30,7 @@ General
 
 			<td>{{{$page->title}}}</td>
 			<td>{{{$page->alias}}}</td>
+			<td>{{$page->author}}</td>
 			<td>{{{$page->created}}}</td>
 			<td><a href="/{{{$page->alias}}}">Show</a></td>
 			<td><a href="/admin/pages/modify/{{{$page->id}}}">Modify</a></td>
