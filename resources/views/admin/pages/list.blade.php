@@ -5,8 +5,7 @@ General
 @section('content')
 
 <h2>Pages</h2>
-
-		<table class='table'>
+	<table class='table'>
 	<thead>
 		<tr>
 			<th>Front</th>

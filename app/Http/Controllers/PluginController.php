@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\PluginModel;
 use App\CmsEnvModel;
 use App\JobModel;
+use Illuminate\Support\Facades\Auth;
 class PluginController extends Controller
 {
 	private function getScriptHeader($args){
@@ -152,11 +153,16 @@ class PluginController extends Controller
 		$page->delete();
 		return redirect(route('admin.plugins'));	
 	}
+	public function writePluginFile(){
+	}
 	public function run(Request $request){
 		$pluginId=-1;	
+		$alias = "test";
+		if($request->has('alias')){
+			$alias = $request->input("alias");
+		}
 		if( !$request->has('istest') ){
-			error_log("HERE");
-			$plugin = PluginModel::where("alias",$request->input('alias'))->firstOrFail();
+			$plugin = PluginModel::where("alias",$alias)->firstOrFail();
 			$pluginId = $plugin->id;
 			$pluginFileContent = $plugin->script;
 		}else{ // test
@@ -184,7 +190,7 @@ class PluginController extends Controller
 		mkdir($jobdir);// or die("Could not create job directory");
 		chdir($jobdir);
 
-		$headerFileName = 'kCmsHeader_'.md5(rand());
+		$headerFileName = 'kCmsHeader_global';
 		$headerArgs = [
 			'jobid'=>$jobid,
 			'jobdir'=>$jobdir,
@@ -200,10 +206,28 @@ class PluginController extends Controller
 		fwrite($fp,$headerFileContent);
 		fclose($fp);
 
-		$pluginFileName = 'kCmsScript_'.md5(rand());
-		$pluginFileContent = "from $headerFileName import *\n".$pluginFileContent;
+// Write includes
+		$incContents = "";
+		if($request->has('includes')){
+			foreach($request->input('includes') as $inc){
+				$_plugin = PluginModel::where("alias",$inc)->firstOrFail();
+				$_incFileContent = $_plugin->script;
+				$_incFileName = "kCmsIncludes_".$inc;
+				$incContents = "from kCmsIncludes_".$inc." import *\n"; 
+				$fp = fopen( $_incFileName.'.py', "w");
+				fwrite($fp, $_incFileContent );
+				fclose($fp);
+			}
+		}
+
+		$pluginFileName = 'kCmsScript_'.Auth::id().'_'.$alias;
+		$plugin_merged = "";
+		$plugin_merged = "from $headerFileName import *\n";
+		$plugin_merged.= $incContents;
+		$plugin_merged.= $pluginFileContent;
+		
 		$fp = fopen($pluginFileName,"w");
-		fwrite($fp,$pluginFileContent);
+		fwrite($fp,$plugin_merged);
 		fclose($fp);
 		if(isset($env['python'])){
 			$pythonPath = $env['python'];

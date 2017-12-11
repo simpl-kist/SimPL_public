@@ -54,14 +54,13 @@ class PageController extends Controller
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('alias',$pageName)->first();
 // 없으면 빈 칸을 띄우게함
-		if(count($page)<1) return redirect('/');
+		if(count($page)<1){
+			abort(404);
+		}
 
 // Process tags
 		$contents = $this->renderPageContent( $page->contents );
 		
-
-
-
 		return view('page',[
 			'title'=>$page->title,
 			'contents'=>$contents,
@@ -71,8 +70,8 @@ class PageController extends Controller
 		//$pageM->get()->where("alias",$pageName);
 	}
 	public function list(){
-		$pageM = new PageModel;
-		$pages = $pageM->get();
+		$pages = PageModel::paginate(10);
+//		$pages = $pageM->get();
 		return view('admin/pages/list',[ 'pages' => $pages]);
 	}
 	public function modify($id){

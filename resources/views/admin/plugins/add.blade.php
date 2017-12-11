@@ -17,6 +17,7 @@ function testScript(){
 	    }
 	});
 
+	var includes = [];
 	$.ajax({
 		type:"post",
 		dataType:"json",
@@ -25,6 +26,7 @@ function testScript(){
 		data:{
 			istest:true,
 			testinput:$('.inputdata').val(),
+			includes:includes,
 		//	script:$('.script').val()
 			script:scriptEditor.getValue()
 		},
@@ -101,6 +103,14 @@ $('document').ready(function(){
 				<input type=hidden name=script class=script>-->
 			</div>
 		</div>
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>Includes</label>
+			<div class=col-sm-9>
+				<textarea class='form-control' name='includes' id=includes>
+				</textarea>
+			</div>
+		</div>
+
 		<!-- Service Title -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Script</label>

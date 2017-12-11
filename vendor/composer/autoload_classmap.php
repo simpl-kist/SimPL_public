@@ -31,8 +31,6 @@ return array(
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
     'App\\Http\\Middleware\\checkVerify' => $baseDir . '/app/Http/Middleware/checkVerify.php',
     'App\\JobModel' => $baseDir . '/app/JobModel.php',
-    'App\\Mail\\EmailVerification' => $baseDir . '/app/Mail/EmailVerification.php',
-    'App\\Mail\\OrderShipped' => $baseDir . '/app/Mail/OrderShipped.php',
     'App\\PageModel' => $baseDir . '/app/PageModel.php',
     'App\\PluginModel' => $baseDir . '/app/PluginModel.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',

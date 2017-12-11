@@ -27,6 +27,13 @@ Route::middleware(['auth','checkVerify'])->group(function(){
 	    return view('admin.index');
 	});*/
 	Route::group(['prefix' => 'admin', 'as' => 'admin.'],function(){
+		Route::get('/logo',[
+			'as' => 'logo',
+			'uses' => function(){
+				return redirect(App\Http\Controllers\AdminController::getLogo());
+			}//'AdminController@getLogo'
+		]);
+
 		Route::get('/',[
 			'as' => 'index',
 			'uses' => 'AdminController@index'

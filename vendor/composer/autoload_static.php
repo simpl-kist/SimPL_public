@@ -348,8 +348,6 @@ class ComposerStaticInitcda022be1490ece1f67bb0c0ac797f1a
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Http\\Middleware\\checkVerify' => __DIR__ . '/../..' . '/app/Http/Middleware/checkVerify.php',
         'App\\JobModel' => __DIR__ . '/../..' . '/app/JobModel.php',
-        'App\\Mail\\EmailVerification' => __DIR__ . '/../..' . '/app/Mail/EmailVerification.php',
-        'App\\Mail\\OrderShipped' => __DIR__ . '/../..' . '/app/Mail/OrderShipped.php',
         'App\\PageModel' => __DIR__ . '/../..' . '/app/PageModel.php',
         'App\\PluginModel' => __DIR__ . '/../..' . '/app/PluginModel.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

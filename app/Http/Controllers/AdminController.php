@@ -80,5 +80,9 @@ class AdminController extends Controller
 		$solver->save();
 		return redirect(route('admin.solvers'));
 	}
+	public static function getLogo(){
+		$env = CmsEnvModel::where("var_key","logo")->first(['var_value']);
+		return $env->var_value;
+	}
     //
 }
