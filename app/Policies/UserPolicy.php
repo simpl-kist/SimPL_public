@@ -20,9 +20,9 @@ class UserPolicy
     public function read(User $user, User $target_user)
     {
         //
-	if($user->id === $target_user->id){
+	if($user->id == $target_user->id){
 		return true;
-	}else if(Policy::where('type',$user->policy)->first()->oth_user_read === 1)
+	}else if(Policy::where('type',$user->policy)->first()->oth_user_read == 1)
 		return true;	
 	else{
 		return false;
@@ -50,9 +50,9 @@ class UserPolicy
     public function update(User $user, User $target_user)
     {
         //
-	if($user->id === $target_user->id){
+	if($user->id == $target_user->id){
 		return true;
-	}else if(Policy::where('type',$user->policy)->first()->oth_user_update === 1)
+	}else if(Policy::where('type',$user->policy)->first()->oth_user_update == 1)
 		return true;	
 	else{
 		return false;
@@ -69,9 +69,9 @@ class UserPolicy
     public function delete(User $user, User $target_user)
     {
         //
-	if($user->id === $target_user->id){
+	if($user->id == $target_user->id){
 		return true;
-	}else if(Policy::where('type',$user->policy)->first()->oth_user_delete === 1)
+	}else if(Policy::where('type',$user->policy)->first()->oth_user_delete == 1)
 		return true;	
 	else{
 		return false;

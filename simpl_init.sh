@@ -26,10 +26,6 @@ then
 else
 	echo "Initialize table"
 	ret=`mysql -u${mysql_user} -p${mysql_pw} ${mysql_db} < simpl.sql`
-	if [ $ret = "0" ]
-	then
-	else
-		echo "There are some problems during DB initialization"
-	fi
+
 	exit 1
 fi
