@@ -48,44 +48,45 @@ class AdminController extends Controller
 //		$jobsMonth = ;
 //		$jobsWeek = ;
 //		$jobsToday = ;
+		$_users = new User;
+		$users = $_users->orderBy('created_at','desc');
+		$nusers = $users->count();
+		$recentUsers = $users->limit(4)->get(['name','affiliation','mypic','created_at']);
+		
 		$totalUsers = User::select('name', 'affiliation', 'mypic', 'created_at')->orderBy('created_at','desc')->get();
-		$recentUsers = array_slice($totalUsers->toArray(), 0, 4); 
+//		$recentUsers = array_slice($totalUsers->toArray(), 0, 4); 
 		$pluginNumber = PluginModel::count();
 		$solverNumber = SolverModel::count();
 		$jobNumber = JobModel::count();
 //process data
 		
-		for($i = 0; $i < 4; $i++){
+		for($i = 0; $i < $recentUsers->count(); $i++){
 			// test code TODO
-			if($i == 0) {$recentUsers[$i]['created_at'] = '2017-12-07 09:12:12'; }
-			if($i == 1) {$recentUsers[$i]['created_at'] = '2017-12-06 08:12:12'; }
-			if($i == 2) {$recentUsers[$i]['created_at'] = '2017-11-22 13:12:12'; }
-			if($i == 3) {$recentUsers[$i]['created_at'] = '2017-08-07 13:12:12'; }
 			// end of test code
-			$recentUsers[$i]['ago'] = \Carbon\Carbon::parse($recentUsers[$i]['created_at'])->diffForHumans();
+			$recentUsers[$i]->ago = \Carbon\Carbon::parse($recentUsers[$i]->created_at)->diffForHumans();
 			preg_match('/\d+\s([a-z]+?)s?\s.+/', $recentUsers[$i]['ago'], $matched);
 			switch($matched[1]){
 				case "year":
-					$recentUsers[$i]['agoColor'] = $colorTable['blue'];
+					$recentUsers[$i]->agoColor = $colorTable['blue'];
 					break;
 				case "month":
-					$recentUsers[$i]['agoColor'] = $colorTable['blue'];
+					$recentUsers[$i]->agoColor = $colorTable['blue'];
 					break;
 				case "week":
-					$recentUsers[$i]['agoColor'] = $colorTable['green'];
+					$recentUsers[$i]->agoColor = $colorTable['green'];
 					break;
 				case "day":
-					$recentUsers[$i]['agoColor'] = $colorTable['yellow'];
+					$recentUsers[$i]->agoColor = $colorTable['yellow'];
 					break;
 				default:
-					$recentUsers[$i]['agoColor'] = $colorTable['red'];
+					$recentUsers[$i]->agoColor = $colorTable['red'];
 			}
 		}
 //bind to view
 		return view('admin.dashboard',[
 				//for test TODO
 //				'test' => print_r($recentUsers->toArray()),
-				'NUsers'				=> ['totalUsers'=>count($totalUsers), 'monthlyVisitors'=>'41,410', 'monthlyJoin'=>'8', 'concurrentUsers'=>'20'],
+				'NUsers'				=> ['totalUsers'=>$nusers, 'monthlyVisitors'=>'41,410', 'monthlyJoin'=>'8', 'concurrentUsers'=>'20'],
 				'NJobs'					=> ['runningJobs'=>'11', 'totalJobs'=>$jobNumber, 'solver'=>$solverNumber, 'plugin'=>$pluginNumber],
  				'usageData'			=> [['solverName'=>"SIESTA", 'data'=>[ 4, 2, 10, 70, 50, 20, 200]],
 		             		     ['solverName'=>'Quantum Espresso', 'data'=>[65, 59, 80, 81, 56, 55, 40]],
@@ -125,12 +126,16 @@ class AdminController extends Controller
 		return redirect(route('admin.repository'));
 	}
 
-	public function general(){
+	public function getSimPLEnv(){
 		$m = CmsEnvModel::get();
 		$env = Array();
 		foreach($m as $record){
 			$env[$record->var_key] = $record->var_value;
 		}
+		return $env;
+	}
+	public function general(){
+		$env = $this->getSimPLEnv();
 		return view("admin.general",compact('env'));
 	}
 	public function users(){
@@ -149,7 +154,7 @@ class AdminController extends Controller
 		return view("admin.solvers",compact('solvers'));
 	}
 	public function saveEnv(){
-		foreach(['url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir'] as $param){
+		foreach(['verifyemail','url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir'] as $param){
 			if(isset($_POST[$param])){
 				$env = CmsEnvModel::findOrNew($param);
 				$env->var_key = $param;

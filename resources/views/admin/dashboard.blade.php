@@ -492,15 +492,19 @@ Dashboard
             <!-- /.box-header -->
             <div class="box-body">
               <ul class="products-list product-list-in-box">
-@foreach($newUsers as $newUsers)
+@foreach($newUsers as $user)
                 <li class="item">
                   <div class="product-img">
-                    <img src="{{ $newUsers['mypic'] }}" alt="user picture" onerror="this.outerHTML = '<span class=\'glyphicon glyphicon-user\' style=\'font-size:50px; color:#cecece;\'></span>'" style="width:50px; height:50px;">
+@isset($user->mypic)
+                    <img src="{{ $user['mypic'] }}" alt="user picture" onerror="this.outerHTML = '<span class=\'glyphicon glyphicon-user\' style=\'font-size:50px; color:#cecece;\'></span>'" style="width:50px; height:50px;">
+@else
+                                <label id=picspan class="glyphicon glyphicon-user" style="font-size:100px;color:#cecece"></label>
+@endif
                   </div>
                   <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">{{ $newUsers['name'] }}
-                      <span class="label pull-right" style="background-color:{{ $newUsers['agoColor'] }};">{{ $newUsers['ago'] }}</span></a>	
-                    <span class="product-description">{{ $newUsers['affiliation'] }}</span>
+                    <a href="javascript:void(0)" class="product-title">{{ isset($user['name'])?$user['name']:"" }}
+                      <span class="label pull-right" style="background-color:{{ $user['agoColor'] }};">{{ $user['ago'] }}</span></a>	
+                    <span class="product-description">{{ isset($user['affiliation'])?$user['affiliation']:"" }}</span>
                   </div>
                 </li>
                 <!-- /.item -->

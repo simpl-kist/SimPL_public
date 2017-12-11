@@ -1,13 +1,13 @@
 @extends('master')
 
 @section('title')
-{!! $title !!}
+{!! $title or "" !!}
 @stop
 
 @section('content')
-{!! $env['header'] !!}
+{!! $env['header'] or "" !!}
 <div class=container>
 {!! $contents !!}
 </div>
-{{$env['footer']}}
+{{$env['footer'] or "" }}
 @stop

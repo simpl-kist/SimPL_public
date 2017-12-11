@@ -11,6 +11,7 @@ use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Http\Controllers\AdminController;
 
 class RegisterController extends Controller
 {
@@ -32,7 +33,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -78,9 +79,27 @@ class RegisterController extends Controller
 	    {
 	        $this->validator($request->all())->validate();
 	        $user = $this->create($request->all());
-	        $email = new EmailVerification($user);
-	        Mail::to($user->email)->send($email);
-	        return view('verification');
+		if($user->id==1){
+			$user->policy="admin";
+			$user->verified=1;
+			$user->save();
+	        	return redirect('/');
+
+		}else{
+			$admin = new AdminController();
+			$env = $admin->getSimPLEnv();
+			if(isset($env['verifyemail']) && $env['verifyemail'] == 1){
+			       	 $email = new EmailVerification($user);
+		
+			        Mail::to($user->email)->send($email);
+	        		return view('verification');
+			}else{
+				$user->verified=1;
+				$user->save();
+	        		return redirect('/');
+			}
+		
+		}
 	
 	    }
 	    public function verify($token)

@@ -10,6 +10,7 @@ function saveEnv(){
 	        'X-CSRF-TOKEN': '{{ csrf_token() }}'
 	    }
 	});
+          alert( $('#verify_email').is(":checked"));
 	$.ajax({
 		url : '/admin/general/save',
 		dataType : 'json',
@@ -26,8 +27,10 @@ function saveEnv(){
 			qsub : $('.qsub').val(),
 			qstat : $('.qstat').val(),
 			qdel : $('.qdel').val(),
+			verifyemail : $('#verify_email').is(":checked")?1:0,
 		},
 		success : function(a,b){
+			alert("Success");
 			console.log(a,b);
 		}
 		
@@ -38,6 +41,14 @@ function saveEnv(){
 <div class=row>
 	<div class='col-md-2'></div>
 	<div class='col-md-8'>
+		<!-- URL  -->
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>E-mail Verification</label>
+			<div class=col-sm-9>	
+				<input type=checkbox id=verify_email {{ ( isset($env['verifyemail']) && $env['verifyemail'] == true)?"checked":"" }}>
+			</div>
+		</div>
+
 		<!-- URL  -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Service URL</label>

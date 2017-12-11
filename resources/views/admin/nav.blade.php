@@ -18,6 +18,7 @@
       <a class="nav-item nav-link" href="{{ route('admin.myInfo') }}">MyInfo</a>
       <a class="nav-item nav-link" href="{{ route('admin.jobs') }}">Jobs</a>
       <a class="nav-item nav-link" href="{{ route('admin.repository') }}">Repository</a>
+      <a class="nav-item nav-link" href={{ route('logout')}} ><i class="glyphicon glyphicon-log-out"></i> </a>
 	</div>
     </div>
   </div>
