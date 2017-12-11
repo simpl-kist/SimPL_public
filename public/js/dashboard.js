@@ -1,3 +1,6 @@
+//usageData, PieData, 
+//는 뷰어에서 이 코드 이전에 선언되고 값이 할당되어 있어야 한다.
+//처음 만들 때는 뷰어에서 php->js로 넘겨주는걸로 만듬.
 $(function () {
 
   'use strict';
@@ -12,50 +15,49 @@ $(function () {
   // -----------------------
 
   // Get context with jQuery - using jQuery's .get() method.
-  var usageChartCanvas = $('#usageChart').get(0).getContext('2d');
+  var usageChartCanvas = $('#usage-chart').get(0).getContext('2d');
   // This will get the first returned node in the jQuery collection.
-  var usageChart       = new Chart(usageChartCanvas);
-	//var usageData = [{solverName:"QE", },{},{}]; TODO
-	//토탈 구해서 넣기
-	//큰순으로 정렬
-	//입력하는데 앞으로 올 수록 연하게
-  var usageChartData = { //TODO
-    labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],	//x-axis
-    datasets: [
-      {
-        label               : 'Electronics',
-        fillColor           : 'rgb(210, 214, 222)',
-        strokeColor         : 'rgb(210, 214, 222)',
-        pointColor          : 'rgb(210, 214, 222)',
-        pointStrokeColor    : '#c1c7d1',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgb(220,220,220)',
-        data                : [65, 59, 80, 81, 56, 55, 40]
-      },
-      {
-        label               : 'Digital Goods',
-        fillColor           : 'rgba(60,141,188,0.9)',
-        strokeColor         : 'rgba(60,141,188,0.8)',
-        pointColor          : '#3b8bba',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : [28, 48, 40, 19, 86, 27, 90]
-      },
-      {
-        label               : 'test',
-        fillColor           : 'rgba(33,255,188,0.8)',
-        strokeColor         : 'rgba(33,255,188,0.7)',
-        pointColor          : '#21ffbc',
-        pointStrokeColor    : 'rgba(33,255,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(33,255,188,1)',
-        data                : [4, 2, 10, 70, 50, 20, 200]
-      }
-    ]
-  };
+  usageChart       = new Chart(usageChartCanvas);
 
-  var usageChartOptions = {
+	//usageData 는 뷰어에서 이 코드 이전에 선언되고 값이 할당되어 있어야 한다.
+	//sort
+	for(var i in usageData){
+		var sum = 0;
+		for(var j in usageData[i].data){
+			sum += usageData[i].data[j];
+		}
+		usageData[i].dataSum = sum;
+	}
+	usageData.sort(function(a, b){
+		return a.dataSum > b.dataSum ? -1 : a.dataSum < b.dataSum ? 1 : 0;
+	});
+	//d3 categorialColors
+	var colorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+//	var colorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+//	var colorTable = ['rgb(210, 214, 222, 1)', 'rgba(60,141,188, 1)', 'rgba(33,255,188, 1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)'];
+
+	var chartDatasets = [];
+	var opacity = 255;
+	for(var i in usageData){
+		chartDatasets[i] = {
+			label               : usageData[i].solverName,
+			fillColor           : colorTable[i] + opacity.toString(16),
+			strokeColor         : colorTable[i] + (opacity-16).toString(16),
+			pointColor          : colorTable[i],
+			pointStrokeColor    : colorTable[i],
+			pointHighlightFill  : '#fff',
+			pointHighlightStroke: colorTable[i],
+			data								: usageData[i].data,
+		};
+		opacity -= 16*2;
+		if(opacity < 16) opacity = 16;
+	}
+	usageChartData = {
+    labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],	//x-axis
+		datasets: chartDatasets,
+	};
+
+  usageChartOptions = {
     // Boolean - If we should show the scale at all
     showScale               : true,
     // Boolean - Whether grid lines are shown across the chart
@@ -67,7 +69,7 @@ $(function () {
     // Boolean - Whether to show horizontal lines (except X axis)
     scaleShowHorizontalLines: true,
     // Boolean - Whether to show vertical lines (except Y axis)
-    scaleShowVerticalLines  : true,
+    scaleShowVerticalLines  : false,
     // Boolean - Whether the line is curved between points
     bezierCurve             : true,
     // Number - Tension of the bezier curve between points
@@ -87,7 +89,7 @@ $(function () {
     // Boolean - Whether to fill the dataset with a color
     datasetFill             : true,
     // String - A legend template
-    legendTemplate          : '<ul class=\'<%=name.toLowerCase()%>-legend\'><% for (var i=0; i<datasets.length; i++){%><li><span style=\'background-color:<%=datasets[i].lineColor%>\'></span><%=datasets[i].label%></li><%}%></ul>',
+    legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend" style="list-style:none;padding-left:0px;"><% for (var i=0; i<datasets.length; i++){%><li><span><i class="fa fa-square" style="color:<%=datasets[i].fillColor%>;"></i></span><%=datasets[i].label%></li><%}%></ul>',
     // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
     maintainAspectRatio     : true,
     // Boolean - whether to make the chart responsive to window resizing
@@ -95,25 +97,46 @@ $(function () {
   };
 
   // Create the line chart
-  usageChart.Line(usageChartData, usageChartOptions);
+//	var usageChartLegend = usageChart.Line(usageChartData, usageChartOptions);
+//	document.getElementById('usage-chart-legend').innerHTML = usageChartLegend.generateLegend();
+
+
+	//wrench icon
+	usageChartDraw = function(mode)	{
+		var title;
+		switch(mode){
+			case "realtime":
+				title = "Real Time";
+				usageChartOptions.pointDot = false;
+				//usageChartOptions.label = [];
+				break;
+			case "week":
+				title = "Week";
+				usageChartOptions.pointDot = true;
+				break;
+			case "month":
+				title = "Month";
+				usageChartOptions.pointDot = true;
+				break;
+			case "quarter":
+				title = "Quarter";
+				usageChartOptions.pointDot = true;
+				break;
+		}
+		$('#usage-chart-title').text('Nodes Usage Report ('+title+')');
+		return usageChart.Line(usageChartData, usageChartOptions);
+	}
+
+	//legend
+	var usageChartLegend = usageChartDraw('monthly');
+	document.getElementById('usage-chart-legend').innerHTML = usageChartLegend.generateLegend();
+
+
 
   // ---------------------------
   // - END MONTHLY SALES CHART -
   // ---------------------------
 
-
-	// master node status
-	var masterStatus = {cpu:[2.2,20], memory:[4,16], disk:[1,20], placeholder:[300,500] }; //TODO
-
-	$('#cpu-usage').html("<b>"+masterStatus.cpu[0]+"</b>/"+masterStatus.cpu[1]+" procs");
-	$('#memory-usage').html("<b>"+masterStatus.memory[0]+"</b>/"+masterStatus.memory[1]+" GB");
-	$('#disk-usage').html("<b>"+masterStatus.disk[0]+"</b>/"+masterStatus.disk[1]+" TB");
-	$('#place-holder').html("<b>"+masterStatus.placeholder[0]+"</b>/"+masterStatus.placeholder[1]+" Unit");
-
-	$('#cpu-usage-bar').css('width', (masterStatus.cpu[0] / masterStatus.cpu[1] *100) + "%");
-	$('#memory-usage-bar').css('width', (masterStatus.memory[0] / masterStatus.memory[1] *100) + "%");
-	$('#disk-usage-bar').css('width', (masterStatus.disk[0] / masterStatus.disk[1] *100) + "%");
-	$('#place-holder-bar').css('width', (masterStatus.placeholder[0] / masterStatus.placeholder[1] *100) + "%");
 
   // -------------
   // - PIE CHART -
@@ -123,32 +146,6 @@ $(function () {
   var pieChart       = new Chart(pieChartCanvas);
 	var pieColor = [['#f56954','#00a65a','#f39c12','#00c0ef','#3c8dbc','#d2d6de','#ffd6de'],
 			['#f56954','#00a65a','#f39c12','#00c0ef','#3c8dbc','#d2d6de','#ffd6de']];
-  var PieData        = [	//TODO
-    {
-      value    : 700,
-      label    : 'Plugin1'
-    },
-    {
-      value    : 500,
-      label    : 'Plugin2'
-    },
-    {
-      value    : 400,
-      label    : 'Plugin3'
-    },
-    {
-      value    : 600,
-      label    : 'Plugin4'
-    },
-    {
-      value    : 300,
-      label    : 'Plugin5'
-    },
-    {
-      value    : 100,
-      label    : 'Etc'
-    }
-  ];
 	var legend = $('#plugin-pie-chart-legend');
 	for(var i in PieData){
 		PieData[i].color = pieColor[0][i];

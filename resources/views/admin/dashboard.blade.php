@@ -6,7 +6,9 @@ Dashboard
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
-  <link rel="stylesheet" href={{ asset("/assets/vendor/bootstrap/dist/css/bootstrap.min.css") }}>
+<!--  <link rel="stylesheet" href={{ asset("/assets/vendor/bootstrap/dist/css/bootstrap.min.css") }}> --> <!-- admin.mater has this. -->
+
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href={{ asset("/assets/vendor/font-awesome/css/font-awesome.min.css") }}>
   <!-- Ionicons -->
@@ -18,6 +20,16 @@ Dashboard
   <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href={{ asset("/assets/vendor/admin-lte/dist/css/skins/_all-skins.min.css") }}>
+
+	<style>
+	.job-description{
+		display:block;
+		margin:0;
+		padding:0;
+		font-weight:600;
+		font-size:21px;
+	}
+	</style>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -40,7 +52,7 @@ Dashboard
 
             <div class="info-box-content">
               <span class="info-box-text">Total Users</span>
-              <span class="info-box-number">90</span><!--<small>%</small></span>-->
+              <span class="info-box-number"><?= $NUsers['totalUsers'] ?></span><!--<small>%</small></span>-->
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -52,8 +64,8 @@ Dashboard
             <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
 
             <div class="info-box-content">
-              <span class="info-box-text">Monthly visits</span>
-              <span class="info-box-number">41,410</span>
+              <span class="info-box-text">Monthly visitors</span>
+              <span class="info-box-number"><?= $NUsers['monthlyVisitors'] ?></span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -70,7 +82,7 @@ Dashboard
 
             <div class="info-box-content">
               <span class="info-box-text">Monthly join</span>
-              <span class="info-box-number">9</span>
+              <span class="info-box-number"><?= $NUsers['monthlyJoin'] ?></span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -82,8 +94,8 @@ Dashboard
             <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
 
             <div class="info-box-content">
-              <span class="info-box-text">?current users?</span>
-              <span class="info-box-number">20</span>
+              <span class="info-box-text">concurrent users</span>
+              <span class="info-box-number"><?= $NUsers['concurrentUsers'] ?></span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -97,20 +109,20 @@ Dashboard
         <div class="col-md-12">
           <div class="box">
             <div class="box-header with-border">
-              <h3 class="box-title">Monthly Nodes Usage Report</h3>
+              <h3 id="usage-chart-title" class="box-title">Nodes Usage Report (Monthly)</h3>
 
-              <div class="box-tools pull-right">
+              <div class="box-tools pull-right btn-group">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                 </button>
                 <div class="btn-group">
-                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" style="/*display:none;*/">
+                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="/*display:none;*/">
                     <i class="fa fa-wrench"></i></button>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Real Time</a></li>
-                    <li><a href="#">Weekly</a></li>
-                    <li><a href="#">Monthly</a></li>
+                    <li><a href="javascript:usageChartDraw('realtime');">Real Time</a></li>
                     <li class="divider"></li>
-                    <li><a href="#">Quarter</a></li>
+                    <li><a href="javascript:usageChartDraw('week');">Week</a></li>
+                    <li><a href="javascript:usageChartDraw('month');">Month</a></li>
+                    <li><a href="javascript:usageChartDraw('quarter');">Quarter</a></li>
                   </ul>
                 </div>
                 <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -119,57 +131,63 @@ Dashboard
             <!-- /.box-header -->
             <div class="box-body">
               <div class="row">
-                <div class="col-md-8">
-                  <p class="text-center">
-                    <strong>1 Jan, 2014 - 30 Jul, 2014</strong>
-                  </p>
-
-                  <div class="chart">
-                    <!-- Sales Chart Canvas -->
-                    <canvas id="usageChart" style="height: 180px;"></canvas>
-                  </div>
-                  <!-- /.chart-responsive -->
+                <div class="col-md-8" style="display:flex;">
+									<div class="col-md-10">
+										<p class="text-center">
+											<strong>1 Jan, 2014 - 30 Jul, 2014</strong>
+										</p>
+										<div class="chart">
+											<!-- Sales Chart Canvas -->
+											<canvas id="usage-chart" style="height: 180px;"></canvas>
+										</div>
+									</div>
+									<!-- /.chart-responsive -->
+									<div class="col-md-2" style="display:flex;">
+										<div id='usage-chart-legend' style="margin:auto;"></div>
+									</div>
                 </div>
                 <!-- /.col -->
                 <div class="col-md-4">
-								<div style="float:right; cursor:pointer;"><span class="glyphicon glyphicon-refresh"></span></div>
+									<a href="javascript:;">
+										<div style="float:right;"><span class="glyphicon glyphicon-refresh"></span></div>
+									</a>
                   <p class="text-center">
                     <strong>Master Node Status</strong>
                   </p>
 
                   <div class="progress-group">
                     <span class="progress-text">CPU</span>
-                    <span id="cpu-usage" class="progress-number"><b>160</b>/200</span>
+                    <span class="progress-number"><b>{{ $masterStatus['cpu'][0] }}</b>/{{ $masterStatus['cpu'][1] }}</span>
 
                     <div class="progress sm">
-                      <div id="cpu-usage-bar" class="progress-bar progress-bar-aqua" style="width: 80%; background-image:none;"></div>
+                      <div class="progress-bar progress-bar-aqua" style="width:{{ $masterStatus['cpu'][0]/$masterStatus['cpu'][1]*100 }}%; background-image:none;"></div>
                     </div>
                   </div>
                   <!-- /.progress-group -->
                   <div class="progress-group">
                     <span class="progress-text">Memory</span>
-                    <span id="memory-usage" class="progress-number"><b>310</b>/400</span>
+                    <span class="progress-number"><b>{{ $masterStatus['memory'][0] }}</b>/{{ $masterStatus['memory'][1] }}</span>
 
                     <div class="progress sm">
-                      <div id="memory-usage-bar" class="progress-bar progress-bar-red" style="width: 80%; background-image:none;"></div>
+                      <div class="progress-bar progress-bar-red" style="width: {{ $masterStatus['memory'][0]/$masterStatus['memory'][1]*100 }}%; background-image:none;"></div>
                     </div>
                   </div>
                   <!-- /.progress-group -->
                   <div class="progress-group">
                     <span class="progress-text">Disk</span>
-                    <span id="disk-usage" class="progress-number"><b>480</b>/800</span>
+                    <span class="progress-number"><b>{{ $masterStatus['disk'][0] }}</b>/{{ $masterStatus['disk'][1] }}</span>
 
                     <div class="progress sm">
-                      <div id="disk-usage-bar" class="progress-bar progress-bar-green" style="width: 80%; background-image:none;"></div>
+                      <div class="progress-bar progress-bar-green" style="width:{{ $masterStatus['disk'][0]/$masterStatus['disk'][1]*100 }}%; background-image:none;"></div>
                     </div>
                   </div>
                   <!-- /.progress-group -->
                   <div class="progress-group">
                     <span class="progress-text">Place holder</span>
-                    <span id="place-holder" class="progress-number"><b>250</b>/500</span>
+                    <span class="progress-number"><b>{{ $masterStatus['placeholder'][0] }}</b>/{{ $masterStatus['placeholder'][1] }}</span>
 
                     <div class="progress sm">
-                      <div id="place-holder-bar" class="progress-bar progress-bar-yellow" style="width: 80%; background-image:none;"></div>
+                      <div class="progress-bar progress-bar-yellow" style="width:{{ $masterStatus['placeholder'][0]/$masterStatus['placeholder'][1]*100 }}%; background-image:none;"></div>
                     </div>
                   </div>
                   <!-- /.progress-group -->
@@ -184,28 +202,26 @@ Dashboard
                 <div class="col-sm-3 col-xs-6">
                   <div class="description-block border-right">
 <!--                    <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>-->
-                    <h5 class="description-header text-yellow">30</h5>
                     <span class="description-text">RUNNING JOBS</span>
+                    <h5 class="job-description text-yellow">{{ $NJobs['runningJobs'] }}</h5>
                   </div>
                 </div>
                 <div class="col-sm-3 col-xs-6">
                   <div class="description-block border-right">
-                    <h5 class="description-header text-green">1,210</h5>
                     <span class="description-text">TOTAL JOBS</span>
+                    <h5 class="job-description text-green">{{ $NJobs['totalJobs'] }}</h5>
                   </div>
                 </div>
                 <div class="col-sm-3 col-xs-6">
                   <div class="description-block border-right">
-                    <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span>
-                    <h5 class="description-header">$24,813.53</h5>
-                    <span class="description-text">RUNNING PLUGIN</span>
+                    <span class="description-text">SOLVER</span>
+                    <h5 class="job-description text-blue">{{ $NJobs['solver'] }}</h5>
                   </div>
                 </div>
                 <div class="col-sm-3 col-xs-6">
                   <div class="description-block">
-                    <span class="description-percentage text-red"><i class="fa fa-caret-down"></i> 18%</span>
-                    <h5 class="description-header">1200</h5>
-                    <span class="description-text">TOTAL PLUGIN</span>
+                    <span class="description-text">PLUGIN</span>
+                    <h5 class="job-description text-red">{{ $NJobs['plugin'] }}</h5>
                   </div>
                 </div>
               </div>
@@ -217,7 +233,6 @@ Dashboard
         <!-- /.col -->
       </div>
       <!-- /.row -->
-
       <!-- Main row -->
       <div class="row">
         <!-- Left col -->
@@ -239,98 +254,43 @@ Dashboard
               <div class="table-responsive">
                 <table class="table no-margin">
                   <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Job name</th>
-                    <th>User</th>
-										<th>Start</th>
-										<th>End</th>
-                    <th>Status</th>
-										<th>Duration</th>
-										<th title="nodes">N</th>
-                  </tr>
+										<tr>
+											<th>ID</th>
+											<th>Job name</th>
+											<th>User</th>
+											<th>Submission</th>
+											<th>End</th>
+											<th>Status</th>
+											<th>Duration</th>
+											<th title="nodes">N</th>
+										</tr>
                   </thead>
                   <tbody>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7434</a></td>
-                    <td>Quantum espresso test - Ni 111 defect</td>
-										<td>user1</td>
-										<td>13:20:20</td>
-										<td>16:22:21</td>
-                    <td><span class="label label-success">Finished</span></td>
-										<td>03:02:01</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7433</a></td>
-                    <td>Lammps test - combustion</td>
-										<td>user2</td>
-										<td>11:20:20</td>
-										<td>-</td>
-                    <td><span class="label label-warning">Waiting</span></td>
-										<td>-</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7432</a></td>
-                    <td>gold particle(AMD)</td>
-										<td>user3 very long</td>
-										<td>09:20:20</td>
-										<td>10:32:51</td>
-                    <td><span class="label label-danger">Error</span></td>
-										<td>01:12:31</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7431</a></td>
-                    <td>DFTB C O</td>
-										<td>user2</td>
-										<td>2017-12-14</td>
-										<td>-</td>
-                    <td><span class="label label-info">Running</span></td>
-										<td>17:10:47</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7430</a></td>
-                    <td>Plugin(surface search)</td>
-										<td>user1</td>
-										<td>2017-12-14</td>
-										<td>-</td>
-                    <td><span class="label label-warning">Waiting</span></td>
-										<td>-</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7429</a></td>
-                    <td>i</td>
-										<td>user1</td>
-										<td>2017-12-13</td>
-										<td>2017-12-14</td>
-                    <td><span class="label label-danger">Error</span></td>
-										<td>00:00:01</td>
-										<td>3</td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7428</a></td>
-                    <td>QE CoO supercell</td>
-										<td>user3 very long</td>
-										<td>2017-12-13</td>
-										<td>01:10:11</td>
-                    <td><span class="label label-success">Finished</span></td>
-										<td>37:41:10</td>
-										<td>
-                      <div class="sparkbar" data-color="#00a65a" data-height="20">90,90,90,0.1</div>
-                    </td>
-                  </tr>
+@foreach($jobTable as $j)
+										<tr>
+											<td><a href="{{ $j['url'] }}">{{ $j['id'] }}</a></td>
+											<td>{{ $j['name'] }}</td>
+											<td>{{ $j['user'] }}</td>
+											<td>{{ $j['created_at'] }}</td>
+											<td>{{ $j['finished'] }}</td>
+											<td><span class="label" style="background-color:{{ $j['statusColor'] }};">{{ $j['status'] }}</span></td>
+											<td>{{ $j['duration'] }}</td>
+											<td>{{ $j['nodes'] }}</td>
+										</tr>
+@endforeach
                   </tbody>
                 </table>
               </div>
+										<!--
+										<td>
+                      <div class="sparkbar" data-color="#00a65a" data-height="20">90,90,90,0.1</div>
+                    </td>
+										-->
               <!-- /.table-responsive -->
             </div>
             <!-- /.box-body -->
             <div class="box-footer clearfix" >
-              <a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left" style="display:none;">Place New Order</a>
+              <a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left" style="display:none;">action placeholder</a>
               <a href="javascript:void(0)" class="btn btn-sm btn-default btn-flat pull-right">View More Jobs</a>
             </div>
             <!-- /.box-footer -->
@@ -349,35 +309,37 @@ Dashboard
             <!-- /.box-header -->
             <div class="box-body no-padding">
               <div class="row">
-                <div class="col-md-9 col-sm-8">
+                <div class="col-md-12 col-sm-12">
+								<!-- 오른쪽에 추가 설명 창이 있는 경우
+								<div class="col-md-9 col-sm-8">
+								-->
                   <div class="pad">
                     <!-- Map will be created here -->
                     <div id="world-map-markers" style="height: 325px;"></div>
                   </div>
                 </div>
                 <!-- /.col -->
-                <div class="col-md-3 col-sm-4" style="display:none;">
+								<!--
+                <div class="col-md-3 col-sm-4">
                   <div class="pad box-pane-right bg-green" style="min-height: 280px">
                     <div class="description-block margin-bottom">
                       <div class="sparkbar pad" data-color="#fff">90,70,90,70,75,80,70</div>
                       <h5 class="description-header">8390</h5>
                       <span class="description-text">Visits</span>
                     </div>
-                    <!-- /.description-block -->
                     <div class="description-block margin-bottom">
                       <div class="sparkbar pad" data-color="#fff">90,50,90,70,61,83,63</div>
                       <h5 class="description-header">30%</h5>
                       <span class="description-text">Referrals</span>
                     </div>
-                    <!-- /.description-block -->
                     <div class="description-block">
                       <div class="sparkbar pad" data-color="#fff">90,50,90,70,61,83,63</div>
                       <h5 class="description-header">70%</h5>
                       <span class="description-text">Organic</span>
                     </div>
-                    <!-- /.description-block -->
                   </div>
                 </div>
+								-->
                 <!-- /.col -->
               </div>
               <!-- /.row -->
@@ -530,58 +492,19 @@ Dashboard
             <!-- /.box-header -->
             <div class="box-body">
               <ul class="products-list product-list-in-box">
+@foreach($newUsers as $newUsers)
                 <li class="item">
                   <div class="product-img">
-                    <img src={{ asset("/assets/vendor/admin-lte/dist/img/default-50x50.gif") }} alt="Product Image">
+                    <img src="{{ $newUsers['mypic'] }}" alt="user picture" onerror="this.outerHTML = '<span class=\'glyphicon glyphicon-user\' style=\'font-size:50px; color:#cecece;\'></span>'" style="width:50px; height:50px;">
                   </div>
                   <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">user4 mid family
-                      <span class="label label-warning pull-right">1 hour ago</span></a>	
-                    <span class="product-description">
-                          place holder University
-                        </span>
+                    <a href="javascript:void(0)" class="product-title">{{ $newUsers['name'] }}
+                      <span class="label pull-right" style="background-color:{{ $newUsers['agoColor'] }};">{{ $newUsers['ago'] }}</span></a>	
+                    <span class="product-description">{{ $newUsers['affiliation'] }}</span>
                   </div>
                 </li>
                 <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src={{ asset("/assets/vendor/admin-lte/dist/img/default-50x50.gif") }} alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">user3 Giant Ridley
-                      <span class="label label-info pull-right">4 day ago</span></a>
-                    <span class="product-description">
-                          placeholder Research
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src={{ asset("/assets/vendor/admin-lte/dist/img/default-50x50.gif") }} alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">user2 One Two<span
-                        class="label label-danger pull-right">2 month ago</span></a>
-                    <span class="product-description">
-                          placeholder Company
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src={{ asset("/assets/vendor/admin-lte/dist/img/default-50x50.gif") }} alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">user1 Ground Station
-                      <span class="label label-success pull-right">1 year ago</span></a>
-                    <span class="product-description">
-                          placeholder. inc.
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
+@endforeach
               </ul>
             </div>
             <!-- /.box-body -->
@@ -601,9 +524,9 @@ Dashboard
 
 
 <!-- jQuery 3 -->
-<script src={{ asset("/assets/vendor/jquery/dist/jquery.min.js") }}></script>
+<!--<script src={{ asset("/assets/vendor/jquery/dist/jquery.min.js") }}></script> --> <!-- admin.mater has this. -->
 <!-- Bootstrap 3.3.7 -->
-<script src={{ asset("/assets/vendor/bootstrap/dist/js/bootstrap.min.js") }}></script>
+<!--<script src={{ asset("/assets/vendor/bootstrap/dist/js/bootstrap.min.js") }}></script>--> <!-- admin.mater has this. -->
 <!-- FastClick -->
 <script src={{ asset("/assets/vendor/fastclick/lib/fastclick.js") }}></script>
 <!-- AdminLTE App -->
@@ -617,10 +540,16 @@ Dashboard
 <script src={{ asset("/assets/vendor/jquery-slimscroll/jquery.slimscroll.min.js") }}></script>
 <!-- ChartJS -->
 <script src={{ asset("/assets/vendor/chart.js/Chart.js") }}></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<!--<script src={{ asset("/assets/vendor/admin-lte/dist/js/pages/dashboard2.js") }}></script>-->
+
+<!-- get data -->
+<script>
+var usageChartOptions;
+var usageChartData;
+var usageChart;
+var usageData = {!! json_encode($usageData) !!};	//for node usage graph
+var PieData = {!! json_encode($PieData) !!};	//for node usage graph
+var usageChartDraw;
+</script>
+<!-- apply data -->
 <script src={{ asset("/js/dashboard.js") }}></script>
-<!-- AdminLTE for demo purposes -->
-<!--<script src={{ asset("/assets/vendor/admin-lte/dist/js/demo.js") }}></script>-->
-<!--<script src={{ asset("/js/demo.js") }}></script>-->
 @endsection

@@ -132,7 +132,8 @@ class PluginController extends Controller
 		$m->script=$_POST['script'];
 		$m->alias = $_POST['alias'];
 		$m->save();
-		return redirect(route("admin.plugins"));
+//		return redirect(route("admin.plugins"));
+		return redirect(route("admin.plugins.modify", $id));
 	}
 	public function add(){
 		return view('admin/plugins/add');
