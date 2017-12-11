@@ -3,22 +3,40 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\PageModel;
 use App\CmsEnvModel;
 use App\Repository;
 class PageController extends Controller
 {
+	public function changePublic(Request $request){
+		$page=PageModel::where('id',$request->index)->first();
+		$this->authorize('update',$page);
+		if($page->ispublic === 0){
+			$page->ispublic=1;
+		}else{
+			$page->ispublic=0;
+		}
+		$page->save();
+	}
 	public function getRepo($alias){
 		$img = Repository::where("alias",$alias)->firstOrFail();
+		$this->authorize('read',$img);
 		return redirect('/'.$img->filename);
 	}
 	public function add(Request $request){
 		$pageM = PageModel::findOrNew($request->input('pageId'));
+		if($pageM->id!==null){
+			$this->authorize('update',$pageM);
+		}else{
+			$this->authorize('create',$pageM);
+			$pageM->author = Auth::user()->id;
+			$pageM->created = date('Y-m-d H:i:s'); 
+		}
 		$pageM->title = $request->input('title');
 		$pageM->contents = $request->input('contents');
 		$pageM->alias = $request->input('alias');
-		$pageM->created = date('Y-m-d H:i:s'); 
 		$pageM->save();
 		return redirect(route('admin.pages'));	
 	}
@@ -30,13 +48,15 @@ class PageController extends Controller
 		return redirect(route('admin.pages'));	
 	}
 	public function delete($id){
-	return false;
+//block
+		return false;
 		$page = PageModel::findOrFail($id);
+		$this->authorize('delete',$page);
 		$page->delete();
 		return redirect(route('admin.pages'));	
 	}
-	public function view($pageName=NULL){
-		if($pageName == NULL){
+	public function view($pageName=null){
+		if($pageName == null){
 			$frontPage = PageModel::where("isfront",true)->get(["alias"])->first();
 			if( $frontPage->count() == 0 ){ // There is no front page
 				abort(404);
@@ -53,7 +73,9 @@ class PageController extends Controller
 
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('alias',$pageName)->first();
-
+// 없으면 빈 칸을 띄우게함
+		if(count($page)<1) return redirect('/');
+		$this->authorize('read',$page);
 // Process tags
 		$contents = $this->renderPageContent( $page->contents );
 		
@@ -76,6 +98,7 @@ class PageController extends Controller
 	public function modify($id){
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('id',$id)->first();
+		$this->authorize('update',$page);
 		return view('admin/pages/modify',[ 'page'=> $page]);
 	}
 

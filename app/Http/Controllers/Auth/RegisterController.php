@@ -1,7 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+use Mail;
+use App\Mail\EmailVerification;
 
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Request;
+use App\Jobs\SendVerificationEmail;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -36,7 +41,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('verify');
     }
 
     /**
@@ -66,6 +71,27 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'verification_code' => base64_encode($data['email']),
         ]);
     }
+	public function register(Request $request)
+	    {
+	        $this->validator($request->all())->validate();
+	        $user = $this->create($request->all());
+	        $email = new EmailVerification($user);
+	        Mail::to($user->email)->send($email);
+	        return view('verification');
+	
+	    }
+	    public function verify($token)
+	    {
+	        $user = User::where('verification_code',$token)->first();
+	        if($user->verified === 1)
+	            return redirect('/');
+	        $user->verified = 1;
+	        $user->save();
+	        if($user->save()){
+	            return view('emailconfirm',['user'=>$user]);
+	        }
+	    }
 }

@@ -1,0 +1,47 @@
+@extends('layouts.app')
+
+@section('content')
+<form id=loginForm class="form-horizontal" method="POST" action="{{ route('login') }}">
+    {{ csrf_field() }}
+    <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+        <label for="email" class="col-md-3 control-label" style="color:black">E-mail</label>
+        <div class="col-md-6">
+            <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus>
+            @if ($errors->has('email'))
+            <span class="help-block">
+                <strong>{{ $errors->first('email') }}</strong>
+            </span>
+            @endif
+        </div>
+    </div>
+    <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+        <label for="password" class="col-md-3 control-label" style="color:black">Password</label>
+        <div class="col-md-6">
+            <input id="password" type="password" class="form-control" name="password" required>
+        @if ($errors->has('password'))
+            <span class="help-block">
+                <strong>{{ $errors->first('password') }}</strong>
+            </span>
+        @endif
+            <a class="btn btn-link" href="{{ route('password.request') }}" style="padding-left:0">
+                Forgot Your Password?
+            </a>
+            <div class="checkbox" style="float:right">
+                <label>
+                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}><span style='color:black'>Remember Me</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3">
+            <button type="button" onclick="javascript:location.href='/register'" class="btn btn-primary">
+                <strong style=color:white>Register</strong>
+            </button>
+            <button type="submit" class="btn btn-primary" style="float:right">
+                <strong style=color:white>Login</strong>
+            </button>
+        </div>
+    </div>
+</form>
+@endsection

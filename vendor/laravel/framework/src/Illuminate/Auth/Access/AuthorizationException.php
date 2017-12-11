@@ -7,4 +7,8 @@ use Exception;
 class AuthorizationException extends Exception
 {
     //
+	public function __construct(){
+	abort(404);
+	}
 }
+
