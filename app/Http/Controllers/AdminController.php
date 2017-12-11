@@ -12,7 +12,6 @@ use App\SolverModel;
 use App\PluginModel;
 use App\JobModel;
 use App\Repository;
-use App\User;
 
 class AdminController extends Controller
 {

@@ -40,7 +40,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 			]);
 			Route::get('/',[
 				'as' => 'index',
-				'uses' => 'AdminController@index'
+				'uses' => 'AdminController@dashboard'
 			]);
 			Route::get('/myInfo',[
 				'as'=>'myInfo',

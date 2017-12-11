@@ -63,15 +63,20 @@ $user = App\User::where('id',$page->author)->first();
 		@endforelse
 		
 	</tbody>
-@can('create','App\PageModel')
 		<tfoot>
 		<tr>
 			<td colspan=8>
-				<a href="{{ route('admin.pages.new') }}"><button type="submit" class="btn btn-primary">Add</button></a>
+@can('create','App\PageModel')
+				<div style=text-align:right;'>
+					<a href="{{ route('admin.pages.new') }}"><button type="submit" class="btn btn-primary">Add</button></a>
+				</div>
+@endcan
+				<div style='text-align:center;'>
+					{!! $pages->render() !!}
+				</div>
 			</td>
 		</tr>
 		</tfoot>
-@endcan
 		</table>
 		
 

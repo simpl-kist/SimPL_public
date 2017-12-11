@@ -89,7 +89,7 @@ class PageController extends Controller
 		//$pageM->get()->where("alias",$pageName);
 	}
 	public function list(){
-		$pages = PageModel::paginate(10);
+		$pages = PageModel::orderBy('id','desc')->paginate(10);
 //		$pages = $pageM->get();
 		return view('admin/pages/list',[ 'pages' => $pages]);
 	}

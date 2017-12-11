@@ -52,11 +52,18 @@ $user = App\User::where('id',$plugin->author)->first();
 	<tr><td colspan=7> There is no plugin</td></tr>
 @endforelse
 </tbody>
-@can('create','App\PluginModel')
 <tfoot>
-	<td colspan=7><a href=/admin/plugins/new><button type="submit" class="btn btn-primary">Add</button></a></td>
-</tfoot>
+@can('create','App\PluginModel')
+	<td colspan=7>
+		<div style='text-align:right;'>
+			<a href=/admin/plugins/new><button type="submit" class="btn btn-primary">Add</button></a>
+		</div>
+		<div style='text-align:center;'>
+			{!! $plugins->render() !!}
+		</div>
+	</td>
 @endcan
+</tfoot>
 </table>
 
 

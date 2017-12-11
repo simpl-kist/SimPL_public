@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\PluginModel;
 use App\CmsEnvModel;
 use App\JobModel;
-use Illuminate\Support\Facades\Auth;
 class PluginController extends Controller
 {
 	private function getScriptHeader($args){
@@ -148,9 +147,8 @@ class PluginController extends Controller
 		return view('admin/plugins/add');
 	}
 	public function list(){
-		$plugins = PluginModel::get();
+		$plugins = PluginModel::orderBy("id","desc")->paginate(10);
 		return view('admin.plugins.list',compact('plugins'));
-		echo "Q";
 	}
 	public function modify($pluginId){
 		$plugin = PluginModel::findOrFail($pluginId);
