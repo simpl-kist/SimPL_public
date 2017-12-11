@@ -26,7 +26,6 @@ $('document').ready(function(){
 
 </script>
 <h2>Pages</h2>
-
 <div class=row>
 	<div class='col-md-2'></div>
 	<div class='col-md-8'>
@@ -50,16 +49,38 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-12 col-form-label'>Content</label>
 			<div class=col-sm-12>
-				<textarea class='form-control contents' name=contents>{!! $page->contents !!}</textarea>
+				<textarea class='form-control contents' name=contents>{{ $page->contents }}</textarea>
 			</div>
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
+				<button type="button" id="change_public" class="btn btn-primary" onclick=changePublic()>
+		@if($page->ispublic===0)
+Make Public
+		@else
+Make Private
+		@endif
+				</button>
 				<button type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
 	</form>
 	</div>
 </div>
-
+<script>
+var changePublic = function(){
+	$.ajax({
+		url:"{{route('admin.pages.changePublic')}}",
+		type:"POST",
+		data:{
+			_token:"{{csrf_token()}}",
+			index:{{$page->id}},
+		},
+		success:function(){
+			location.reload();
+		},
+		error:function(){},
+	})
+}
+</script>
 @stop

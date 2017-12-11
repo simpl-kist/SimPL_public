@@ -15,6 +15,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'App\Model' => 'App\Policies\ModelPolicy',
+	'App\PageModel' => 'App\Policies\DataPolicy',
+	'App\PluginModel' => 'App\Policies\DataPolicy',
+	'App\SolverModel' => 'App\Policies\DataPolicy',
+	'App\Repository' => 'App\Policies\DataPolicy',
+	'App\JobModel' => 'App\Policies\JobPolicy',
+	'App\User' => 'App\Policies\UserPolicy',
     ];
 
     /**
@@ -27,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
         //
 	Gate::define('enter-adminpage',function($user){
-		return ($user->policy=="admin" || $user->policy == "registrar");
+		return ($user->policy=="admin" || $user->policy == "editor");
 	});
     }
 }

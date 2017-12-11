@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 use App\CmsEnvModel;
 use App\User;
@@ -29,12 +30,29 @@ class AdminController extends Controller
 			'owner' => 1,
 			'alias' => $request->file('file')->getClientOriginalName(),
 			'filename' => $filename,
+			'author' => Auth::user()->id,
 		]);
 	}
 	public function repository(){
 		$repos = Repository::get();
 		return view('admin.repository',compact('repos'));
 	}
+
+	public function repoChangePublic(Request $request){
+		$file=Repository::findOrFail('id',$request->index)->first();
+		$this->authorize('update',$file);
+		$file->ispublic = $request->ispublic;
+		$file->save();
+	}
+	public function deleteRepo($id){
+		return false;
+		$file=Repository::findOrFail($id);
+		$this->authorize('delete',$file);
+		$file->delete();
+		Storage::delete($file->filename);
+		return redirect(route('admin.repository'));
+	}
+
 	public function general(){
 		$m = CmsEnvModel::get();
 		$env = Array();
@@ -44,8 +62,8 @@ class AdminController extends Controller
 		return view("admin.general",compact('env'));
 	}
 	public function users(){
-		$user = User::where('id',Auth::user()->id)->first();
-		return view("admin.users")->with('user',$user);
+		$users = User::paginate();
+		return view("admin.users")->with('users',$users);
 	}
 	public function pages(){
 		return view("admin.pages");
@@ -79,6 +97,10 @@ class AdminController extends Controller
 		$solver->execcmd = $_POST['execcmd'];	
 		$solver->save();
 		return redirect(route('admin.solvers'));
+	}
+	public function myInfo(){
+		$user = User::where('id',Auth::user()->id)->first();
+		return view('admin.userInfo')->with('user',$user);
 	}
     //
 }

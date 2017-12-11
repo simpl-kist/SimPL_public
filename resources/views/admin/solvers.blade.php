@@ -1,6 +1,6 @@
 @extends('admin.master')
 @section('title')
-General
+Solvers
 @stop
 @section('content')
 
@@ -18,6 +18,7 @@ General
 </thead>
 <tbody>
 @forelse($solvers as $solver)
+	@can('read',$solver)
 	<tr>
 		<td>{{$solver->id}}</td>
 		<td>{{$solver->name}}</td>
@@ -26,11 +27,18 @@ General
 		<td>{{$solver->version}}</td>
 		<td>{{$solver->author}}</td>
 		<td>{{$solver->created_at}}</td>
+		<td>
+@can('delete',$solver)
+		<a href=""><span class="glyphicon glyphicon-trash"></span></a>
+@endcan
+		</td>
 	</tr>
+	@endcan
 @empty
 	<tr><td colspan=7> Solver not found</td></tr>
 @endforelse
 </tbody>
+@can('create','App\SolverModel')
 <tfoot>
 <form method=post action=/admin/solvers/add>
 {{ csrf_field() }}
@@ -45,6 +53,7 @@ General
 </tr>
 </form>
 </tfoot>
+@endcan
 </table>
 
 

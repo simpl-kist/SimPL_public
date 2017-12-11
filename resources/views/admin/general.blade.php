@@ -119,12 +119,13 @@ function saveEnv(){
 		</div>
 
 		<!-- Buttons -->
+		@if(Auth::user()->policy==="admin")
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
 				<button type="button" class="btn btn-primary" onclick='saveEnv();'>Apply</button>
 			</div>
 		</div>
-
+		@endif
 
 	</div>
 

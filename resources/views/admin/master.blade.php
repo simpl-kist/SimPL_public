@@ -60,7 +60,9 @@ a:hover
 
 <script src={{ asset("/assets/vendor/highlightjs/highlight.pack.js") }}></script>
 <link rel=stylesheet type=text/css href={{ asset("/assets/vendor/highlightjs/styles/default.css") }}>
+<script src="https://use.fontawesome.com/8a5728027f.js"></script>
 <style>
+
 </style>
 
 
@@ -68,10 +70,14 @@ a:hover
 	<title>Admin - @yield('title')</title>
 @yield('scripts')
 @yield('style')
+
 <style>
 h2{
 	margin-bottom:50px;
 }
+	body{
+		font-family:Raleway;
+	}
 </style>
 </head>
 <body>
