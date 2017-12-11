@@ -124,7 +124,18 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
 				<button type="button" class="btn btn-primary" onclick=testScript();>Test</button>
+@if(isset($plugin))
+@can('update',$plugin)
+	@if($plugin->ispublic===1)
+				<button type="button" class="btn btn-primary" onclick="changePublic()">Make Private</button>
+	@else
+				<button type="button" class="btn btn-primary" onclick="changePublic()">Make Public</button>
+	@endif
 				<button type="submit" class="btn btn-primary">Apply</button>
+@endcan
+@else
+				<button type="submit" class="btn btn-primary">Add</button>
+@endif
 			</div>
 		</div>
 		<div class='form-group row'>
@@ -143,5 +154,22 @@ $('document').ready(function(){
 	</form>
 	</div>
 </div>
-
+<script>
+@if(isset($plugin))
+var changePublic = function(){
+	$.ajax({
+		url:"{{route('admin.plugins.changePublic')}}",
+		type:"POST",
+		data:{
+			_token:"{{csrf_token()}}",
+			index:{{$plugin->id}},
+		},
+		success:function(){
+			location.reload();
+		},
+		error:function(){},
+	})
+}
+@endif
+</script>
 @stop

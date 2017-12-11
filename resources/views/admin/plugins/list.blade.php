@@ -1,6 +1,6 @@
 @extends('admin.master')
 @section('title')
-General
+Plugins
 @stop
 @section('content')
 
@@ -8,32 +8,55 @@ General
 <table class=table>
 <thead>
 	<!--<th>ID</th>-->
+	<th>ID</th>
 	<th>Name</th>
 	<th>Alias</th>
 	<th>Role</th>
+	<th>Author</th>
 	<th>Registered</th>
-
-	<th colspan=3></th>
+	
+	<th colspan=2></th>
 </thead>
 <tbody>
 @forelse($plugins as $plugin)
+
+	@can('read',$plugin)
 	<tr>
+		<td>{{$plugin->id}}</td>
 		<td>{{$plugin->name}}</td>
 		<td>{{$plugin->alias}}</td>
 		<td>{{$plugin->role}}</td>
+<?php
+$user = App\User::where('id',$plugin->author)->first();
+?>
+		<td>
+@if(isset($user))
+<a href={{url('admin/userInfo/'.$plugin->author)}}>{{$user->name}}</a>
+@else
+-Unknown-
+@endif
+		</td>
 		<td>{{$plugin->created_at}}</td>
 		<td>
-			<a href={{route('admin.plugins.modify',$plugin->id)}}>Modify</a>
-			<a href={{route('admin.plugins.delete',$plugin->id)}}>Delete</a>
+			<a href={{route('admin.plugins.modify',$plugin->id)}}><span class="glyphicon glyphicon-search"></span></a>
+		</td>
+		<td>
+		@can('delete',$plugin)
+			<a href={{route('admin.plugins.delete',$plugin->id)}}><span class="glyphicon glyphicon-trash"></span></a>
+		@endcan
 		</td>
 	</tr>
+	@endcan
+
 @empty
 	<tr><td colspan=7> There is no plugin</td></tr>
 @endforelse
 </tbody>
+@can('create','App\PluginModel')
 <tfoot>
-	<td colspan=5><a href=/admin/plugins/new><button type="submit" class="btn btn-primary" onclick='saveEnv();'>Add</button></a></td>
+	<td colspan=7><a href=/admin/plugins/new><button type="submit" class="btn btn-primary">Add</button></a></td>
 </tfoot>
+@endcan
 </table>
 
 

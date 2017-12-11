@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Repository extends Model
 {
-	protected $fillable = ['owner','alias','filename'];
+	protected $fillable = ['owner','alias','filename','author'];
     //
 }

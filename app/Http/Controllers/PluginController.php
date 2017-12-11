@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 use App\PluginModel;
 use App\CmsEnvModel;
 use App\JobModel;
@@ -127,13 +129,20 @@ class PluginController extends Controller
 			$id = -1;
 		}
 		$m = PluginModel::findOrNew($id);
+		if($m->id !== null){
+			$this->authorize('update',$m);
+		}else{
+			$this->authorize('create',$m);
+			$m->author=Auth::user()->id;
+		}
 		$m->name=$_POST['name'];
 		$m->role=$_POST['role'];
 		$m->type=$_POST['type'];
 		$m->script=$_POST['script'];
-		$m->alias = $_POST['alias'];
+		$m->alias=$_POST['alias'];
 		$m->save();
-		return redirect(route("admin.plugins"));
+//		return redirect(route("admin.plugins"));
+		return redirect(route("admin.plugins.modify", $id));
 	}
 	public function add(){
 		return view('admin/plugins/add');
@@ -145,12 +154,14 @@ class PluginController extends Controller
 	}
 	public function modify($pluginId){
 		$plugin = PluginModel::findOrFail($pluginId);
+		$this->authorize('read',$plugin);
 		return view('admin/plugins/.add',compact('plugin'));
 	}
 	public function delete($id){
-	return false;
-		$page = PluginModel::findOrFail($id);
-		$page->delete();
+		return false;
+		$plugin = PluginModel::findOrFail($id);
+		$this->authorize('delete',$plugin);
+		$plugin->delete();
 		return redirect(route('admin.plugins'));	
 	}
 	public function writePluginFile(){
@@ -316,4 +327,14 @@ fclose($pipes[2]);
 		return $result;	
 	}
     //
+	public function changePublic(Request $request){
+		$plugin=PluginModel::where('id',$request->index)->first();
+		$this->authorize('update',$plugin);
+		if($plugin->ispublic === 0){
+			$plugin->ispublic=1;
+		}else{
+			$plugin->ispublic=0;
+		}
+		$plugin->save();
+	}
 }
