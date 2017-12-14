@@ -220,10 +220,11 @@ class PluginController extends Controller
 		$incContents = "";
 		if($request->has('includes')){
 			foreach($request->input('includes') as $inc){
+				if($inc == "") continue;
 				$_plugin = PluginModel::where("alias",$inc)->firstOrFail();
 				$_incFileContent = $_plugin->script;
 				$_incFileName = "kCmsIncludes_".$inc;
-				$incContents = "from kCmsIncludes_".$inc." import *\n"; 
+				$incContents .= "from kCmsIncludes_".$inc." import *\n"; 
 				$fp = fopen( $_incFileName.'.py', "w");
 				fwrite($fp, $_incFileContent );
 				fclose($fp);
