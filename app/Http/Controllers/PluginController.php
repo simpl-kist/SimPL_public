@@ -104,7 +104,8 @@ class PluginController extends Controller
 		if(isset($args['input'])){
 			//$s[] = "kCms['input'] = json.loads(".escapeshellarg(json_encode($args['input'])).")";
 			//$s[] = "kCms['input'] = json.loads(".$this->escapeShellArg(json_encode($args['input'])).")";
-			$s[] = "kCms['input'] = json.loads('".str_replace('\\n','\\\n',json_encode($args['input']))."')";
+			//$s[] = "kCms['input'] = json.loads('".str_replace('\\n','\\\n',json_encode($args['input']))."')";
+			$s[] = "kCms['input'] = json.loads('".str_replace('\\','\\\\',json_encode($args['input']))."')";
 		}
 
 		return implode("\n",$s);

@@ -17,7 +17,7 @@ function testScript(){
 	    }
 	});
 
-	var includes = [];
+	var includes = $('#includes').val().replace(/^\s+/gi,"").replace(/\s+$/gi,"").replace(/,/gi," ").replace(/;/gi," ").replace(/\s+/gi," ").split(" ");
 	$.ajax({
 		type:"post",
 		dataType:"json",
@@ -25,7 +25,7 @@ function testScript(){
 		async:false,
 		data:{
 			istest:true,
-			testinput:$('.inputdata').val(),
+			testinput:$('.inputdata').val().replace(/\n/gi,"\\n"),
 			includes:includes,
 		//	script:$('.script').val()
 			script:scriptEditor.getValue()
