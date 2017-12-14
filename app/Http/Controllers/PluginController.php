@@ -126,8 +126,14 @@ class PluginController extends Controller
 			$id = $_POST['pluginId'];
 		}else{
 			$id = -1;
+
 		}
 		$m = PluginModel::findOrNew($id);
+		if($m->alias!==$_POST['alias']){
+			if(count(PluginModel::where('alias',$_POST['alias'])->get())>0){
+				return redirect()->back()->withInput($_POST);
+			}
+		}
 		if($m->id !== null){
 			$this->authorize('update',$m);
 		}else{
@@ -141,6 +147,7 @@ class PluginController extends Controller
 		$m->alias=$_POST['alias'];
 		$m->save();
 //		return redirect(route("admin.plugins"));
+		$id=$m->id;
 		return redirect(route("admin.plugins.modify", $id));
 	}
 	public function add(){
@@ -156,7 +163,6 @@ class PluginController extends Controller
 		return view('admin/plugins/.add',compact('plugin'));
 	}
 	public function delete($id){
-		return false;
 		$plugin = PluginModel::findOrFail($id);
 		$this->authorize('delete',$plugin);
 		$plugin->delete();

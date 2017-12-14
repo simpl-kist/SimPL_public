@@ -83,12 +83,11 @@ $(function(){
 		uploadMultiple:true,
 		maxFilesize:10,
 		autoProcessQueue: true,
-		uploadMultiple: true,
 		addRemoveLinks: true,
 //		acceptedFiles: ".png, .jpg, .jpeg",
 		dictFallbackMessage:"Your browser does not support drag'n'drop file uploads.",
 		dictRemoveFile: "Remove",
-		dictFileTooBig:"Image is bigger than 6MB",
+		dictFileTooBig:"Image is bigger than 10MB",
 
 		accept: function(file, done) {
 			console.log("Uploaded");
@@ -96,10 +95,13 @@ $(function(){
 		},
 
 		init:function() {
+			this.on("error",function(file,ret){
+				alert(ret);
+			});
 		},  
 		success: function(file,done){
 			console.log("All files done!");
-		}
+		},
 	}
 });
 </script>

@@ -30,7 +30,7 @@ General
 			<td>{{ $job->qinfo }}</td>
 			<td>{{ $job->created_at }}</td>
 			<td>{{ $job->updated_at }}</td>
-			<td>Outout{ { $job->output }}</td>
+			<td>{{ $job->output }}</td>
 		</tr>
 @empty
 		<tr>
@@ -39,6 +39,6 @@ General
 @endforelse
 	</tbody>
 </table>
-
+{{$jobs}}
 
 @stop

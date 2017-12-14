@@ -64,13 +64,13 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Name</label>
 			<div class=col-sm-9>
-				<input type=text class='form-control' name=name value="{{ $plugin->name or ""}}">
+				<input type=text class='form-control' name=name value="{{ $plugin->name or old('name')}}">
 			</div>
 		</div>
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Alias</label>
 			<div class=col-sm-9>
-				<input type=text class='form-control' name=alias value="{{ $plugin->alias or ""}}">
+				<input type=text class='form-control' name=alias value="{{ $plugin->alias or old('alias')}}">
 			</div>
 		</div>
 
@@ -107,6 +107,7 @@ $('document').ready(function(){
 			<label class='col-sm-3 col-form-label'>Includes</label>
 			<div class=col-sm-9>
 				<textarea class='form-control' name='includes' id=includes>
+					{{ $plugin->includes or old('includes')}}
 				</textarea>
 			</div>
 		</div>
@@ -115,7 +116,7 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Script</label>
 			<div class=col-sm-9>
-				<textarea style='height:450px;overflow-y:auto;' class='form-control script' name=script>{!! isset($plugin->script)?$plugin->script:"" !!}</textarea>
+				<textarea style='height:450px;overflow-y:auto;' class='form-control script' name=script>{!! $plugin->script or old('script') !!}</textarea>
 <!--				<div style='height:350px;overflow-y:auto;' class='form-control scriptDiv' contenteditable>{!! isset($plugin->script)?nl2br($plugin->script):"" !!}</div>
 			</div>
 				<input type=hidden name=script class=script>-->

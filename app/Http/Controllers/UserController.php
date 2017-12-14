@@ -39,7 +39,7 @@ class UserController extends Controller
             }
             $user->save();
         }else{
-            return response()->json("password error");
+		return redirect()->back()->withErrors(['msg','password error']);
         }
 	return redirect()->route('admin.myInfo');
     }
@@ -67,7 +67,7 @@ class UserController extends Controller
 	        if( Hash::check($inputPassword,$pwhash) ){
 			if(Auth::user()->id==$index){
 				$this->authorize('delete',$user);
-	//			$user->delete();
+				$user->delete();
 				return "success";
 			}else{
 				return "not same";

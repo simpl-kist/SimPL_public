@@ -36,20 +36,20 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Title</label>
 			<div class=col-sm-9>
-				<input type=text class='form-control' name=title>
+				<input type=text class='form-control' name=title value="{{old('title')}}">
 			</div>
 		</div>
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Alias</label>
 			<div class=col-sm-9>
-				<input type=text class='form-control' name=alias>
+				<input type=text class='form-control' name=alias value="{{old('alias')}}">
 			</div>
 		</div>
 		<!-- Service Title -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Content</label>
 			<div class=col-sm-9>
-				<textarea class='contents form-control' name=contents></textarea>
+				<textarea class='contents form-control' name=contents>{{old('contents')}}</textarea>
 			</div>
 		</div>
 		<div class='form-group row'>

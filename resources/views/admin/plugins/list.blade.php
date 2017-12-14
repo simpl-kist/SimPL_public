@@ -21,7 +21,7 @@ Plugins
 @forelse($plugins as $plugin)
 
 	@can('read',$plugin)
-	<tr>
+	<tr onmouseover="this.bgColor='#eee'" onmouseout="this.bgColor='#fff'">
 		<td>{{$plugin->id}}</td>
 		<td>{{$plugin->name}}</td>
 		<td>{{$plugin->alias}}</td>

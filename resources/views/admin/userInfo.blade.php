@@ -46,9 +46,9 @@ $properties = ['email','name','affiliation','tel','phone','policy'];
 			<td>{{ucfirst($property)}}</td>
 			<td>
 		@if($user->id===Auth::user()->id)
-			<input class=form-control type=text id=simpl_users_{{$property}} name={{$property}} value={!! $user[$property] !!}>
+			<input class=form-control type=text id=simpl_users_{{$property}} name={{$property}} value="{{ $user[$property] }}">
 		@else
-			{!! $user[$property] !!}
+			"{{ $user[$property] }}"
 		@endif
 			</td>
 		</tr>

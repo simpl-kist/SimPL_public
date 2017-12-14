@@ -54,6 +54,7 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
+				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 				<button type="button" id="change_public" class="btn btn-primary" onclick=changePublic()>
 		@if($page->ispublic===0)
 Make Public

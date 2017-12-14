@@ -5,7 +5,7 @@ Pages
 @section('content')
 
 <h2>Pages</h2>
-	<table class='table'>
+<table class='table'>
 	<thead>
 		<tr>
 			<th>Front</th>
@@ -20,7 +20,7 @@ Pages
 		@forelse($pages as $page)
 
 	@can('read',$page)
-		<tr>
+		<tr onmouseover="this.bgColor='#eee'" onmouseout="this.bgColor='#fff'">
 			<td>
 @if($page->isfront)
 	<a style='color:red;font-weight:bold;'>Front</a>
@@ -41,7 +41,11 @@ $user = App\User::where('id',$page->author)->first();
 @endif
 			</td>
 			<td>{{{$page->created}}}</td>
-			<td><a href="/{{{$page->alias}}}"><span class="glyphicon glyphicon-file"></span></a></td>
+			<td>
+				<a href="/{{$page->alias}}" target="_blank">
+				<span class="glyphicon glyphicon-file"></span>
+				</a>
+			</td>
 			<td>
 			@can('update',$page)
 				<a href="/admin/pages/modify/{{{$page->id}}}"><span class="glyphicon glyphicon-pencil"></span></a>
@@ -76,8 +80,10 @@ $user = App\User::where('id',$page->author)->first();
 				</div>
 			</td>
 		</tr>
-		</tfoot>
-		</table>
-		
+	</tfoot>
+</table>
+<script>
+
+</script>		
 
 @stop

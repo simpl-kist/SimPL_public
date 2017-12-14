@@ -27,10 +27,17 @@ class PageController extends Controller
 	}
 	public function add(Request $request){
 		$pageM = PageModel::findOrNew($request->input('pageId'));
+		if($pageM->alias !== $request->alias){
+			if(count(PageModel::where('alias',$request->alias)->get())>0){
+				return $request->alias;
+				return redirect()->back()->withInput($request->all);
+			}
+		}
 		if($pageM->id!==null){
 			$this->authorize('update',$pageM);
 		}else{
 			$this->authorize('create',$pageM);
+
 			$pageM->author = Auth::user()->id;
 			$pageM->created = date('Y-m-d H:i:s'); 
 		}
@@ -38,7 +45,7 @@ class PageController extends Controller
 		$pageM->contents = $request->input('contents');
 		$pageM->alias = $request->input('alias');
 		$pageM->save();
-		return redirect(route('admin.pages'));	
+		return redirect('/admin/pages/modify/'.$pageM->id);
 	}
 	public function setFront($id){
 		PageModel::where("isfront",true)->update(["isfront"=>false]);
@@ -49,7 +56,6 @@ class PageController extends Controller
 	}
 	public function delete($id){
 //block
-		return false;
 		$page = PageModel::findOrFail($id);
 		$this->authorize('delete',$page);
 		$page->delete();

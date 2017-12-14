@@ -20,17 +20,21 @@ class AdminController extends Controller
 		return view("admin.index");
 	}
 	public function jobs(){
-		$jobs = JobModel::get(['id','name','created_at','updated_at','output','pluginId']);
+		$jobs = JobModel::orderBy('created_at','desc')->select(['id','name','created_at','updated_at','output','pluginId'])->paginate(10);
 		return view("admin.jobs",compact('jobs'));
 	}
 	public function uploadFile(Request $request){
 		if( !$request->has('file') ){
 			return response()->json("File not passed!",422);
 		}
+		$alias = $request->file('file')->getClientOriginalName();
+		if(count(Repository::where('alias',$alias)->get(['id']))>0){
+			return response()->json("Alias already exists",422);
+		}
 		$filename = $request->file('file')->store("repository");
 		Repository::create([
 			'owner' => 1,
-			'alias' => $request->file('file')->getClientOriginalName(),
+			'alias' => $alias,
 			'filename' => $filename,
 			'author' => Auth::user()->id,
 		]);
@@ -118,7 +122,6 @@ class AdminController extends Controller
 		$file->save();
 	}
 	public function deleteRepo($id){
-		return false;
 		$file=Repository::findOrFail($id);
 		$this->authorize('delete',$file);
 		$file->delete();
