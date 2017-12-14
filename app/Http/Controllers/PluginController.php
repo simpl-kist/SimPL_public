@@ -292,7 +292,10 @@ fclose($pipes[2]);
 		}
 		$job = JobModel::findOrNew( $id );
 		if($id==-1) $id = $job->id;
-		$fields = ['project','owner','qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name'];
+		$fields = ['qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name'];
+		$job->project = 1;
+		$job->owner = Auth::id();
+
 		foreach($fields as $field){
 			if( $request->has($field) ){
 				$job->$field = $request->input($field);
