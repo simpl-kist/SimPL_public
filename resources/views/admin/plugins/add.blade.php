@@ -17,7 +17,7 @@ function testScript(){
 	    }
 	});
 
-	var includes = [];
+	var includes = $('#includes').val().replace(/^\s+/gi,"").replace(/\s+$/gi,"").replace(/,/gi," ").replace(/;/gi," ").replace(/\s+/gi," ").split(" ");
 	$.ajax({
 		type:"post",
 		dataType:"json",

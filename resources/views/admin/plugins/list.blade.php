@@ -49,12 +49,12 @@ $user = App\User::where('id',$plugin->author)->first();
 	@endcan
 
 @empty
-	<tr><td colspan=7> There is no plugin</td></tr>
+	<tr><td colspan=8> There is no plugin</td></tr>
 @endforelse
 </tbody>
 <tfoot>
 @can('create','App\PluginModel')
-	<td colspan=7>
+	<td colspan=8>
 		<div style='text-align:right;'>
 			<a href=/admin/plugins/new><button type="submit" class="btn btn-primary">Add</button></a>
 		</div>
