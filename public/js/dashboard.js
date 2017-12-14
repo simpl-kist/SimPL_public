@@ -1,6 +1,176 @@
-//usageData, PieData, 
-//는 뷰어에서 이 코드 이전에 선언되고 값이 할당되어 있어야 한다.
+//users, plugins, solvers, pages, jobs 
+//는 뷰어에서 이 코드 이전에 선언되고 값을 할당해야 한다.
 //처음 만들 때는 뷰어에서 php->js로 넘겨주는걸로 만듬.
+
+//to data list needed in function below
+var usageChartOptions;
+var usageChartData;
+var usageChart;
+var usageData;	//for node usage graph
+var usageChartDraw;
+var PieData;
+
+//bootstrap danger, warning, info, success color
+var colorTable = {"red":"#dd4b39", "yellow":"#f39c12", "blue":"#00c0ef", "green":"#00a65a"};
+//d3 categorialColors
+var pieColorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+//	var colorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+//	var colorTable = ['rgb(210, 214, 222, 1)', 'rgba(60,141,188, 1)', 'rgba(33,255,188, 1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)'];
+
+//placeholder data
+usageData = [{'solverName' : "Total", 'data':[97, 109, 130, 170, 192, 102, 330]},
+{'solverName':"SIESTA", 'data':[ 4, 2, 10, 70, 50, 20, 200]},
+{'solverName':'Quantum Espresso', 'data':[65, 59, 80, 81, 56, 55, 40]},
+{'solverName':'Lammps', 'data':[28, 48, 40, 19, 86, 27, 90]},];
+var jobTable = [{"url":"#", "id":"7434", "name":"Quantum espresso test - Ni 111 defect", "user":"user1", "created_at":"13:20:20", "finished":"16:22:21", "status":"Finished", "statusColor":colorTable["green"], "duration":"03:02:01", "nodes":"1", },
+														{"url":"#", "id":"7433", "name":"Lammps test - combustion", "user":"user2", "created_at":"11:20:20", "finished":"-", "status":"Waiting", "statusColor":colorTable["yellow"], "duration":"-", "nodes":"2", },
+														{"url":"#", "id":"7432", "name":"gold particle(AMD)", "user":"user3", "created_at":"09:20:20", "finished":"10:32:51	", "status":"Error", "statusColor":colorTable["red"], "duration":"01:10:12", "nodes":"3", },
+														{"url":"#", "id":"7431", "name":"DFTB C O", "user":"user1", "created_at":"2017-12-14", "finished":"-", "status":"Running", "statusColor":colorTable["blue"], "duration":"17:10:47", "nodes":"4", },
+														{"url":"#", "id":"7430", "name":"Plugin(surface search)", "user":"user2", "created_at":"2017-12-14", "finished":"-", "status":"Waiting", "statusColor":colorTable["yellow"], "duration":"-", "nodes":"5", },
+														{"url":"#", "id":"7429", "name":"i", "user":"user1", "created_at":"2017-12-13", "finished":"2017-12-14", "status":"Error", "statusColor":colorTable["red"], "duration":"00:00:01", "nodes":"6", },
+														{"url":"#", "id":"7428", "name":"QE CoO supercell", "user":"user3", "created_at":"2017-12-13", "finished":"01:10:11", "status":"Finished", "statusColor":colorTable["green"], "duration":"01:10:11", "nodes":"7", }];
+/*
+var PieData				= [{"value":400, "label":"Plugin1"},
+								{"value":600, "label":"Plugin2"},
+								{"value":200, "label":"Plugin3"},
+								{"value":400, "label":"Plugin4"},
+								{"value":800, "label":"Plugin5"},
+								{"value":200, "label":"Plugin6"},
+								{"value":300, "label":"Plugin7"},
+								{"value":100, "label":"Plugin8"},];
+//								{"value":100, "label":"Etc"}];
+//
+*/
+
+				masterStatus	= {'cpu':[2.2,20],'memory':[6,16], 'disk':[1,20], 'placeholder':[300,500] };
+// ------------------- make and apply data ----------------------------
+
+
+// top line
+var monthlyJoin = 0;
+users.forEach(function(d){
+		if(!moment.utc(d.created_at, "YYYY-MM-DD hh:mm:ss").diff(moment(), 'months')) monthlyJoin++;
+});
+$('#monthly-join').text(monthlyJoin);
+
+var monthlyVisitors = "placeholder";
+$('#monthly-visitors').text(monthlyVisitors);
+
+var concurrentUsers = "placeholder";
+$('#concurrent-users').text(concurrentUsers);
+
+// second line charts
+// second line bottom
+var runningJobs = 0;
+jobs.forEach(function(d){
+		if(d.status == "running") runningJobs++;
+});
+$('#runningJobs').text(runningJobs);
+$('#njobs').text(jobs.length);
+$('#nsolvers').text(solvers.length);
+$('#nplugins').text(plugins.length);
+$('#npages').text(pages.length);
+
+
+//third line
+
+//latest jobs
+var htmlTemp = "";
+jobTable.forEach(function(d,i){
+		htmlTemp += "<tr>";
+		htmlTemp += "<td><a href='"+d.url+"'></a>"+d.id+"</td>";
+		htmlTemp += "<td>"+d.name+"</td>";
+		htmlTemp += "<td>"+d.user+"</td>";
+		htmlTemp += "<td>"+d.created_at+"</td>";
+		htmlTemp += "<td>"+d.finished+"</td>";
+		htmlTemp += "<td><span class='label' style='background-color:"+d.statusColor+";'>"+d.status+"</span></td>";
+		htmlTemp += "<td>"+d.duration+"</td>";
+		htmlTemp += "<td>"+d.nodes+"</td>";
+		htmlTemp += "</tr>";
+});
+$('#latest-jobs>tbody').html(htmlTemp);
+
+//PieData
+var pluginUsageData = [];
+jobs.forEach(function(d,i){
+		if(d.pluginID != -1) {
+				if(pluginUsageData[d.pluginID] == undefined){
+					pluginUsageData[d.pluginID] = 1;
+				} else { 
+					pluginUsageData[d.pluginID]++;
+				}
+		}
+});
+var PieData = [];
+pluginUsageData.forEach(function(d,i){
+		if(d != undefined){
+			var index = plugins.findIndex(x => x.id == i)
+			PieData.push({value:d, label: plugins[index].name});
+		}
+});
+PieData.sort((a,b) => { return a.value < b.value ? 1 : a.value > b.value ? -1 : 0; });
+// Pie의 legend는 6개로 제한, 넘으면 6번 이하는 etc로 합침
+if(PieData.length > 6){
+	var etcSum = 0;
+	for(var i = 5; i < PieData.length; i++){
+		etcSum += PieData[i].value;
+	}
+	PieData = PieData.splice(0, 5);
+	PieData.push({value:etcSum, label:'Etc'});
+}
+
+
+$('#cpu').html("<b>"+masterStatus.cpu[0]+"</b>/"+masterStatus.cpu[1]);
+$('#memory').html("<b>"+masterStatus.memory[0]+"</b>/"+masterStatus.memory[1]);
+$('#disk').html("<b>"+masterStatus.disk[0]+"</b>/"+masterStatus.disk[1]);
+$('#placeholder').html("<b>"+masterStatus.placeholder[0]+"</b>/"+masterStatus.placeholder[1]);
+
+$('#cpu-bar').css("width",masterStatus.cpu[0]/masterStatus.cpu[1]*100+"%");
+$('#memory-bar').css("width",masterStatus.memory[0]/masterStatus.memory[1]*100+"%");
+$('#disk-bar').css("width",masterStatus.disk[0]/masterStatus.disk[1]*100+"%");
+$('#placeholder-bar').css("width",masterStatus.placeholder[0]/masterStatus.placeholder[1]*100+"%");
+
+
+//new users
+var recentUsers = users.length > 4 ? users.slice(0,4) : users;
+for(var i in recentUsers){
+	recentUsers[i].ago = moment.utc(recentUsers[i].created_at,"YYYY-MM-DD hh:mm:ss").fromNow();
+//php code			preg_match('/\d+\s([a-z]+?)s?\s.+/', $recentUsers[$i]['ago'], $matched);
+	var matched = /[0-9a-z]+\s([a-z]+?)s?\s.+/.exec(recentUsers[i].ago)[1];
+	switch(matched){
+		case "year":
+			recentUsers[i].agoColor = colorTable.blue;
+		break;
+		case "month":
+			recentUsers[i].agoColor = colorTable.blue;
+		break;
+		case "week":
+			recentUsers[i].agoColor = colorTable.green;
+		break;
+		case "day":
+			recentUsers[i].agoColor = colorTable.yellow;
+		break;
+		default:
+		recentUsers[i].agoColor = colorTable.red;
+	}
+}
+
+var htmlTemp = "";
+recentUsers.forEach(function(d,i){
+		htmlTemp += "<li class='item'>";
+		htmlTemp += "	<div class='product-img'>";
+		htmlTemp += "	<span class='glyphicon glyphicon-user' style='font-size:50px; color:#cecece;'></span>";
+		htmlTemp += "	</div>";
+		htmlTemp += "	<div class='product-info'>";
+		htmlTemp += "	<a href='javascript:void(0)' class='product-title'>"+d.name;
+		htmlTemp += "	<span class='label pull-right' style='background-color:"+d.agoColor+"'>"+d.ago+"</span></a>	";
+		htmlTemp += "	<span class='product-description'>"+(d.affiliation != null ? d.affiliation : "")+"</span>";
+		htmlTemp += "	</div>";
+		htmlTemp += "	</li>";
+});
+$('#new-users-list').html(htmlTemp);
+
+
 $(function () {
 
   'use strict';
@@ -31,29 +201,25 @@ $(function () {
 	usageData.sort(function(a, b){
 		return a.dataSum > b.dataSum ? -1 : a.dataSum < b.dataSum ? 1 : 0;
 	});
-	//d3 categorialColors
-	var colorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
-//	var colorTable = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
-//	var colorTable = ['rgb(210, 214, 222, 1)', 'rgba(60,141,188, 1)', 'rgba(33,255,188, 1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)'];
 
 	var chartDatasets = [];
 	var opacity = 255;
 	for(var i in usageData){
 		chartDatasets[i] = {
 			label               : usageData[i].solverName,
-			fillColor           : colorTable[i] + opacity.toString(16),
-			strokeColor         : colorTable[i] + (opacity-16).toString(16),
-			pointColor          : colorTable[i],
-			pointStrokeColor    : colorTable[i],
+			fillColor           : pieColorTable[i] + opacity.toString(16),
+			strokeColor         : pieColorTable[i] + (opacity-16).toString(16),
+			pointColor          : pieColorTable[i],
+			pointStrokeColor    : pieColorTable[i],
 			pointHighlightFill  : '#fff',
-			pointHighlightStroke: colorTable[i],
+			pointHighlightStroke: pieColorTable[i],
 			data								: usageData[i].data,
 		};
 		opacity -= 16*2;
 		if(opacity < 16) opacity = 16;
 	}
 	usageChartData = {
-    labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],	//x-axis
+    labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],	//x-axis placeholder
 		datasets: chartDatasets,
 	};
 
@@ -102,16 +268,21 @@ $(function () {
 
 
 	//wrench icon
+	var chartLabels = {};
+	chartLabels.today = ['', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', ''];
 	usageChartDraw = function(mode)	{
 		var title;
+		var formatter = new Intl.DateTimeFormat(navigator.language);
+		var chartPeriod = formatter.format(new Date());
 		switch(mode){
-			case "realtime":
-				title = "Real Time";
+			case "today":
+				title = "Today";
 				usageChartOptions.pointDot = false;
-				//usageChartOptions.label = [];
+				usageChartData.labels = chartLabels.today;
 				break;
 			case "week":
 				title = "Week";
+				chartPeriod = " - "+chartPeriod;
 				usageChartOptions.pointDot = true;
 				break;
 			case "month":
@@ -123,12 +294,14 @@ $(function () {
 				usageChartOptions.pointDot = true;
 				break;
 		}
+		title = "placeholder"; //TODO
 		$('#usage-chart-title').text('Nodes Usage Report ('+title+')');
+		$("#usage-chart-period").text(chartPeriod);
 		return usageChart.Line(usageChartData, usageChartOptions);
 	}
 
-	//legend
-	var usageChartLegend = usageChartDraw('monthly');
+	//draw chart and legend
+	var usageChartLegend = usageChartDraw('today');
 	document.getElementById('usage-chart-legend').innerHTML = usageChartLegend.generateLegend();
 
 
