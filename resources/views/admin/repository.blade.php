@@ -50,7 +50,7 @@ There is no file
 @endforelse
 </div>
 <!-- Uploader -->
-@can('create',$file)
+@can('create','App\Repository')
 <form action={{route("admin.repository.upload-file")}} method=post class=dropzone id=dropzone>
 {{ csrf_field() }}
 <div class=dz-message style='font-size:20px;'>
