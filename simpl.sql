@@ -111,6 +111,7 @@ CREATE TABLE `vcms_plugin` (
   `role` varchar(255)   NOT NULL,
   `type` varchar(255)   NOT NULL,
   `script` longtext   NOT NULL,
+  `includes` longtext   NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `alias` varchar(255)   DEFAULT NULL,

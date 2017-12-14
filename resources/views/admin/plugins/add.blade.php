@@ -17,7 +17,7 @@ function testScript(){
 	    }
 	});
 
-	var includes = $('#includes').val().replace(/^\s+/gi,"").replace(/\s+$/gi,"").replace(/,/gi," ").replace(/;/gi," ").replace(/\s+/gi," ").split(" ");
+	var includes = $('#includes').val();//.replace(/^\s+/gi,"").replace(/\s+$/gi,"").replace(/,/gi," ").replace(/;/gi," ").replace(/\s+/gi," ").split(" ");
 	$.ajax({
 		type:"post",
 		dataType:"json",
@@ -107,9 +107,7 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Includes</label>
 			<div class=col-sm-9>
-				<textarea class='form-control' name='includes' id=includes>
-					{{ $plugin->includes or old('includes')}}
-				</textarea>
+				<textarea class='form-control' name='includes' id=includes>{{ $plugin->includes or old('includes')}}</textarea>
 			</div>
 		</div>
 

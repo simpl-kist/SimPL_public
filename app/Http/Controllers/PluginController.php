@@ -154,10 +154,21 @@ class PluginController extends Controller
 		$m->type=$_POST['type'];
 		$m->script=$_POST['script'];
 		$m->alias=$_POST['alias'];
+		error_log($_POST['includes']."+++");
+		$m->includes=$_POST['includes'];
+		error_log($_POST['includes']);
 		$m->save();
 //		return redirect(route("admin.plugins"));
 		$id=$m->id;
 		return redirect(route("admin.plugins.modify", $id));
+	}
+	public function strToArr($str){
+		$str = preg_replace( '/^\s+/', '', $str);
+		$str = preg_replace( '/\s+$/', '', $str);
+		$str = preg_replace( '/,/', ' ', $str);
+		$str = preg_replace( '/;/', ' ', $str);
+		$str = preg_replace( '/\s+/', ' ', $str);
+		return explode(" ",$str);
 	}
 	public function add(){
 		return view('admin/plugins/add');
@@ -233,7 +244,7 @@ class PluginController extends Controller
 // Write includes
 		$incContents = "";
 		if($request->has('includes')){
-			foreach($request->input('includes') as $inc){
+			foreach($this->strToArr($request->input('includes')) as $inc){
 				if($inc == "") continue;
 				$_plugin = PluginModel::where("alias",$inc)->firstOrFail();
 				$_incFileContent = $_plugin->script;

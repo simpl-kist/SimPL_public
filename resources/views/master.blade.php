@@ -22,6 +22,7 @@
 <script src={{ asset("/assets/kcms/vlatoms/js/three.js") }}></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/TrackballControls.js") }}></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/vlatoms.js") }}></script>
+<script src={{ asset("/assets/kcms/vlatoms/js/cif.js") }}></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/math.min.js") }}></script>
 <script>
 	var kCMSAPI = function(){
