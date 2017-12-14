@@ -38,7 +38,11 @@ class PluginController extends Controller
 		$s[] = 'def getSolver(id):';
 		$s[] = '	ret = urlopen("'.$env['url'].'/api/solvers/get/"+str(id)).read()';
 		$s[] = '	return json.loads(ret)';
-		$s[] = 'def qsub(params={}):';
+		$s[] = 'def qsub(params={}):';	
+		$s[] = '	if not \'nnodes\' in params:';
+		$s[] = '		params[\'nnodes\']=1';
+		$s[] = '	if not \'ppn\' in params:';
+		$s[] = '		params[\'ppn\']=4';
 		$s[] = '	if not \'mpi\' in params:';
 		$s[] = '		params[\'mpi\']=True';
 		$s[] = '	if not \'solverExec\' in params:';
@@ -46,11 +50,11 @@ class PluginController extends Controller
 		$s[] = '	f = open("qsub","w")';
 		$s[] = '	pbsscript ="""#!/bin/sh';
 		$s[] = '#PBS -N kCMS_Job';
-		$s[] = '#PBS -q full';
-		$s[] = '#PBS -l nodes=1:ppn=20';
-//		$s[] = '#PBS -h';
+		$s[] = '#PBS -q simpl';
+		$s[] = '#PBS -l nodes="""+str(params[\'nnodes\'])+""":ppn="""+str(params[\'ppn\'])+"""';
 		$s[] = 'NPROCS=`cat $PBS_NODEFILE|wc -l`';
-		$s[] = 'cd $PBS_O_WORKDIR"""';
+		$s[] = 'cd $PBS_O_WORKDIR';
+		$s[] = '"""';
 		$s[] = '	if params[\'mpi\']:';
 		$s[] = '		pbsscript=pbsscript+"\n'.$env['mpirun'].'"+" -machinefile $PBS_NODEFILE -np $NPROCS "';
 		$s[] = '	pbsscript = pbsscript+params[\'solverExec\']+" > stdout 2>&1"';
@@ -66,7 +70,7 @@ class PluginController extends Controller
 		$s[] = '	if(id<0):';
 		$s[] = '		qStat = qStat+" -f"';
 		$s[] = '	else:';
-		$s[] = '		qStat = qStat+" "+str(id)';
+		$s[] = '		qStat = qStat+" "+str(id)+" 2>/dev/null"';
 		$s[] = '	proc = subprocess.Popen([qStat], stdout = subprocess.PIPE, shell=True)';
 		$s[] = '	(out,err) = proc.communicate()';
 		$s[] = '	return out';
@@ -76,8 +80,10 @@ class PluginController extends Controller
 		$s[] = '	return json.loads(ret)';
 		$s[] = 'def saveJob(jobInfo):';
 		$s[] = '	jobInfo["pluginId"] = kCms["pluginId"]';
+		$s[] = '	if not "jobdir" in jobInfo : ';
+		$s[] = '		jobInfo["jobdir"] = kCms["jobdir"]';
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/saveJob",json=jobInfo).text';
-		$s[] = '	return ret';
+		$s[] = '	return json.loads(ret)';
 		$s[] = 'def getJobs(jobInfo):';
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/getJobs",json=jobInfo).text';
 		$s[] = '	return ret';
@@ -301,8 +307,7 @@ fclose($pipes[2]);
 			$id = $request->input('id');
 		}
 		$job = JobModel::findOrNew( $id );
-		if($id==-1) $id = $job->id;
-		$fields = ['qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name'];
+		$fields = ['qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name','jobdir'];
 		$job->project = 1;
 		$job->owner = Auth::id();
 
@@ -313,6 +318,7 @@ fclose($pipes[2]);
 			}
 		}
 		$job->save();
+		if($id==-1) $id = $job->id;
 		return $id;
 	}
 	public function getJobs(Request $request){

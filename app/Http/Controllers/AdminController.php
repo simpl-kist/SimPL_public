@@ -21,7 +21,7 @@ class AdminController extends Controller
 		return view("admin.index");
 	}
 	public function jobs(){
-		$jobs = JobModel::orderBy('created_at','desc')->select(['id','name','created_at','updated_at','output','pluginId'])->paginate(10);
+		$jobs = JobModel::orderBy('created_at','desc')->select(['id','name','created_at','updated_at','output','pluginId','qinfo'])->paginate(10);
 		return view("admin.jobs",compact('jobs'));
 	}
 	public function uploadFile(Request $request){
