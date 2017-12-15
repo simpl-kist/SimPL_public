@@ -19,7 +19,8 @@ fi
 
 
 #mysql_pw=`grep "DB_DATABASE" .env |awk -F'=' '{print $2}'`
-ret=`${mysqlshow} -u ${mysql_user} -p${mysql_pw} ${mysql_db} users > /dev/null 2>&1;echo $?`
+#ret=`${mysqlshow} -u ${mysql_user} -p${mysql_pw} ${mysql_db} users > /dev/null 2>&1;echo $?`
+ret=1
 if [ $ret = "0" ]
 then
 	echo "DB already exists"
