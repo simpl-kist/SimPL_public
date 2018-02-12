@@ -243,18 +243,24 @@ class PluginController extends Controller
 
 // Write includes
 		$incContents = "";
-		if($request->has('includes')){
-			foreach($this->strToArr($request->input('includes')) as $inc){
-				if($inc == "") continue;
-				$_plugin = PluginModel::where("alias",$inc)->firstOrFail();
-				$_incFileContent = $_plugin->script;
-				$_incFileName = "kCmsIncludes_".$inc;
-				$incContents .= "from kCmsIncludes_".$inc." import *\n"; 
-				$fp = fopen( $_incFileName.'.py', "w");
-				fwrite($fp, $_incFileContent );
-				fclose($fp);
-			}
-		}
+		if($request->includes!="" || (isset($plugin) && $plugin->includes!="")){
+                        if($request->has('includes')){
+                                $inc_data=$request->input('includes');
+                        }else{
+                                $inc_data=$plugin->includes;
+                        }
+                        foreach($this->strToArr($inc_data) as $inc){
+                                if($inc == "") continue;
+                                $_plugin = PluginModel::where("alias",$inc)->firstOrFail();
+                                $_incFileContent = "from $headerFileName import *\n"; //headerFile include
+                                $_incFileContent .= $_plugin->script;
+                                $_incFileName = "kCmsIncludes_".$inc;
+                                $incContents .= "from kCmsIncludes_".$inc." import *\n";
+                                $fp = fopen( $_incFileName.'.py', "w");
+                                fwrite($fp, $_incFileContent );
+                                fclose($fp);
+                        }
+                }
 
 		$pluginFileName = 'kCmsScript_'.Auth::id().'_'.$alias;
 		$plugin_merged = "";
