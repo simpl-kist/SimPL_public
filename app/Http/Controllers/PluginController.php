@@ -366,13 +366,14 @@ fclose($pipes[2]);
                         if($inc == "") continue;
                         $_plugin = PluginModel::where("alias",$inc)->firstOrFail();
                         $_incFileName = "kCmsIncludes_".$inc;
+			$_incFileContent = "from $headerFileName import *\n"; //headerFile include
+                        $incContents .= "from kCmsIncludes_".$inc." import *\n";
                         if(file_exists($_incFileName.".py")){
                                 return $incContents;
                         }
                         $fp = fopen( $_incFileName.'.py', "w");
                         fclose($fp);
-                        $_incFileContent = "from $headerFileName import *\n"; //headerFile include
-                        $incContents .= "from kCmsIncludes_".$inc." import *\n";
+
                         if($_plugin->includes!=""){
                                 $_incFileContent=$this->makeInclude($_plugin->includes,$_incFileContent,$headerFileName);
                         }
