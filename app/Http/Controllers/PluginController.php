@@ -249,17 +249,7 @@ class PluginController extends Controller
                         }else{
                                 $inc_data=$plugin->includes;
                         }
-                        foreach($this->strToArr($inc_data) as $inc){
-                                if($inc == "") continue;
-                                $_plugin = PluginModel::where("alias",$inc)->firstOrFail();
-                                $_incFileContent = "from $headerFileName import *\n"; //headerFile include
-                                $_incFileContent .= $_plugin->script;
-                                $_incFileName = "kCmsIncludes_".$inc;
-                                $incContents .= "from kCmsIncludes_".$inc." import *\n";
-                                $fp = fopen( $_incFileName.'.py', "w");
-                                fwrite($fp, $_incFileContent );
-                                fclose($fp);
-                        }
+			$incContents=$this->makeInclude($inc_data,$incContents,$headerFileName);
                 }
 
 		$pluginFileName = 'kCmsScript_'.Auth::id().'_'.$alias;
@@ -371,4 +361,27 @@ fclose($pipes[2]);
 		}
 		$plugin->save();
 	}
+	public function makeInclude($inc_data,$incContents,$headerFileName){
+                foreach($this->strToArr($inc_data) as $inc){
+                        if($inc == "") continue;
+                        $_plugin = PluginModel::where("alias",$inc)->firstOrFail();
+                        $_incFileName = "kCmsIncludes_".$inc;
+                        if(file_exists($_incFileName.".py")){
+                                return $incContents;
+                        }
+                        $fp = fopen( $_incFileName.'.py', "w");
+                        fclose($fp);
+                        $_incFileContent = "from $headerFileName import *\n"; //headerFile include
+                        $incContents .= "from kCmsIncludes_".$inc." import *\n";
+                        if($_plugin->includes!=""){
+                                $_incFileContent=$this->makeInclude($_plugin->includes,$_incFileContent,$headerFileName);
+                        }
+                        $_incFileContent .= $_plugin->script;
+                        $fp = fopen( $_incFileName.'.py', "w");
+                        fwrite($fp, $_incFileContent );
+                        fclose($fp);
+                }
+                return $incContents;
+        }
+
 }
