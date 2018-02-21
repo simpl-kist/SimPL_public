@@ -30,7 +30,7 @@ Route::post('/run_plugins',[
 ]);
 Route::get('/repo/{alias}','PageController@getRepoforWeb');
 Route::get('/server/{alias}','PluginController@getRepoforServer');
-oute::post('/simulation/txtDownloader','AdminController@structureDownload');
+Route::post('/simulation/txtDownloader','AdminController@structureDownload');
 Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 
 //개인 계정 정보를 수정하는 페이지는 만들어진 페이지를 링크하여 사용하도록 하는 것이 안전할 듯 하여
