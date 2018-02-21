@@ -10,20 +10,46 @@ use App\CmsEnvModel;
 use App\Repository;
 class PageController extends Controller
 {
-	public function changePublic(Request $request){
-		$page=PageModel::where('id',$request->index)->first();
-		$this->authorize('update',$page);
-		if($page->ispublic === 0){
-			$page->ispublic=1;
-		}else{
-			$page->ispublic=0;
+	public function getRepoforWeb($alias){
+		$img = Repository::where('owner',1)->where("alias",$alias)->firstOrFail();
+		$can_read=1;
+		if($img->ispublic*1 !== 0){
+			if(Auth::user() == null){
+				$can_read=0;
+			}else{
+				$_policy=Auth::user()->policy;
+				$_ispublic=$img->ispublic*1;
+				switch($_policy){
+					case "anonymous":
+						if($_ispublic > 1){
+							$can_read=0;
+						}
+						break;
+					case "user":
+						if($_ispublic > 2){
+							$can_read=0;
+						}				
+						break;
+					case "editor":
+						if($_ispublic > 3){
+							$can_read=0;
+						}				
+						break;
+					case "admin":
+						if($_ispublic > 4){
+							$can_read=0;
+						}			
+						break;
+					default:
+						$can_read=0;
+				}
+			}
 		}
-		$page->save();
-	}
-	public function getRepo($alias){
-		$img = Repository::where("alias",$alias)->firstOrFail();
-		$this->authorize('read',$img);
-		return redirect('/'.$img->filename);
+		if($can_read==1){
+			return redirect('/'.$img->filename);
+		}else{
+			return redirect('/assets/kcms/img/locked_page.png');
+		}
 	}
 	public function add(Request $request){
 		$pageM = PageModel::findOrNew($request->input('pageId'));
@@ -37,13 +63,13 @@ class PageController extends Controller
 			$this->authorize('update',$pageM);
 		}else{
 			$this->authorize('create',$pageM);
-
 			$pageM->author = Auth::user()->id;
 			$pageM->created = date('Y-m-d H:i:s'); 
 		}
 		$pageM->title = $request->input('title');
 		$pageM->contents = $request->input('contents');
 		$pageM->alias = $request->input('alias');
+		$pageM->ispublic = $request->require;
 		$pageM->save();
 		return redirect('/admin/pages/modify/'.$pageM->id);
 	}
@@ -80,12 +106,49 @@ class PageController extends Controller
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('alias',$pageName)->first();
 // 없으면 빈 칸을 띄우게함
-
 		if(count($page)<1) return redirect('/');
-		$this->authorize('read',$page);
+// page policy		
+		$can_read=1;
+		if($page->ispublic*1 !== 0){
+			if(Auth::user() == null){
+				$can_read=0;
+			}else{
+				$_policy=Auth::user()->policy;
+				$_ispublic=$page->ispublic*1;
+				switch($_policy){
+					case "anonymous":
+						if($_ispublic > 1){
+							$can_read=0;
+						}
+						break;
+					case "user":
+						if($_ispublic > 2){
+							$can_read=0;
+						}				
+						break;
+					case "editor":
+						if($_ispublic > 3){
+							$can_read=0;
+						}				
+						break;
+					case "admin":
+						if($_ispublic > 4){
+							$can_read=0;
+						}			
+						break;
+					default:
+						$can_read=0;
+				}
+			}
+		}
+// page policy
+
 // Process tags
-		$contents = $this->renderPageContent( $page->contents );
-		
+		if($can_read==1){
+			$contents = $this->renderPageContent( $page->contents );
+		}else{
+			return redirect("/");
+		}
 		return view('page',[
 			'title'=>$page->title,
 			'contents'=>$contents,
@@ -94,11 +157,20 @@ class PageController extends Controller
 		]);
 		//$pageM->get()->where("alias",$pageName);
 	}
-	public function list(){
+	public function list($type=null,$criteria=null){
+		if(($type==="title" || $type === "alias") && isset($criteria)){
+			$pages = PageModel::where($type,"like","%".$criteria."%")->orderBy('id','desc')->paginate(10);
+		}else{
+			$pages = PageModel::orderBy('id','desc')->paginate(10);
+		}
+		return view('admin/pages/list',[ 'pages' => $pages]);
+	}
+
+/*	public function list(){
 		$pages = PageModel::orderBy('id','desc')->paginate(10);
 //		$pages = $pageM->get();
 		return view('admin/pages/list',[ 'pages' => $pages]);
-	}
+	}*/
 	public function modify($id){
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('id',$id)->first();
@@ -109,7 +181,45 @@ class PageController extends Controller
 
 	protected function parsePage($c,$originalTagStr,$tag){
 		$pageAlias = array_shift($tag);
-		$page = PageModel::where('alias',$pageAlias)->firstOrFail()->contents;
+		$find_page=PageModel::where('alias',$pageAlias)->firstOrFail();
+		$page=$find_page->contents;
+		$can_read=1;
+		if($find_page->ispublic*1 !== 0){
+			if(Auth::user() == null){
+				$can_read=0;
+			}else{
+				$_policy=Auth::user()->policy;
+				$_ispublic=$find_page->ispublic*1;
+				switch($_policy){
+					case "anonymous":
+						if($_ispublic > 1){
+							$can_read=0;
+						}
+						break;
+					case "user":
+						if($_ispublic > 2){
+							$can_read=0;
+						}				
+						break;
+					case "editor":
+						if($_ispublic > 3){
+							$can_read=0;
+						}				
+						break;
+					case "admin":
+						if($_ispublic > 4){
+							$can_read=0;
+						}			
+						break;
+					default:
+						$can_read=0;
+				}
+			}
+		}
+		if($can_read==0){
+			return "UNAUTHORIZED";
+		}
+
 		$page = $this->renderPageContent($page);
 		
 		return str_replace($this->tagStrToOrg($originalTagStr),$page,$c);
@@ -265,11 +375,8 @@ class PageController extends Controller
 		//	$method = array_shift($tag);
 		}
 	protected function renderPageContent($content){
-
-		
-
 		preg_match_all('/{{kCMS\|(.*?)}}/',$content,$tags);
-	
+
 		$original_tags = $tags[0];
 		$original_tags_clean = $tags[1];
 		foreach($original_tags_clean as $this_tag){
@@ -289,9 +396,7 @@ class PageController extends Controller
 					$content = $this->parseDB($content,$this_tag,$tag);
 				break;
 			}
-	
 		}
 		return $content;
 	}
-    //
 }

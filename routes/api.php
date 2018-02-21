@@ -36,7 +36,14 @@ Route::group(['prefix'=>'plugin','as'=>'plugin.'],function(){
 		'as'=>'getJobs',
 		'uses'=>'PluginController@getJobs'
 	]);
-
+	Route::post('/getMyInfo',[
+		'as'=>'getMyInfo',
+		'uses'=>'PluginController@getMyInfo'
+	]);
+	Route::post('/getRepoforServer',[
+		'as'=>'getRepoforServer',
+		'uses'=>'PluginController@getRepoforServer'
+	]);
 });
 
 

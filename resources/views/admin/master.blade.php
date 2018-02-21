@@ -84,7 +84,7 @@ h2{
 </head>
 <body>
 @include('admin.nav')
-<div class=container style='padding-top:50px;'>
+<div class=container style='padding:50px 0;'>
 
 @yield('content')	
 </div>

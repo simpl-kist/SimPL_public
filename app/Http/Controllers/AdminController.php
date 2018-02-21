@@ -25,41 +25,128 @@ class AdminController extends Controller
 		return view("admin.jobs",compact('jobs'));
 	}
 	public function uploadFile(Request $request){
-		if( !$request->has('file') ){
+//todo 임시설정 server=>0 web=>1
+		if($request->repos_for=="web"){
+			$repos_for=1;
+		}else if($request->repos_for=="server"){
+			$repos_for=0;
+		}
+
+		if( !$request->has('files') ){
 			return response()->json("File not passed!",422);
 		}
-		$alias = $request->file('file')->getClientOriginalName();
-		if(count(Repository::where('alias',$alias)->get(['id']))>0){
-			return response()->json("Alias already exists",422);
+		$files=$request->file('files');
+		for($i=0 ; $i<count($files) ; $i++){
+			$alias = $files[$i]->getClientOriginalName();
+			if(count(Repository::where('owner',$repos_for)->where('alias',$alias)->get(['id']))>0){
+				return response()->json("Alias already exists",422);
+			}
+			if($repos_for == 1){
+				$filename = $files[$i]->store("repository/web");
+			}else if($repos_for == 0){
+				$filename = $files[$i]->store("repository/server");
+			}else{
+				return;
+			}
+			Repository::create([
+//todo owener와 author 중복 => owner를 Repository for **에서 **으로 
+				'owner' => $repos_for,
+				'alias' => $alias,
+				'filename' => $filename,
+				'author' => Auth::user()->id,
+			]);
 		}
-		$filename = $request->file('file')->store("repository");
-		Repository::create([
-			'owner' => 1,
-			'alias' => $alias,
-			'filename' => $filename,
-			'author' => Auth::user()->id,
-		]);
 	}
 	public function repository(){
-		$repos = Repository::get();
-		return view('admin.repository',compact('repos'));
+		return view('admin.repository');
+	}
+	public function repos_web($criteria=null){
+		$repos = Repository::where('owner',1)
+		->when($criteria,function($query) use($criteria){
+			return $query->where("alias","like","%".$criteria."%");
+		})
+		->paginate(18);
+		return view('admin.repository_web',compact('repos'));
+	}
+	public function repos_server($criteria=null){
+		$repos = Repository::where('owner',0)
+		->when($criteria,function($query) use($criteria){
+			return $query->where("alias","like","%".$criteria."%");
+		})
+		->paginate(18);
+		return view('admin.repository_server',compact('repos'));
+	}
+	public function repos_list(Request $request){
+		if($request->repos_for == "web"){
+			$repos_for=1;
+		}else if($request->repos_for == "server"){
+			$repos_for=0;
+		}
+		$repos=Repository::where('owner',$repos_for)->
+		when($request->repos_criteria,function ($query) use($request){
+			return $query->where("alias","like","%".$request->repos_criteria."%");
+		})->
+		paginate(18);
+		return $repos;
+
 	}
 	public function dashboard(){
-		
+                $server=[];
+
+                $exec_free = explode("\n", trim(shell_exec('free')));
+                $server["ram"]= preg_split("/[\s]+/", $exec_free[1]);
+
+                $exec_loads = sys_getloadavg();
+                $exec_cores = trim(shell_exec("grep -P '^processor' /proc/cpuinfo|wc -l"));
+                $server["cpu"]=["loads"=>$exec_loads,"cores"=>$exec_cores];
+
+                $disk=[];
+                $disk[]=disk_free_space("/");
+                $disk[]=disk_total_space("/");
+                $server["disk"]=$disk;
+
+                exec("netstat -an | grep :80.*ESTABLISHED | wc -l",$arr,$ret);
+                $concurrent=end($arr);
+        // not exactly
+
+                $users = User::where( "created_at", ">=", \Carbon\Carbon::now()->addyears(-1) )->orderBy('created_at','desc')->get(['name','affiliation','mypic','created_at']);
+                $plugins = PluginModel::get(['id', 'name']);
+
+		$_plugins=[];
+		for($i=0 ; $i<count($plugins) ; $i++){
+			$_plugins[$plugins[$i]['id']]=$plugins[$i]['name'];
+		}
+
+                $solvers = SolverModel::get(['id']);
+                $pages = PageModel::get(['id']);
+                $jobs = JobModel::orderBy('created_at','desc')->limit(12)->get(['id', 'name', 'created_at', 'updated_at', 'parent', 'owner', 'status', 'pluginID']);
+                $jobs_count=JobModel::count();
+                return view('admin.dashboard',[
+                        'users'=>$users,
+                        'plugins'=>$plugins,
+			'pluginName'=>$_plugins,
+                        'solvers'=>$solvers,
+                        'pages'=>$pages,
+                        'jobs'=>$jobs,
+                        'jobs_count'=>$jobs_count,
+                        'server'=>$server,
+                        'concurrent'=>$concurrent,
+                ]);
+
+/*	
 		$users = User::where( "created_at", ">=", \Carbon\Carbon::now()->addyears(-1) )->orderBy('created_at','desc')->get(['name','affiliation','mypic','created_at']);
 		$plugins = PluginModel::get(['id', 'name']);
 		$solvers = SolverModel::get(['id']);
 		$pages = PageModel::get(['id']);
 		$jobs = JobModel::orderBy('created_at','desc')->get(['id', 'name', 'created_at', 'updated_at', 'parent', 'owner', 'status', 'pluginID']);
 		return view('admin.dashboard',['users'=>$users, 'plugins'=>$plugins, 'solvers'=>$solvers, 'pages'=>$pages, 'jobs'=>$jobs]);
-
+*/
 
 	}
 /*
 									*/
-
 	public function repoChangePublic(Request $request){
-		$file=Repository::findOrFail('id',$request->index)->first();
+		$file=Repository::findOrFail($request->index*1);
 		$this->authorize('update',$file);
 		$file->ispublic = $request->ispublic;
 		$file->save();
@@ -69,7 +156,7 @@ class AdminController extends Controller
 		$this->authorize('delete',$file);
 		$file->delete();
 		Storage::delete($file->filename);
-		return redirect(route('admin.repository'));
+		return back();
 	}
 
 	public function getSimPLEnv(){
@@ -108,7 +195,6 @@ class AdminController extends Controller
 				$env->save();
 			}
 		}
-		
 	}
 	public function saveSolver(){
 		$solver = new SolverModel;
@@ -129,5 +215,10 @@ class AdminController extends Controller
 		$user = User::where('id',Auth::user()->id)->first();
 		return view('admin.userInfo')->with('user',$user);
 	}
+	public function myInfo_preset(){
+		$user = User::where('id',Auth::user()->id)->first();
+		return view('preset.userInfo')->with('user',$user);
+	}
+
     //
 }

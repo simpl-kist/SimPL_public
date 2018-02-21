@@ -46,13 +46,30 @@ var scriptEditor;
 $('document').ready(function(){
 	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('script')[0],{
 		mode:"python",
-		lineNumbers:true
+		lineNumbers:true,
+		extraKeys: {
+			"Ctrl-Enter": function(cm) {
+				cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+			},
+			"Esc": function(cm) {
+				if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+			}
+		},
 	});
 });
 </script>
 <script src={{asset('assets/vendor/codemirror/lib/')}}/codemirror.js></script>
 <script src={{asset('assets/vendor/codemirror/mode/')}}/python/python.js></script>
+<script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
+<style>
+.CodeMirror-fullscreen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  height: auto;
+  z-index: 9;
+}
+</style>
 <h2>Plugins</h2>
 
 <div class=row>
@@ -94,6 +111,18 @@ $('document').ready(function(){
 				</select>
 			</div>
 		</div>
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>Required Qualification</label>
+			<div class=col-sm-9>
+				<select name=require class=form-control>
+					<option value=0 {{ !isset($plugin) || $plugin->ispublic==0 ? "selected" : "" }} >Public</option>
+					<option value=1 {{ isset($plugin) && $plugin->ispublic==1 ? "selected" : "" }} >Anonymous</option>
+					<option value=2 {{ isset($plugin) && $plugin->ispublic==2 ? "selected" : "" }} >User</option>
+					<option value=3 {{ isset($plugin) && $plugin->ispublic==3 ? "selected" : "" }} >Editor</option>
+					<option value=4 {{ isset($plugin) && $plugin->ispublic==4 ? "selected" : "" }} >Admin</option>
+				</select>
+			</div>
+		</div>
 		<!-- Service Title -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Input(for test)</label>
@@ -119,18 +148,15 @@ $('document').ready(function(){
 <!--				<div style='height:350px;overflow-y:auto;' class='form-control scriptDiv' contenteditable>{!! isset($plugin->script)?nl2br($plugin->script):"" !!}</div>
 			</div>
 				<input type=hidden name=script class=script>-->
+				<label style="font-size:12px">FullScreen Mode: Ctrl+Enter</label>
 			</div>
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
 				<button type="button" class="btn btn-primary" onclick=testScript();>Test</button>
+
 @if(isset($plugin))
 @can('update',$plugin)
-	@if($plugin->ispublic===1)
-				<button type="button" class="btn btn-primary" onclick="changePublic()">Make Private</button>
-	@else
-				<button type="button" class="btn btn-primary" onclick="changePublic()">Make Public</button>
-	@endif
 				<button type="submit" class="btn btn-primary">Apply</button>
 @endcan
 @else

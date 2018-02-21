@@ -95,7 +95,7 @@ Dashboard
 
             <div class="info-box-content">
               <span class="info-box-text">concurrent users</span>
-              <span id="concurrent-users" class="info-box-number">placeholder</span>
+              <span id="concurrent-users" class="info-box-number">{{$concurrent}}</span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -241,7 +241,7 @@ Dashboard
                     <!-- TABLE: LATEST ORDERS -->
           <div class="box">
             <div class="box-header with-border">
-              <h3 class="box-title">Latest Jobs(placeholder)</h3>
+              <h3 class="box-title">Latest Jobs</h3>
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -258,9 +258,9 @@ Dashboard
 											<th>ID</th>
 											<th>Job name</th>
 											<th>User</th>
-											<th>Submission</th>
-											<th>End</th>
+											<th>PluginName</th>
 											<th>Status</th>
+											<th>Submission</th>
 											<th>Duration</th>
 											<th title="nodes">N</th>
 										</tr>
@@ -289,7 +289,7 @@ Dashboard
             </div>
             <!-- /.box-body -->
             <div class="box-footer clearfix" >
-              <a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left" style="display:none;">action placeholder</a>
+              <a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left" style="display:none;">action</a>
               <a href="/admin/jobs" class="btn btn-sm btn-default btn-flat pull-right">View More Jobs</a>
             </div>
             <!-- /.box-footer -->
@@ -426,7 +426,7 @@ Dashboard
 </div>
           <div class="box box-default">
             <div class="box-header with-border">
-              <h3 class="box-title">Master Node Status(placeholder)</h3>
+              <h3 class="box-title">Master Node Status</h3>
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -463,7 +463,7 @@ Dashboard
 								</div>
 							</div>
 							<!-- /.progress-group -->
-							<div class="progress-group">
+<!--							<div class="progress-group">
 								<span class="progress-text">Place holder</span>
 								<span id="placeholder" class="progress-number"><b></b>/</span>
 
@@ -471,6 +471,7 @@ Dashboard
 									<div id="placeholder-bar" class="progress-bar progress-bar-yellow" style="background-image:none;"></div>
 								</div>
 							</div>
+-->
 							<!-- /.progress-group -->
             </div>
             <!-- /.box-body -->
@@ -558,9 +559,13 @@ Dashboard
 <script>
 var users = {!! json_encode($users) !!};
 var plugins = {!! json_encode($plugins) !!};
+var pluginName = {!! json_encode($pluginName) !!};
 var solvers = {!! json_encode($solvers) !!};
 var pages = {!! json_encode($pages) !!};
 var jobs = {!! json_encode($jobs) !!};
+var jobs_count = {!! json_encode($jobs_count) !!};
+var server = {!! json_encode($server) !!};
+console.log(jobs);
 </script>
 
 <!-- apply data -->

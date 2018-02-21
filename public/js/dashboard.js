@@ -22,13 +22,14 @@ usageData = [{'solverName' : "Total", 'data':[97, 109, 130, 170, 192, 102, 330]}
 {'solverName':"SIESTA", 'data':[ 4, 2, 10, 70, 50, 20, 200]},
 {'solverName':'Quantum Espresso', 'data':[65, 59, 80, 81, 56, 55, 40]},
 {'solverName':'Lammps', 'data':[28, 48, 40, 19, 86, 27, 90]},];
-var jobTable = [{"url":"#", "id":"7434", "name":"Quantum espresso test - Ni 111 defect", "user":"user1", "created_at":"13:20:20", "finished":"16:22:21", "status":"Finished", "statusColor":colorTable["green"], "duration":"03:02:01", "nodes":"1", },
+/*var jobTable = [{"url":"#", "id":"7434", "name":"Quantum espresso test - Ni 111 defect", "user":"user1", "created_at":"13:20:20", "finished":"16:22:21", "status":"Finished", "statusColor":colorTable["green"], "duration":"03:02:01", "nodes":"1", },
 														{"url":"#", "id":"7433", "name":"Lammps test - combustion", "user":"user2", "created_at":"11:20:20", "finished":"-", "status":"Waiting", "statusColor":colorTable["yellow"], "duration":"-", "nodes":"2", },
 														{"url":"#", "id":"7432", "name":"gold particle(AMD)", "user":"user3", "created_at":"09:20:20", "finished":"10:32:51	", "status":"Error", "statusColor":colorTable["red"], "duration":"01:10:12", "nodes":"3", },
 														{"url":"#", "id":"7431", "name":"DFTB C O", "user":"user1", "created_at":"2017-12-14", "finished":"-", "status":"Running", "statusColor":colorTable["blue"], "duration":"17:10:47", "nodes":"4", },
 														{"url":"#", "id":"7430", "name":"Plugin(surface search)", "user":"user2", "created_at":"2017-12-14", "finished":"-", "status":"Waiting", "statusColor":colorTable["yellow"], "duration":"-", "nodes":"5", },
 														{"url":"#", "id":"7429", "name":"i", "user":"user1", "created_at":"2017-12-13", "finished":"2017-12-14", "status":"Error", "statusColor":colorTable["red"], "duration":"00:00:01", "nodes":"6", },
 														{"url":"#", "id":"7428", "name":"QE CoO supercell", "user":"user3", "created_at":"2017-12-13", "finished":"01:10:11", "status":"Finished", "statusColor":colorTable["green"], "duration":"01:10:11", "nodes":"7", }];
+*/
 /*
 var PieData				= [{"value":400, "label":"Plugin1"},
 								{"value":600, "label":"Plugin2"},
@@ -41,8 +42,7 @@ var PieData				= [{"value":400, "label":"Plugin1"},
 //								{"value":100, "label":"Etc"}];
 //
 */
-
-				masterStatus	= {'cpu':[2.2,20],'memory':[6,16], 'disk':[1,20], 'placeholder':[300,500] };
+var masterStatus    = {'cpu':[server.cpu.loads[1],server.cpu.cores],'memory':[(server.ram[2]/1024/1024).toFixed(2),(server.ram[1]/1024/1024).toFixed(2)], 'disk':[((server.disk[1]-server.disk[0])/1024/1024/1024).toFixed(2),(server.disk[1]/1024/1024/1024).toFixed(2)]};
 // ------------------- make and apply data ----------------------------
 
 
@@ -53,12 +53,12 @@ users.forEach(function(d){
 });
 $('#monthly-join').text(monthlyJoin);
 
-var monthlyVisitors = "placeholder";
+var monthlyVisitors = "";
 $('#monthly-visitors').text(monthlyVisitors);
-
+/*
 var concurrentUsers = "placeholder";
 $('#concurrent-users').text(concurrentUsers);
-
+*/
 // second line charts
 // second line bottom
 var runningJobs = 0;
@@ -66,7 +66,7 @@ jobs.forEach(function(d){
 		if(d.status == "running") runningJobs++;
 });
 $('#runningJobs').text(runningJobs);
-$('#njobs').text(jobs.length);
+$('#njobs').text(jobs_count);
 $('#nsolvers').text(solvers.length);
 $('#nplugins').text(plugins.length);
 $('#npages').text(pages.length);
@@ -76,14 +76,15 @@ $('#npages').text(pages.length);
 
 //latest jobs
 var htmlTemp = "";
-jobTable.forEach(function(d,i){
+jobs.forEach(function(d,i){
 		htmlTemp += "<tr>";
 		htmlTemp += "<td><a href='"+d.url+"'></a>"+d.id+"</td>";
 		htmlTemp += "<td>"+d.name+"</td>";
-		htmlTemp += "<td>"+d.user+"</td>";
+		htmlTemp += "<td>"+d.owner+"</td>";
+		htmlTemp += "<td>"+pluginName[d.pluginID]+"</td>";
+//		htmlTemp += "<td><span class='label' style='background-color:"+d.statusColor+";'>"+d.status+"</span></td>";
+		htmlTemp += "<td>"+d.status+"</span></td>";
 		htmlTemp += "<td>"+d.created_at+"</td>";
-		htmlTemp += "<td>"+d.finished+"</td>";
-		htmlTemp += "<td><span class='label' style='background-color:"+d.statusColor+";'>"+d.status+"</span></td>";
 		htmlTemp += "<td>"+d.duration+"</td>";
 		htmlTemp += "<td>"+d.nodes+"</td>";
 		htmlTemp += "</tr>";
@@ -104,11 +105,15 @@ jobs.forEach(function(d,i){
 var PieData = [];
 pluginUsageData.forEach(function(d,i){
 		if(d != undefined){
-			var index = plugins.findIndex(x => x.id == i)
-			PieData.push({value:d, label: plugins[index].name});
+			var index = plugins.findIndex(function(x){return x.id == i});
+			if(plugins[index] !== undefined){
+				PieData.push({value:d, label: plugins[index].name});
+			}else{
+				PieData.push({value:d, label: "Unknow Plugin"});
+			}
 		}
 });
-PieData.sort((a,b) => { return a.value < b.value ? 1 : a.value > b.value ? -1 : 0; });
+PieData.sort(function(a,b){ return a.value < b.value ? 1 : a.value > b.value ? -1 : 0; });
 // Pie의 legend는 6개로 제한, 넘으면 6번 이하는 etc로 합침
 if(PieData.length > 6){
 	var etcSum = 0;
@@ -123,12 +128,10 @@ if(PieData.length > 6){
 $('#cpu').html("<b>"+masterStatus.cpu[0]+"</b>/"+masterStatus.cpu[1]);
 $('#memory').html("<b>"+masterStatus.memory[0]+"</b>/"+masterStatus.memory[1]);
 $('#disk').html("<b>"+masterStatus.disk[0]+"</b>/"+masterStatus.disk[1]);
-$('#placeholder').html("<b>"+masterStatus.placeholder[0]+"</b>/"+masterStatus.placeholder[1]);
 
 $('#cpu-bar').css("width",masterStatus.cpu[0]/masterStatus.cpu[1]*100+"%");
 $('#memory-bar').css("width",masterStatus.memory[0]/masterStatus.memory[1]*100+"%");
 $('#disk-bar').css("width",masterStatus.disk[0]/masterStatus.disk[1]*100+"%");
-$('#placeholder-bar').css("width",masterStatus.placeholder[0]/masterStatus.placeholder[1]*100+"%");
 
 
 //new users
@@ -294,7 +297,7 @@ $(function () {
 				usageChartOptions.pointDot = true;
 				break;
 		}
-		title = "placeholder"; //TODO
+//`		title = "placeholder"; //TODO
 		$('#usage-chart-title').text('Nodes Usage Report ('+title+')');
 		$("#usage-chart-period").text(chartPeriod);
 		return usageChart.Line(usageChartData, usageChartOptions);
@@ -320,10 +323,12 @@ $(function () {
 	var pieColor = [['#f56954','#00a65a','#f39c12','#00c0ef','#3c8dbc','#d2d6de','#ffd6de'],
 			['#f56954','#00a65a','#f39c12','#00c0ef','#3c8dbc','#d2d6de','#ffd6de']];
 	var legend = $('#plugin-pie-chart-legend');
+	var cnt=0;
 	for(var i in PieData){
+		if(cnt++>9) break;
 		PieData[i].color = pieColor[0][i];
 		PieData[i].highlight = pieColor[1][i];
-		legend.append('<li><i class="fa fa-circle-o" style="color:'+pieColor[0][i]+';"></i>'+PieData[i].label+'</li>')
+		legend.append('<li style="display:flex;overflow:hidden"><i class="fa fa-circle-o" style="color:'+pieColor[0][i]+';"></i>'+PieData[i].label+'</li>')
 	}
   var pieOptions     = {
     // Boolean - Whether we should show a stroke on each segment

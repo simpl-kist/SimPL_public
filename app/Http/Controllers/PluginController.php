@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\PluginModel;
 use App\CmsEnvModel;
 use App\JobModel;
+use App\User;
+use App\Repository;
 class PluginController extends Controller
 {
 	private function getScriptHeader($args){
@@ -75,11 +77,24 @@ class PluginController extends Controller
 		$s[] = '	(out,err) = proc.communicate()';
 		$s[] = '	return out';
 		$s[] = 'def callPlugin(pluginAlias,pluginData):';
-		$s[] = '	jsonData = {"alias":pluginAlias,"input":pluginData}';
+		$s[] = '	jsonData = {"alias":pluginAlias,"input":pluginData,"key":"'.$args['key'].'","length":'.$args['length'].'}';
+//python실행시 인증을 위한 verification_code를 key값으로 입력
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/run",json=jsonData).text';
 		$s[] = '	return json.loads(ret)';
+		$s[] = 'def getMyInfo():';
+		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/getMyInfo",json={"key":"'.$args['key'].'"}).text';
+		$s[] = '	return json.loads(ret)';
+		$s[] = 'def getRepo(alias):';
+		$s[] = '	jsonData = {"alias":alias,"key":"'.$args['key'].'"}';
+		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/getRepoforServer",jsonData).text';
+		$s[] = '	return ret';
 		$s[] = 'def saveJob(jobInfo):';
 		$s[] = '	jobInfo["pluginId"] = kCms["pluginId"]';
+		if(Auth::user()!=null){
+			$s[] = '	jobInfo["owner"] = '.Auth::id();
+		}else{
+			$s[] = '	jobInfo["owner"] = -1';
+		}
 		$s[] = '	if not "jobdir" in jobInfo : ';
 		$s[] = '		jobInfo["jobdir"] = kCms["jobdir"]';
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/saveJob",json=jobInfo).text';
@@ -88,8 +103,6 @@ class PluginController extends Controller
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/getJobs",json=jobInfo).text';
 		$s[] = '	return ret';
 #		$s[] = '	return json.loads(ret)';
-
-
 /*		error_log("hello world!");
 		ob_start();
 		var_dump($args);
@@ -157,6 +170,7 @@ class PluginController extends Controller
 		error_log($_POST['includes']."+++");
 		$m->includes=$_POST['includes'];
 		error_log($_POST['includes']);
+		$m->ispublic=$_POST['require'];
 		$m->save();
 //		return redirect(route("admin.plugins"));
 		$id=$m->id;
@@ -165,6 +179,7 @@ class PluginController extends Controller
 	public function strToArr($str){
 		$str = preg_replace( '/^\s+/', '', $str);
 		$str = preg_replace( '/\s+$/', '', $str);
+		$str = preg_replace( '/\r+/', ' ', $str);
 		$str = preg_replace( '/,/', ' ', $str);
 		$str = preg_replace( '/;/', ' ', $str);
 		$str = preg_replace( '/\s+/', ' ', $str);
@@ -173,10 +188,20 @@ class PluginController extends Controller
 	public function add(){
 		return view('admin/plugins/add');
 	}
-	public function list(){
+/*	public function list(){
 		$plugins = PluginModel::orderBy("id","desc")->paginate(10);
 		return view('admin.plugins.list',compact('plugins'));
 	}
+*/
+        public function list($type=null,$criteria=null){
+                if(($type==="name" || $type === "alias") && isset($criteria)){
+                        $plugins = PluginModel::where($type,"like","%".$criteria."%")->orderBy('id','desc')->paginate(10);
+                }else{
+                        $plugins = PluginModel::orderBy('id','desc')->paginate(10);
+                }
+//              $pages = $pageM->get();
+                return view('admin/plugins/list',[ 'plugins' => $plugins]);
+        }
 	public function modify($pluginId){
 		$plugin = PluginModel::findOrFail($pluginId);
 		$this->authorize('read',$plugin);
@@ -191,13 +216,26 @@ class PluginController extends Controller
 	public function writePluginFile(){
 	}
 	public function run(Request $request){
+//python에서 실행한 경우 login이 안되어 있으므로 verification_code를 바탕으로 login
+		if(!Auth::check()){
+			$logincheck=$this->loginCheckOrByKey($request->key);
+		}
+//
 		$pluginId=-1;	
 		$alias = "test";
 		if($request->has('alias')){
 			$alias = $request->input("alias");
 		}
+		//
+
 		if( !$request->has('istest') ){
 			$plugin = PluginModel::where("alias",$alias)->firstOrFail();
+//plugin 실행권한 검사
+			$can_read=$this->canReadData($plugin);
+			if($can_read==0){
+				return Array("ourput"=>"","error"=>"UNAUTHORIZED");
+			}
+//
 			$pluginId = $plugin->id;
 			$pluginFileContent = $plugin->script;
 		}else{ // test
@@ -216,7 +254,16 @@ class PluginController extends Controller
 		if(	$request->has('input') ){
 			$pluginInput = $request->input('input');
 		}
-		
+// 무한루프 막기 위해 callPlugin depth가 10이상이면 중지 숫자는 검토 필요
+
+		if(	$request->has('length') ){
+			$pluginLength = $request->input('length')+1;
+		}else{
+			$pluginLength = 0;
+		}
+		if( $pluginLength > 10 ) return Array("output"=>"","error"=>"Too may requests");
+
+//
 		$env = $this->getCmsEnv();
 		$jobid = date("YmdHis")."_".md5(rand());
 		$jobdir = $env['jobdir']."/".$jobid;
@@ -231,10 +278,16 @@ class PluginController extends Controller
 			'jobdir'=>$jobdir,
 		];
 		if(isset($pluginInput)){
-			$headerArgs['pluginId']=$pluginId;
 			$headerArgs['input']=$pluginInput;
 		}
-	
+		$headerArgs['pluginId']=$pluginId;
+		if(Auth::user() !== null){
+			$headerArgs['key']=Auth::user()->verification_code;
+		}else{
+			$headerArgs['key']=-1;
+		}
+		$headerArgs['length']=$pluginLength;
+//python실행시 로그인 인증용
 		$headerFileContent = $this->getScriptHeader($headerArgs);
 	
 		$fp = fopen($headerFileName.".py","w");
@@ -243,15 +296,14 @@ class PluginController extends Controller
 
 // Write includes
 		$incContents = "";
-		if($request->includes!="" || (isset($plugin) && $plugin->includes!="")){
+                if($request->includes!="" || (isset($plugin) && $plugin->includes!="")){
                         if($request->has('includes')){
                                 $inc_data=$request->input('includes');
                         }else{
                                 $inc_data=$plugin->includes;
                         }
 			$incContents=$this->makeInclude($inc_data,$incContents,$headerFileName);
-                }
-
+		}
 		$pluginFileName = 'kCmsScript_'.Auth::id().'_'.$alias;
 		$plugin_merged = "";
 		$plugin_merged = "from $headerFileName import *\n";
@@ -292,6 +344,10 @@ fclose($pipes[1]);
 fclose($pipes[2]);
 
 
+		$saved_jobdir = JobModel::where('jobdir',$jobdir)->get();
+		if(count($saved_jobdir)<1){
+			$this->deleteDirectory($jobdir);
+		}
 
 //		exec("python ".$pluginFileName,$output);
 		return $output;
@@ -314,9 +370,10 @@ fclose($pipes[2]);
 			$id = $request->input('id');
 		}
 		$job = JobModel::findOrNew( $id );
-		$fields = ['qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name','jobdir'];
+//		$fields = ['qinfo','status','pluginId','pluginBefore','pluginNext','input','output','name','jobdir','owner'];
+		$fields = ['qinfo','status','pluginId','jobBefore','jobNext','input','output','name','jobdir','owner'];
 		$job->project = 1;
-		$job->owner = Auth::id();
+//		$job->owner = Auth::id();
 
 		foreach($fields as $field){
 			if( $request->has($field) ){
@@ -324,17 +381,56 @@ fclose($pipes[2]);
 	
 			}
 		}
+		if($job->pluginId===-1) $job->jobdir=null;
 		$job->save();
 		if($id==-1) $id = $job->id;
 		return $id;
 	}
 	public function getJobs(Request $request){
-		$jobs = JobModel::where($request->except('cols'))->get($request->input('cols'));
+                $jobs = JobModel::where($request->except(['cols','criteria','order','limit']))
+                ->when($request->criteria,function($query) use($request){
+                        for($i=0 ; $i<count($request->criteria) ; $i++){
+                                $query=$query->whereRaw($request->criteria[$i]);
+                        }
+                        return $query;
+                })
+                ->when($request->input('cols'),function($query) use ($request){
+                        return $query->select($request->input('cols'));
+                })
+                ->when($request->order, function($query) use ($request){
+                        return $query->orderBy($request->order[0],$request->order[1]);
+                })
+                ->when($request->limit,function ($query) use ($request){
+                        return $query->offset($request->limit[0])->limit($request->limit[1])->get();
+                },function($query) use ($request){
+                        return $query->get();
+                });
+		if($request->cols==null || in_array("pluginId",$request->cols)){
+			$__plugins=PluginModel::get(['id','name']);
+			$_plugins=[];
+			for($i=0 ; $i<count($__plugins) ; $i++){
+				$_plugins[$__plugins[$i]['id']]=$__plugins[$i]['name'];
+			}
+			for($i=0 ; $i<count($jobs) ; $i++){
+				$__plugin_name=$_plugins[$jobs[$i]->pluginId];
+				$jobs[$i]['pluginName'] = $__plugin_name;
+			}
+		}
 		return $jobs;
+//		$jobs = JobModel::where($request->except('cols'))->get($request->input('cols'));
+//		return $jobs;
 		// R
 	}
-	public function deleteJob(){
-	}
+
+
+        public function deleteJob(Request $request){
+                $jobs=JobModel::findOrFail($request->id);
+		if(Auth::user()->policy !== "admin") return;
+//              $this->authorize('delete',$jobs);
+                $this->deleteDirectory($jobs->jobdir);
+                $jobs->delete();
+                return redirect(route('admin.jobs'));
+        }
 	public function test(){
 		return false; // obsolated
 		$env = $this->getCmsEnv();
@@ -351,38 +447,113 @@ fclose($pipes[2]);
 		return $result;	
 	}
     //
-	public function changePublic(Request $request){
-		$plugin=PluginModel::where('id',$request->index)->first();
-		$this->authorize('update',$plugin);
-		if($plugin->ispublic === 0){
-			$plugin->ispublic=1;
-		}else{
-			$plugin->ispublic=0;
+	public function deleteDirectory($dir) {
+		if (!file_exists($dir)) {
+			return true;
 		}
-		$plugin->save();
+		if (!is_dir($dir)) {
+			return unlink($dir);
+		}
+		foreach (scandir($dir) as $item) {
+			if ($item == '.' || $item == '..') {
+				continue;
+			}
+			if (!$this->deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+				return false;
+			}
+		}
+		return rmdir($dir);
 	}
+	public function getMyInfo(Request $request){
+		if(!Auth::check()){
+			$logincheck=$this->loginCheckOrByKey($request->key);
+			if($logincheck == "no user") return;
+		}
+		$ret=Auth::user();
+		return $ret;
+	}
+	public function loginCheckOrByKey($key){
+		$__user = User::where('verification_code',$key)->get();
+		if(count($__user)>0){
+			Auth::loginUsingId($__user[0]->id,true);
+		}else{
+			return "no user";
+		}
+	}	
+	public function getRepoforServer(Request $request){
+		if(!Auth::check()){
+			$logincheck=$this->loginCheckOrByKey($request->key);
+			if($logincheck == "no user") return;
+		}
+		$file = Repository::where('owner',0)->where("alias",$request->alias)->firstOrFail();
+		$can_read=$this->canReadData($file);
+		if($can_read==0){
+			return "UNAUTHORIZED";
+		}
+		$target_file = fopen($file->filename,"r") or die("Unable to open file!");
+		$file_data=fread($target_file,filesize($file->filename));
+		fclose($target_file);
+		return $file_data;
+	}
+	public function canReadData($data){
+		if($data->ispublic*1 !== 0){
+			if(Auth::user() == null){
+				return 0;
+			}else{
+				$_policy=Auth::user()->policy;
+				$_ispublic=$data->ispublic*1;
+				switch($_policy){
+					case "anonymous":
+						if($_ispublic > 1){
+							return 0;
+						}
+						break;
+					case "user":
+						if($_ispublic > 2){
+							return 0;
+						}				
+						break;
+					case "editor":
+						if($_ispublic > 3){
+							return 0;
+						}				
+						break;
+					case "admin":
+						if($_ispublic > 4){
+							return 0;
+						}			
+						break;
+					default:
+						return 0;
+				}
+			}
+		}
+		return 1;
+	}
+
 	public function makeInclude($inc_data,$incContents,$headerFileName){
-                foreach($this->strToArr($inc_data) as $inc){
-                        if($inc == "") continue;
-                        $_plugin = PluginModel::where("alias",$inc)->firstOrFail();
-                        $_incFileName = "kCmsIncludes_".$inc;
+		foreach($this->strToArr($inc_data) as $inc){
+			if($inc == "") continue;
+			$_plugin = PluginModel::where("alias",$inc)->first();
+			if(count($_plugin) == 0) abort(404,"Included Plugin does not exist. Please check the alias.");
+			$can_read=$this->canReadData($_plugin);
+			if($can_read==0) continue;
+			$_incFileName = "kCmsIncludes_".$inc;
 			$_incFileContent = "from $headerFileName import *\n"; //headerFile include
-                        $incContents .= "from kCmsIncludes_".$inc." import *\n";
-                        if(file_exists($_incFileName.".py")){
-                                return $incContents;
-                        }
-                        $fp = fopen( $_incFileName.'.py', "w");
-                        fclose($fp);
-
-                        if($_plugin->includes!=""){
-                                $_incFileContent=$this->makeInclude($_plugin->includes,$_incFileContent,$headerFileName);
-                        }
-                        $_incFileContent .= $_plugin->script;
-                        $fp = fopen( $_incFileName.'.py', "w");
-                        fwrite($fp, $_incFileContent );
-                        fclose($fp);
-                }
-                return $incContents;
-        }
-
+			$incContents .= "from kCmsIncludes_".$inc." import *\n";
+			if(file_exists($_incFileName.".py")){
+				continue;
+			}
+			$fp = fopen( $_incFileName.'.py', "w");
+			fclose($fp);
+			if($_plugin->includes!=""){
+				$_incFileContent=$this->makeInclude($_plugin->includes,$_incFileContent,$headerFileName);
+			}
+			$_incFileContent .= $_plugin->script;
+			$fp = fopen( $_incFileName.'.py', "w");
+			fwrite($fp, $_incFileContent );
+			fclose($fp);
+		}
+		return $incContents;
+	}
 }

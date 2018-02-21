@@ -9,5 +9,5 @@
 <div class=container>
 {!! $contents !!}
 </div>
-{{$env['footer'] or "" }}
+{!! $env['footer'] or "" !!}
 @stop

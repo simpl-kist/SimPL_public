@@ -24,6 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token','verification_code','verified','id'
+        'password', 'remember_token','verification_code','verified'//'id'
+//id가 owner값으로 들어가기 때문에 반환
     ];
 }

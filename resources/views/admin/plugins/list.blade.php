@@ -5,6 +5,16 @@ Plugins
 @section('content')
 
 <h2>Plugins</h2>
+<div class="col-xs-12 form-inline" style="text-align:center">
+        <select class=form-control id=filter_type>
+                <option>Name</option>
+                <option>Alias</option>
+        </select>
+        <input class=form-control id=filter_criteria>
+        <button class="btn btn-default" onclick="search_data();">
+        <i class="glyphicon glyphicon-search" style="font-size:15px"></i>
+        </button>
+</div>
 <table class=table>
 <thead>
 	<!--<th>ID</th>-->
@@ -12,6 +22,7 @@ Plugins
 	<th>Name</th>
 	<th>Alias</th>
 	<th>Role</th>
+	<th>Least Level</th>
 	<th>Author</th>
 	<th>Registered</th>
 	
@@ -26,6 +37,35 @@ Plugins
 		<td>{{$plugin->name}}</td>
 		<td>{{$plugin->alias}}</td>
 		<td>{{$plugin->role}}</td>
+		<td>
+<?php
+switch($plugin->ispublic){
+	case 0:
+		echo "Public";
+
+		break;
+	case 1:
+		echo "Anonymous";
+
+		break;
+	case 2:
+		echo "User";
+
+		break;
+	case 3:
+		echo "Editor";
+
+		break;
+	case 4:
+		echo "Admin";
+
+		break;
+	default:
+		echo "bug";
+
+}
+?>
+		</td>
 <?php
 $user = App\User::where('id',$plugin->author)->first();
 ?>
@@ -36,7 +76,7 @@ $user = App\User::where('id',$plugin->author)->first();
 -Unknown-
 @endif
 		</td>
-		<td>{{$plugin->created_at}}</td>
+		<td>{{date("Ymd",strtotime($plugin->created_at))}}</td>
 		<td>
 			<a href={{route('admin.plugins.modify',$plugin->id)}}><span class="glyphicon glyphicon-search"></span></a>
 		</td>
@@ -65,6 +105,10 @@ $user = App\User::where('id',$plugin->author)->first();
 @endcan
 </tfoot>
 </table>
-
+<script>
+var search_data = function(){
+        location.href="{{url('/admin/plugins')}}"+"/"+$('#filter_type').val().toLowerCase()+"/"+$('#filter_criteria').val();
+}
+</script>
 
 @stop

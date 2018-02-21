@@ -41,7 +41,7 @@ class UserController extends Controller
         }else{
 		return redirect()->back()->withErrors(['msg','password error']);
         }
-	return redirect()->route('admin.myInfo');
+	return back();
     }
 	public function changePolicy(Request $request)
 	{

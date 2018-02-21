@@ -8,15 +8,16 @@ General
 <table class=table>
 	<thead>
 		<tr>
-			<th>ID</th>
-			<th>Plugin</th>
-			<th>Next</th>
-			<th>Name</th>
-			<th>Status</th>
-			<th>Queue ID</th>
-			<th>Submitted</th>
-			<th>Updated</th>
-			<th>Ouptut</th>
+			<th style="width:3%;">ID</th>
+			<th style="width:5%;">Plugin</th>
+			<th style="width:5%;">Next</th>
+			<th style="width:5%;">Name</th>
+			<th style="width:5%;">Status</th>
+			<th style="width:7%;">Queue ID</th>
+			<th style="width:10%;">Submitted</th>
+			<th style="width:10%;">Updated</th>
+			<th style="width:40%;">Ouptut</th>
+			<th style="width:5%;"></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -43,6 +44,11 @@ if(isset($job->qinfo)){
 			<td>{{ $job->created_at }}</td>
 			<td>{{ $job->updated_at }}</td>
 			<td>{{ $job->output }}</td>
+			<td>
+                        @if(Auth::user()->policy==="admin")
+                                <button class="btn btn-danger" onclick="delete_job({{$job->id}})">Delete</button>
+                        @endif
+			</td>
 		</tr>
 @empty
 		<tr>
@@ -52,5 +58,19 @@ if(isset($job->qinfo)){
 	</tbody>
 </table>
 {{$jobs}}
-
+<script>
+var delete_job = function(target_id){
+        $.ajax({
+                "url":"{{url('/admin/jobs/delete')}}",
+                "type":"post",
+                "data":{
+                        "_token":"{{csrf_token()}}",
+                        "id":target_id,
+                },
+		"success":function(ret){
+			location.reload();
+		}
+        })
+}
+</script>
 @stop

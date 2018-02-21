@@ -10,10 +10,10 @@ function saveEnv(){
 	        'X-CSRF-TOKEN': '{{ csrf_token() }}'
 	    }
 	});
-          alert( $('#verify_email').is(":checked"));
 	$.ajax({
 		url : '/admin/general/save',
-		dataType : 'json',
+//		dataType : 'json',
+//dataType:'sjon'이라 success한 경우 return이 error로 가고 있어 alert창이 안뜸
 		method : 'post',
 		data : {
 			url : $('.url').val(),
@@ -32,8 +32,7 @@ function saveEnv(){
 		success : function(a,b){
 			alert("Success");
 			console.log(a,b);
-		}
-		
+		},
 	});
 }
 </script>
@@ -57,19 +56,21 @@ function saveEnv(){
 			</div>
 		</div>
 		<!-- Service Title -->
-		<div class='form-group row'>
+<!--		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Service Title</label>
 			<div class=col-sm-9>
 				<input type=text class='form-control title' value='{{ $env["title"] or "" }}' placeholder='Service Title'>
 			</div>
 		</div>
+-->
 		<!-- Service Logo -->
-		<div class='form-group row'>
+<!--		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Service Logo</label>
 			<div class=col-sm-9>
 				<input type=text class='form-control logo' value='{{ $env["logo"] or "" }}' placeholder='Service Title'>
 			</div>
 		</div>
+-->
 		<!-- Analytics -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Header</label>

@@ -16,6 +16,7 @@
 
 <link rel=stylesheet href={{ asset("/assets/kcms/vlatoms/css/jquery-ui.min.css") }}>
 <link rel=stylesheet href={{ asset("/assets/kcms/vlatoms/css/vlatoms.css") }}>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/jquery-3.1.1.min.js") }}></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/jquery.topzindex.js") }}></script>
 <script src={{ asset("/assets/kcms/vlatoms/js/jquery-ui.min.js") }}></script>
@@ -36,7 +37,7 @@
 			console.log("Calling Plugin");
 			var dataJson = {'alias':alias,'input':data};
 			$.ajax({
-				url:"/api/plugin/run",
+				url:"/run_plugins",
 				dataType : "json",
 				method : 'post',
 				async : false,

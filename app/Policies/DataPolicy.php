@@ -27,7 +27,7 @@ class DataPolicy
 	
 	public function read(User $user,$data)
 	{
-	if($data->ispublic===1) return true;
+
 	$policy = Policy::where('type',$user->policy)->first();
 		if($data->author == $user->id){
 			return $policy->own_data_read == 1;

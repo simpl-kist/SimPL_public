@@ -12,7 +12,6 @@
 */
 Auth::routes();
 
-
 Route::get('logout','Auth\LoginController@logout');
 Route::get('verification',function(){
 	if(Auth::user()->verified===1){
@@ -24,9 +23,35 @@ Route::get('verification',function(){
 
 Route::get('/verifyemail/{token}','Auth\RegisterController@verify');
 
+Route::get('/','PageController@view');
+Route::post('/run_plugins',[
+	'as'=>'run_plguins',
+	'uses'=>'PluginController@run'
+]);
+Route::get('/repo/{alias}','PageController@getRepoforWeb');
+Route::get('/server/{alias}','PluginController@getRepoforServer');
+
 Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
-	Route::get('/','IndexController@index'); 
-	Route::get('/','PageController@view');
+
+//개인 계정 정보를 수정하는 페이지는 만들어진 페이지를 링크하여 사용하도록 하는 것이 안전할 듯 하여
+//preset이라는 prefix로 접근할 수 있게 만들었음. 더 좋은 방법이 있을 것 같습니다.
+	Route::group(['prefix' => 'preset', 'as' => 'preset.'],function(){
+		Route::get('/myInfo',[
+			'as'=>'myInfo',
+			'uses'=>'AdminController@myInfo_preset'
+		]);
+		Route::POST('defaultPic','UserController@defaultPic')->name('defaultPic');
+        
+		Route::POST('/deleteMe',[
+			'as'=>'deleteMe',
+			'uses'=>'UserController@deleteMe',
+		]);
+		Route::POST('updateMe',[
+			'as'=>'updateMe',
+			'uses'=>'UserController@update',
+		]);
+	});
+
 	/*Route::get('/admin/', function () {
 	    return view('admin.index');
 	});*/
@@ -47,35 +72,38 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				'uses'=>'AdminController@myInfo'
 			]);
 			Route::get('/userInfo/{id}','UserController@userInfo');
-			Route::POST('defaultPic','UserController@defaultPic')->name('defaultPic');
 
-			Route::POST('/deleteMe',[
-				'as'=>'deleteMe',
-				'uses'=>'UserController@deleteMe',
-			]);
-			Route::POST('updateMe',[
-				'as'=>'updateMe',
-				'uses'=>'UserController@update',
-			]);
 			Route::get('/jobs',[
 				'as' => 'jobs',
 				'uses' => 'AdminController@jobs'
 			]);
+                        Route::post('jobs/delete',[
+                                'as' => 'deleteJob',
+                                'uses' => 'PluginController@deleteJob',
+                        ]);
 			Route::get('/general',[
 				'as' => 'general',
 				'uses' => 'AdminController@general'
 			]);
 			Route::post('/general/save','AdminController@saveEnv')->middleware('OnlyAdmin');
-			Route::get('/repository',[
-				'as' => 'repository',
-				'uses' => 'AdminController@repository'
-			]);
+
 			Route::get('/dashboard',[
 				'as' => 'dashboard',
 				'uses' => 'AdminController@dashboard'
 			]);
 
+			Route::get('/repository',[
+				'as' => 'repository',
+				'uses' => 'AdminController@repository',
+			]);
+
+			Route::post('/repository',[
+				'as' => 'repository',
+				'uses' => 'AdminController@repos_list',
+			]);
+
 			Route::get('/deleteRepo/{id}','AdminController@deleteRepo');
+
 			Route::group(['prefix'=>'repository','as'=>'repository.'],function(){
 				Route::post('/upload-file',[
 					'as'=>'upload-file',
@@ -84,6 +112,14 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				Route::post('/changePublic',[
 					'as'=>'changePublic',
 					'uses'=>'AdminController@repoChangePublic',
+				]);
+				Route::get('/web/{criteria?}',[
+					'as' => 'web',
+					'uses' => 'AdminController@repos_web'
+				]);
+				Route::get('/server/{criteria?}',[
+					'as' => 'server',
+					'uses' => 'AdminController@repos_server'
 				]);
 			});
 
@@ -126,7 +162,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 
 				Route::post("/test",'PluginController@run');
 			});
-			Route::get('/plugins',[
+			Route::get('/plugins/{type?}/{criteria?}',[
 				'as'=> 'plugins',
 				'uses'=>'PluginController@list'
 			]);
@@ -152,7 +188,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				Route::get('/modify/{id}','PageController@modify');
 				Route::get('/delete/{id}','PageController@delete');
 			});
-			Route::get('/pages',[
+			Route::get('/pages/{type?}/{criteria?}',[
 				'as' => 'pages',
 				'uses' => 'PageController@list'
 			]);
@@ -175,6 +211,6 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 			]);
 		});
 	});*/
-	Route::get('/{pagealias}','PageController@view');
-	Route::get('/repo/{alias}','PageController@getRepo');
+
 });
+Route::get('/{pagealias}','PageController@view');

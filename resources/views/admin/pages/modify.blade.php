@@ -13,14 +13,31 @@ General
 <script src={{asset('assets/vendor/codemirror/mode/')}}/css/css.js></script>
 <script src={{asset('assets/vendor/codemirror/mode/')}}/htmlmixed/htmlmixed.js></script>
 <script src={{asset('assets/vendor/codemirror/mode/')}}/python/python.js></script>
+<script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
+<style>
+.CodeMirror-fullscreen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  height: auto;
+  z-index: 9;
+}
+</style>
 <link href={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.css rel=stylesheet></script>
 <script>
 $('document').ready(function(){
 	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('contents')[0],{
 		mode : "htmlmixed",
-		extraKeys: {"Alt-Space": "autocomplete"},
-		lineNumbers:true
+		extraKeys: {
+			"Alt-Space": "autocomplete",
+			"Ctrl-Enter": function(cm) {
+				cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+			},
+			"Esc": function(cm) {
+				if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+			}
+		},
+		lineNumbers:true,
 	});
 });
 
@@ -39,13 +56,25 @@ $('document').ready(function(){
 				<input type=text class='form-control' name=title value="{!! $page->title !!}">
 			</div>
 		</div>
+		<!-- Service Title -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Alias</label>
 			<div class=col-sm-9>
 				<input type=text class='form-control' name=alias value="{!! $page->alias !!}">
 			</div>
 		</div>
-		<!-- Service Title -->
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>Required Qualification</label>
+			<div class=col-sm-9>
+				<select name=require class=form-control>
+					<option value=0 {{ $page->ispublic==0 ? "selected" : "" }}>Public</option>
+					<option value=1 {{ $page->ispublic==1 ? "selected" : "" }} >Anonymous</option>
+					<option value=2 {{ $page->ispublic==2 ? "selected" : "" }} >User</option>
+					<option value=3 {{ $page->ispublic==3 ? "selected" : "" }} >Editor</option>
+					<option value=4 {{ $page->ispublic==4 ? "selected" : "" }} >Admin</option>
+				</select>
+			</div>
+		</div>
 		<div class='form-group row'>
 			<label class='col-sm-12 col-form-label'>Content</label>
 			<div class=col-sm-12>
@@ -53,15 +82,9 @@ $('document').ready(function(){
 			</div>
 		</div>
 		<div class='form-group row'>
-			<div class=col-sm-12 style='text-align:right;'>
+			<div class="col-sm-12 form-inline" style='text-align:right;'>
+				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
-				<button type="button" id="change_public" class="btn btn-primary" onclick=changePublic()>
-		@if($page->ispublic===0)
-Make Public
-		@else
-Make Private
-		@endif
-				</button>
 				<button type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>

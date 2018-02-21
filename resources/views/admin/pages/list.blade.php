@@ -5,12 +5,23 @@ Pages
 @section('content')
 
 <h2>Pages</h2>
+<div class="col-xs-12 form-inline" style="text-align:center">
+        <select class=form-control id=filter_type>
+                <option>Title</option>
+                <option>Alias</option>
+        </select>
+        <input class=form-control id=filter_criteria>
+        <button class="btn btn-default" onclick="search_data();">
+        <i class="glyphicon glyphicon-search" style="font-size:15px"></i>
+        </button>
+</div>
 <table class='table'>
 	<thead>
 		<tr>
 			<th>Front</th>
-			<th>Title</th>
+			<th>Page Title</th>
 			<th>Alias</th>
+			<th>Least Level</th>
 			<th>Author</th>
 			<th>Registered</th>
 			<th colspan=3></th>
@@ -32,6 +43,30 @@ Pages
 			<td>{{{$page->alias}}}</td>
 			<td>
 <?php
+switch($page->ispublic){
+	case 0:
+		echo "Public";
+		break;
+	case 1:
+		echo "Anonymous";
+		break;
+	case 2:
+		echo "User";
+		break;
+	case 3:
+		echo "Editor";
+		break;
+	case 4:
+		echo "Admin";
+		break;
+	default:
+		echo "bug";
+
+}
+?>
+			</td>
+			<td>
+<?php
 $user = App\User::where('id',$page->author)->first();
 ?>
 @if(isset($user))
@@ -40,7 +75,7 @@ $user = App\User::where('id',$page->author)->first();
 -Unknown-
 @endif
 			</td>
-			<td>{{{$page->created}}}</td>
+			<td>{{ date("Ymd",strtotime($page->created)) }}</td>
 			<td>
 				<a href="/{{$page->alias}}" target="_blank">
 				<span class="glyphicon glyphicon-file"></span>
@@ -83,7 +118,9 @@ $user = App\User::where('id',$page->author)->first();
 	</tfoot>
 </table>
 <script>
-
+var search_data = function(){
+        location.href="{{url('/admin/pages')}}"+"/"+$('#filter_type').val().toLowerCase()+"/"+$('#filter_criteria').val();
+}
 </script>		
 
 @stop
