@@ -52,6 +52,7 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+'options' => array( PDO::MYSQL_ATTR_MAX_BUFFER_SIZE => 16777216 ),
         ],
 
         'pgsql' => [
