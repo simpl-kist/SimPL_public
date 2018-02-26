@@ -28,6 +28,7 @@ General
 $('document').ready(function(){
 	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('contents')[0],{
 		mode : "htmlmixed",
+		lineWrapping:true,
 		extraKeys: {
 			"Alt-Space": "autocomplete",
 			"Ctrl-Enter": function(cm) {
