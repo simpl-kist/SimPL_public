@@ -47,6 +47,7 @@ $('document').ready(function(){
 	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('script')[0],{
 		mode:"python",
 		lineNumbers:true,
+		lineWrapping:true,
 		extraKeys: {
 			"Ctrl-Enter": function(cm) {
 				cm.setOption("fullScreen", !cm.getOption("fullScreen"));
