@@ -6,6 +6,7 @@ General
 <script>
 @if(Auth::user()->policy==="admin")
 function backup_db(){
+	if(!confirm("Your DB will be backuped. Continue?")) return;
 	$.ajax({
 		url : '/admin/general/backup_db',
 		method : 'post',
@@ -22,6 +23,7 @@ function backup_db(){
 	})
 }
 function recover_db(){
+	if(!confirm("Your DB will be recovered. Continue?")) return;
 	if($("#target_backup").val()=="none") return;
 	$.ajax({
 		url : '/admin/general/recover_db',
@@ -164,13 +166,12 @@ function saveEnv(){
 				<input type=text class='form-control qdel' value='{{ $env["qdel"] or ""}}' placeholder='PATH for qdel'>
 			</div>
 		</div>
-
+<hr>
 		<!-- Buttons -->
 		@if(Auth::user()->policy==="admin")
 		<div class='form-group row'>
-			<div class="form-inline col-sm-12" style='text-align:right;'>
-				<button type="button" class="btn btn-primary" onclick='saveEnv();'>Apply</button>
-				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
+			<label class='col-sm-3 col-form-label'>Database</label>
+			<div class="form-inline col-sm-9" style='text-align:left;'>
 				<select class=form-control style="width:90px margin-left:15px" id=target_backup>
 <option value=none>BACKUP LIST</option>
 @forelse($env['entry'] as $entry)
@@ -179,6 +180,10 @@ function saveEnv(){
 @endforelse
 </select>
 				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='recover_db();'>Recover</button>
+				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
+			</div>
+			<div class="form-inline col-sm-12" style='margin-top:25px;text-align:right;'>
+				<button type="button" class="btn btn-success" onclick='saveEnv();' style="font-size:16px;width:80px;height:50px">Apply</button>
 			</div>
 		</div>
 		@endif
