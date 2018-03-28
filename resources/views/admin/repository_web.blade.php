@@ -24,7 +24,7 @@ Repositories
 	<div class='file_Wrapper col-sm-2' style='padding:30px;'> <!-- Wrapper -->
 		<div style="position:relative;width:100%;padding-bottom:100%">
 			<div style="position:absolute;width:100%;height:100%;text-align:center">
-				<img src=/{{ $file->filename }} style="position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;max-width:100%;max-height:100%;width:auto;height:auto">
+				<img src=/repo/{{$file->alias}} style="position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;max-width:100%;max-height:100%;width:auto;height:auto">
 			</div>
 		</div>
 		<div class=form-group>

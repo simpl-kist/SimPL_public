@@ -4,6 +4,23 @@ General
 @stop
 @section('content')
 <script>
+@if(Auth::user()->policy==="admin")
+function backup_db(){
+	$.ajax({
+		url : '/admin/general/backup_db',
+		method : 'post',
+		data : {
+			"_token":"{{csrf_token()}}",
+		},
+		success:function(a,b){
+			alert("success");
+			console.log(a,b);
+		},
+		error:function(ret){
+			console.log(ret);
+		}
+	})
+}
 function saveEnv(){
 	$.ajaxSetup({
 	    headers: {
@@ -35,6 +52,7 @@ function saveEnv(){
 		},
 	});
 }
+@endif
 </script>
 <h2>General</h2>
 <div class=row>
@@ -134,6 +152,7 @@ function saveEnv(){
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
 				<button type="button" class="btn btn-primary" onclick='saveEnv();'>Apply</button>
+				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
 			</div>
 		</div>
 		@endif

@@ -42,9 +42,9 @@ class AdminController extends Controller
 				return response()->json("Alias already exists",422);
 			}
 			if($repos_for == 1){
-				$filename = $files[$i]->store("repository/web");
+				$filename = $files[$i]->store("web","repos");
 			}else if($repos_for == 0){
-				$filename = $files[$i]->store("repository/server");
+				$filename = $files[$i]->store("server","repos");
 			}else{
 				return;
 			}
@@ -197,6 +197,16 @@ class AdminController extends Controller
 			}
 		}
 	}
+	public function backup_db(){
+		$user=env('DB_USERNAME');
+		$pass=escapeshellcmd(env('DB_PASSWORD'));
+		$db=env('DB_DATABASE');
+		$filename=$db.strtotime(now()).".sql";
+		$path=storage_path("backup");
+
+		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' > '.$path."/".$filename);
+		return $filename;
+	}
 	public function saveSolver(){
 		$solver = new SolverModel;
 		$solver->name = $_POST['name'];	
@@ -226,6 +236,5 @@ class AdminController extends Controller
                 fclose($fp);
                 return response()->download($request->filename)->deleteFileAfterSend(true);
         }
-
     //
 }

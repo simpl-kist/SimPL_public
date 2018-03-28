@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
 use App\PageModel;
 use App\CmsEnvModel;
@@ -46,7 +48,18 @@ class PageController extends Controller
 			}
 		}
 		if($can_read==1){
-			return redirect('/'.$img->filename);
+			$path = storage_path('repos/' . $img->filename);
+			if (!File::exists($path)) {
+			    return "empty";
+			}
+        
+			$file = File::get($path);
+			$type = File::mimeType($path);
+        
+			$response = Response::make($file, 200);
+			$response->header("Content-Type", $type);
+        
+			return $response;
 		}else{
 			return redirect('/assets/kcms/img/locked_page.png');
 		}

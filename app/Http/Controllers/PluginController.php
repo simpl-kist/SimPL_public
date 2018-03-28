@@ -491,8 +491,8 @@ fclose($pipes[2]);
 		if($can_read==0){
 			return "UNAUTHORIZED";
 		}
-		$target_file = fopen($file->filename,"r") or die("Unable to open file!");
-		$file_data=fread($target_file,filesize($file->filename));
+		$target_file = fopen(storage_path("repos/").$file->filename,"r") or die("Unable to open file!");
+		$file_data=fread($target_file,filesize(storage_path("repos/").$file->filename));
 		fclose($target_file);
 		return $file_data;
 	}

@@ -87,6 +87,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				'uses' => 'AdminController@general'
 			]);
 			Route::post('/general/save','AdminController@saveEnv')->middleware('OnlyAdmin');
+			Route::post('/general/backup_db','AdminController@backup_db')->middleware('OnlyAdmin');
 
 			Route::get('/dashboard',[
 				'as' => 'dashboard',
@@ -214,5 +215,21 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 		});
 	});*/
 
+});
+
+Route::get('userpic/{filename}', function ($filename)
+{
+    $path = storage_path('userpic/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
 });
 Route::get('/{pagealias}','PageController@view');

@@ -21,9 +21,9 @@ class UserController extends Controller
             $this->authorize('update',$user);
 			if($request->hasFile('file')){
 				if($user->mypic!==null){
-					Storage::delete($user->mypic);
+					Storage::disk('userpic')->delete($user->mypic);
 				}
-				$filename = $request->file('file')->store("userpic");
+				$filename = $request->file('file')->store("/","userpic");
 				$user->mypic = $filename;
 			}
             $user->name = urldecode($request->name);

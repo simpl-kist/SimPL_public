@@ -42,6 +42,18 @@ return [
     */
 
     'disks' => [
+        'repos' => [
+            'driver' => 'local',
+            'root' => storage_path('repos'),
+        ],
+        'userpic' => [
+            'driver' => 'local',
+            'root' => storage_path('userpic'),
+        ],
+        'backup' => [
+            'driver' => 'local',
+            'root' => storage_path('backup'),
+        ],
 
         'local' => [
             'driver' => 'local',

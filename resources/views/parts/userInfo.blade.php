@@ -11,7 +11,7 @@ use App\Repository;
 			<td id=mypic>
 <span style=position:relative>
 @isset($user->mypic)
-				<label id=picspan><img src="{{url('/')}}/{{$user->mypic}}" style='max-width:100px;max-height:100px;vertical-align:bottom'>
+				<label id=picspan><img src="/userpic/{{$user->mypic}}" style='max-width:100px;max-height:100px;vertical-align:bottom'>
 @else
 				<label id=picspan class="glyphicon glyphicon-user" style="font-size:100px;color:#cecece">
 @endif
