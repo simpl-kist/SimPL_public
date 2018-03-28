@@ -170,6 +170,22 @@ class AdminController extends Controller
 	}
 	public function general(){
 		$env = $this->getSimPLEnv();
+
+		$path = storage_path('backup');
+		$entrys = array();
+		$dirs = dir($path);
+		while(false !== ($entry = $dirs->read())){ 
+			if(($entry != '.') && ($entry != '..')) { 
+				if(is_dir($path.'/'.$entry)) {
+				} 
+				else {
+					$entrys[] = $entry; 
+				} 
+			} 
+		} 
+		$dirs->close();
+		$env['entry']=$entrys;
+
 		return view("admin.general",compact('env'));
 	}
 	public function users(){
@@ -197,11 +213,20 @@ class AdminController extends Controller
 			}
 		}
 	}
+	public function recover_db(Request $request){
+		$filename=$request->filename;
+		$user=env('DB_USERNAME');
+		$pass=escapeshellcmd(env('DB_PASSWORD'));
+		$db=env('DB_DATABASE');
+		$path=storage_path("backup");
+		exec("mysql --user=".$user." --password=".$pass." ".$db." <".$path."/".$filename);
+return [$user,$pass,$db,$path,$filename];
+	}
 	public function backup_db(){
 		$user=env('DB_USERNAME');
 		$pass=escapeshellcmd(env('DB_PASSWORD'));
 		$db=env('DB_DATABASE');
-		$filename=$db.strtotime(now()).".sql";
+		$filename=$db.(now()->format('Y-m-d_H:i:s')).".sql";
 		$path=storage_path("backup");
 
 		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' > '.$path."/".$filename);

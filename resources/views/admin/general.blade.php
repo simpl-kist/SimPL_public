@@ -21,6 +21,24 @@ function backup_db(){
 		}
 	})
 }
+function recover_db(){
+	if($("#target_backup").val()=="none") return;
+	$.ajax({
+		url : '/admin/general/recover_db',
+		method : 'post',
+		data : {
+			"_token":"{{csrf_token()}}",
+			"filename":$("#target_backup").val(),
+		},
+		success:function(a,b){
+			alert("success");
+			console.log(a,b);
+		},
+		error:function(ret){
+			console.log(ret);
+		}
+	})
+}
 function saveEnv(){
 	$.ajaxSetup({
 	    headers: {
@@ -150,9 +168,17 @@ function saveEnv(){
 		<!-- Buttons -->
 		@if(Auth::user()->policy==="admin")
 		<div class='form-group row'>
-			<div class=col-sm-12 style='text-align:right;'>
+			<div class="form-inline col-sm-12" style='text-align:right;'>
 				<button type="button" class="btn btn-primary" onclick='saveEnv();'>Apply</button>
 				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
+				<select class=form-control style="width:90px margin-left:15px" id=target_backup>
+<option value=none>BACKUP LIST</option>
+@forelse($env['entry'] as $entry)
+<option>{{$entry}}</option>
+@empty
+@endforelse
+</select>
+				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='recover_db();'>Recover</button>
 			</div>
 		</div>
 		@endif

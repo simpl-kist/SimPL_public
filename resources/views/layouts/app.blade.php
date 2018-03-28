@@ -38,7 +38,7 @@ $env=json_decode(CmsEnvModel::where('var_key','logo')->first());
             <div class="col-md-8 col-md-offset-2">
                 <div style="text-align:center; margin-bottom:90px">
 			<a href={{url('/')}}>
-@if($env->var_value!==""))
+@if(isset($env) && $env->var_value!==""))
 <?php
 $logo_arr=explode("/",$env->var_value);
 $logo=array_pop($logo_arr);

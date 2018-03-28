@@ -89,6 +89,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 			Route::post('/general/save','AdminController@saveEnv')->middleware('OnlyAdmin');
 			Route::post('/general/backup_db','AdminController@backup_db')->middleware('OnlyAdmin');
 
+			Route::post('/general/recover_db','AdminController@recover_db')->middleware('OnlyAdmin');
 			Route::get('/dashboard',[
 				'as' => 'dashboard',
 				'uses' => 'AdminController@dashboard'
