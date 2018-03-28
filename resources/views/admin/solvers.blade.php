@@ -29,7 +29,7 @@ Solvers
 		<td>{{$solver->created_at}}</td>
 		<td>
 @can('delete',$solver)
-		<a href=""><span class="glyphicon glyphicon-trash"></span></a>
+		<a onclick=delete_solver({{$solver->id}});><span class="glyphicon glyphicon-trash"></span></a>
 @endcan
 		</td>
 	</tr>
@@ -49,12 +49,30 @@ Solvers
 	<td><input type=text name=execcmd class='form-control execcmd' placeholder='ex : -in input'></td>
 	<td><input type=text name=version class='form-control version'></td>
 	<td><input type=text name=author class='form-control author'></td>
-	<td colspan=2><button type="submit" class="btn btn-primary" onclick='saveEnv();'>Add</button></td>
+<!--	<td colspan=2><button type="submit" class="btn btn-primary" onclick='saveEnv();'>Add</button></td>  -->
+	<td colspan=2><button type="submit" class="btn btn-primary">Add</button></td>
 </tr>
 </form>
 </tfoot>
 @endcan
 </table>
-
+<script>
+	var delete_solver=function(idx){
+		$.ajax({
+			'url':"{{url('/admin/solvers/delete')}}",
+			'type':'post',
+			'data':{
+				'_token':'{{csrf_token()}}',
+				'idx':idx,
+			},
+			'success':function(ret){
+				location.reload();
+			},
+			'error':function(ret){
+				console.log(ret);
+			}
+		});
+	}
+</script>
 
 @stop

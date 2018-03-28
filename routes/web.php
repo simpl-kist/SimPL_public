@@ -171,6 +171,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				'uses' => 'AdminController@solvers'
 			]);
 			Route::post('/solvers/add','AdminController@saveSolver')->middleware('can:create,App\SolverModel');
+			Route::post('/solvers/delete','SolverController@delete_solver');
 			Route::group(['prefix'=>'pages','as'=>'pages.'],function(){
 				Route::post('/add',[
 					'as' => 'add',

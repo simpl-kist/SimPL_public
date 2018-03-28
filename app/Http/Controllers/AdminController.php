@@ -183,7 +183,7 @@ class AdminController extends Controller
 		return view("admin.plugins",compact('plugins'));
 	}
 	public function solvers(){
-		$solvers = SolverModel::get();
+		$solvers = SolverModel::orderBy('id','desc')->get();
 		return view("admin.solvers",compact('solvers'));
 	}
 	public function saveEnv(){
@@ -201,7 +201,7 @@ class AdminController extends Controller
 		$solver->name = $_POST['name'];	
 		$solver->version = $_POST['version'];	
 		$solver->author = $_POST['author'];	
-		$solver->owner = 1;
+		$solver->owner = Auth::user()->id;
 		$solver->path = $_POST['path'];	
 		$solver->execcmd = $_POST['execcmd'];	
 		$solver->save();

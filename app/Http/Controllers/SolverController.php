@@ -11,4 +11,9 @@ class SolverController extends Controller
 		return SolverModel::findOrFail($id);
 	}
     //
+	public function delete_solver(Request $request){
+		$solver=SolverModel::findOrFail($request->idx);
+		$this->authorize('delete',$solver);
+		$solver->delete();
+	}
 }

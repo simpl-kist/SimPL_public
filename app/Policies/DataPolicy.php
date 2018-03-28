@@ -46,7 +46,7 @@ class DataPolicy
 	}
 	public function delete(User $user,$data)
 	{
-	$policy = Policy::where('type',$user->policy)->first();
+		$policy = Policy::where('type',$user->policy)->first();
 		if($data->author == $user->id){
 			return $policy->own_data_delete == 1;
 		}else{
