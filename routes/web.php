@@ -103,7 +103,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				'uses' => 'AdminController@repos_list',
 			]);
 
-			Route::get('/deleteRepo/{id}','AdminController@deleteRepo');
+			Route::post('/deleteRepo','AdminController@deleteRepo');
 
 			Route::group(['prefix'=>'repository','as'=>'repository.'],function(){
 				Route::post('/upload-file',[
@@ -152,7 +152,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 					'as'=>'modify',
 					'uses'=>'PluginController@modify'
 				]);
-				Route::get('/delete/{id}',[
+				Route::post('/delete',[
 					'as'=>'delete',
 					'uses'=>'PluginController@delete'
 				]); 
@@ -188,7 +188,7 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 				])->middleware('can:create,App\PageModel');
 				Route::get('/setFront/{id}','PageController@setFront');
 				Route::get('/modify/{id}','PageController@modify');
-				Route::get('/delete/{id}','PageController@delete');
+				Route::post('/delete','PageController@delete');
 			});
 			Route::get('/pages/{type?}/{criteria?}',[
 				'as' => 'pages',

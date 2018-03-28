@@ -151,7 +151,8 @@ class AdminController extends Controller
 		$file->ispublic = $request->ispublic;
 		$file->save();
 	}
-	public function deleteRepo($id){
+	public function deleteRepo(Request $request){
+		$id=$request->idx;
 		$file=Repository::findOrFail($id);
 		$this->authorize('delete',$file);
 		$file->delete();

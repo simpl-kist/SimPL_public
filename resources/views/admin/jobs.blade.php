@@ -60,17 +60,19 @@ if(isset($job->qinfo)){
 {{$jobs}}
 <script>
 var delete_job = function(target_id){
-        $.ajax({
-                "url":"{{url('/admin/jobs/delete')}}",
-                "type":"post",
-                "data":{
-                        "_token":"{{csrf_token()}}",
-                        "id":target_id,
-                },
-		"success":function(ret){
-			location.reload();
-		}
-        })
+	if(confirm("Job "+target_id+" will be deleted. Continue?")){
+		$.ajax({
+			"url":"{{url('/admin/jobs/delete')}}",
+			"type":"post",
+			"data":{
+				"_token":"{{csrf_token()}}",
+				"id":target_id,
+			},
+			"success":function(ret){
+				location.reload();
+			}
+		})
+	}
 }
 </script>
 @stop

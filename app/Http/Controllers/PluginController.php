@@ -207,7 +207,8 @@ class PluginController extends Controller
 		$this->authorize('read',$plugin);
 		return view('admin/plugins/.add',compact('plugin'));
 	}
-	public function delete($id){
+	public function delete(Request $request){
+		$id=$request->idx;
 		$plugin = PluginModel::findOrFail($id);
 		$this->authorize('delete',$plugin);
 		$plugin->delete();

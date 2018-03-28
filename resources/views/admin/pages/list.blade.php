@@ -88,7 +88,7 @@ $user = App\User::where('id',$page->author)->first();
 			</td>
 			<td>
 			@can('delete',$page)
-				<a href="/admin/pages/delete/{{{$page->id}}}"><span class="glyphicon glyphicon-trash"></span></a>
+				<a style="cursor:pointer" onclick="delete_page({{$page->id}},{{$page->title}});"><span class="glyphicon glyphicon-trash"></span></a>
 			@endcan
 			</td>
 		</tr>
@@ -120,6 +120,21 @@ $user = App\User::where('id',$page->author)->first();
 <script>
 var search_data = function(){
         location.href="{{url('/admin/pages')}}"+"/"+$('#filter_type').val().toLowerCase()+"/"+$('#filter_criteria').val();
+}
+var delete_page = function(idx,title){
+	if(confirm("Page "+title+" will be deleted. Continue?")){
+		$.ajax({
+			"url":"/admin/pages/delete",
+			"type":"post",
+			"data":{
+				"_token":"{{csrf_token()}}",
+				"idx":idx,
+			},
+			"success":function(){
+				location.reload();
+			}
+		})		
+	}
 }
 </script>		
 

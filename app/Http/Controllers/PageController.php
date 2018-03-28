@@ -80,8 +80,9 @@ class PageController extends Controller
 		$m->save();
 		return redirect(route('admin.pages'));	
 	}
-	public function delete($id){
+	public function delete(Request $request){
 //block
+		$id=$request->idx;
 		$page = PageModel::findOrFail($id);
 		$this->authorize('delete',$page);
 		$page->delete();

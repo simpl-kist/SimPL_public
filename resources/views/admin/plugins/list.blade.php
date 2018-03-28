@@ -82,7 +82,7 @@ $user = App\User::where('id',$plugin->author)->first();
 		</td>
 		<td>
 		@can('delete',$plugin)
-			<a href={{route('admin.plugins.delete',$plugin->id)}}><span class="glyphicon glyphicon-trash"></span></a>
+			<a style="cursor:pointer" onclick=delete_plugin({{$plugin->id}},"{{$plugin->name}}")><span class="glyphicon glyphicon-trash"></span></a>
 		@endcan
 		</td>
 	</tr>
@@ -108,6 +108,21 @@ $user = App\User::where('id',$plugin->author)->first();
 <script>
 var search_data = function(){
         location.href="{{url('/admin/plugins')}}"+"/"+$('#filter_type').val().toLowerCase()+"/"+$('#filter_criteria').val();
+}
+var delete_plugin = function(idx,name){
+	if(confirm("Plug-in "+name+" will be deleted. Continue?")){
+		$.ajax({
+			"url":"/admin/plugins/delete",
+			"type":"post",
+			"data":{
+				"_token":"{{csrf_token()}}",
+				"idx":idx,
+			},
+			"success":function(){
+				location.reload();
+			}
+		})		
+	}
 }
 </script>
 

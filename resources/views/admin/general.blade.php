@@ -64,13 +64,12 @@ function saveEnv(){
 		</div>
 -->
 		<!-- Service Logo -->
-<!--		<div class='form-group row'>
+		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Service Logo</label>
 			<div class=col-sm-9>
-				<input type=text class='form-control logo' value='{{ $env["logo"] or "" }}' placeholder='Service Title'>
+				<input type=text class='form-control logo' value='{{ $env["logo"] or "" }}' placeholder='Service Logo URL'>
 			</div>
 		</div>
--->
 		<!-- Analytics -->
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Header</label>

@@ -50,7 +50,7 @@ $suffix=array_pop($arr);
 				</select>
 @endcan
 @can('delete',$file)
-				<a href="{{url('admin/deleteRepo/'.$file->id)}}"><span class="glyphicon glyphicon-trash"></span></a>
+				<a style="cursor:pointer" onclick=delete_repo({{$file->id}},"{{$file->alias}}") ><span class="glyphicon glyphicon-trash"></span></a>
 @endcan
 			</div>
 		</div>
@@ -119,6 +119,24 @@ Dropzone.options.dropzone = {
 }
 var search_repos = function(criteria){
 	location.href="/admin/repository/server/"+criteria;
+}
+var delete_repo = function(idx,name){
+	if(confirm("File "+name+" will be deleted. Continue?")){
+		$.ajax({
+			'url':"{{url('/admin/deleteRepo')}}",
+			'type':'post',
+			'data':{
+				'_token':'{{csrf_token()}}',
+				'idx':idx,
+			},
+			'success':function(ret){
+				location.reload();
+			},
+			'error':function(ret){
+				console.log(ret);
+			}
+		});
+	}
 }
 </script>
 @endcan

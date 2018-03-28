@@ -29,7 +29,7 @@ Solvers
 		<td>{{$solver->created_at}}</td>
 		<td>
 @can('delete',$solver)
-		<a onclick=delete_solver({{$solver->id}});><span class="glyphicon glyphicon-trash"></span></a>
+		<a onclick=delete_solver({{$solver->id}},"{{$solver->name}}");><span class="glyphicon glyphicon-trash"></span></a>
 @endcan
 		</td>
 	</tr>
@@ -57,7 +57,8 @@ Solvers
 @endcan
 </table>
 <script>
-	var delete_solver=function(idx){
+var delete_page = function(idx,title){
+	if(confirm("Solver "+title+" will be deleted. Continue?")){
 		$.ajax({
 			'url':"{{url('/admin/solvers/delete')}}",
 			'type':'post',
@@ -73,6 +74,8 @@ Solvers
 			}
 		});
 	}
+}
+
 </script>
 
 @stop
