@@ -65,6 +65,7 @@ class PageController extends Controller
 		}
 	}
 	public function add(Request $request){
+		if($request->input('title') === null || $request->input('alias') === null || $request->input('contents') === null ) return redirect()->back()->withInput($request->all); 
 		$pageM = PageModel::findOrNew($request->input('pageId'));
 		if($pageM->alias !== $request->alias){
 			if(count(PageModel::where('alias',$request->alias)->get())>0){

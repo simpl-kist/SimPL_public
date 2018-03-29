@@ -214,26 +214,57 @@ class AdminController extends Controller
 		}
 	}
 	public function recover_db(Request $request){
-		$filename=$request->filename;
-		$user=env('DB_USERNAME');
+		$filename=escapeshellcmd($request->filename);
+		$user=escapeshellcmd(env('DB_USERNAME'));
 		$pass=escapeshellcmd(env('DB_PASSWORD'));
-		$db=env('DB_DATABASE');
+		$db=escapeshellcmd(env('DB_DATABASE'));
 		$path=storage_path("backup");
 		exec("mysql --user=".$user." --password=".$pass." ".$db." <".$path."/".$filename);
-return [$user,$pass,$db,$path,$filename];
 	}
-	public function backup_db(){
-		$user=env('DB_USERNAME');
+	public function backup_db(Request $request){
+		$user=escapeshellcmd(env('DB_USERNAME'));
 		$pass=escapeshellcmd(env('DB_PASSWORD'));
-		$db=env('DB_DATABASE');
-		$filename=$db.(now()->format('Y-m-d_H:i:s')).".sql";
+		$db=escapeshellcmd(env('DB_DATABASE'));
+		$backup_target=$request->backup_object;
+		$filename=escapeshellcmd($db.(now()->format('Y-m-d_H:i:s'))."(".implode(",",$backup_target).").sql");
 		$path=storage_path("backup");
-
-		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' > '.$path."/".$filename);
+		$tables="";
+		if(count($backup_target)===0) return;
+		if(array_search("job",$backup_target)!==false && array_search("user",$backup_target)===false){
+			array_push($backup_target,"user");
+			array_push($backup_target,"password_resets");
+		}
+		for($i=0 ; $i<count($backup_target) ; $i++){
+			$target_table="";
+			switch($backup_target[$i]){
+				case "env":
+					$target_table="vcms_env";
+					break;
+				case "user":
+					$target_table="users password_resets";
+					break;
+				case "job":
+					$target_table="vcms_job";
+					break;
+				case "plugin":
+					$target_table="vcms_plugin";
+					break;
+				case "page":
+					$target_table="vcms_pages";
+					break;
+				case "solver":
+					$target_table="vcms_solvers";
+					break;
+			}
+			$tables.=$target_table." ";
+		}
+		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' '.$tables.' > '.$path."/".$filename);
 		return $filename;
 	}
 	public function saveSolver(){
 		$solver = new SolverModel;
+		$checkExistsName=SolverModel::where('name',$_POST['name'])->get();
+		if(count($checkExistsName)>0) return redirect(route('admin.solvers'));
 		$solver->name = $_POST['name'];	
 		$solver->version = $_POST['version'];	
 		$solver->author = $_POST['author'];	

@@ -88,7 +88,7 @@ $user = App\User::where('id',$page->author)->first();
 			</td>
 			<td>
 			@can('delete',$page)
-				<a style="cursor:pointer" onclick="delete_page({{$page->id}},{{$page->title}});"><span class="glyphicon glyphicon-trash"></span></a>
+				<a style="cursor:pointer" onclick="delete_page({{$page->id}},'{{$page->title}}');"><span class="glyphicon glyphicon-trash"></span></a>
 			@endcan
 			</td>
 		</tr>

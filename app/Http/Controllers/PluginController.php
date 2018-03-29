@@ -37,8 +37,8 @@ class PluginController extends Controller
 		$s[] = '			return ret';
 		$s[] = '		finally:';
 		$s[] = '			fp.close( )';
-		$s[] = 'def getSolver(id):';
-		$s[] = '	ret = urlopen("'.$env['url'].'/api/solvers/get/"+str(id)).read()';
+		$s[] = 'def getSolver(name):';
+		$s[] = '	ret = urlopen("'.$env['url'].'/api/solvers/get/"+str(name)).read()';
 		$s[] = '	return json.loads(ret)';
 		$s[] = 'def qsub(params={}):';	
 		$s[] = '	if not \'nnodes\' in params:';
@@ -144,6 +144,7 @@ class PluginController extends Controller
 		return $env;
 	}
 	public function store(){
+		if($_POST['name'] === "" || $_POST['alias'] === "" || $_POST['script'] === null ) return redirect()->back()->withInput($_POST); 
 		if(isset($_POST['pluginId'])){
 			$id = $_POST['pluginId'];
 		}else{

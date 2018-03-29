@@ -218,6 +218,20 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 
 });
 
+Route::get('repos/web/{filename}', function ($filename){
+    $path = storage_path('repos/web/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
 Route::get('userpic/{filename}', function ($filename)
 {
     $path = storage_path('userpic/' . $filename);

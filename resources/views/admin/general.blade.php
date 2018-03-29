@@ -7,15 +7,22 @@ General
 @if(Auth::user()->policy==="admin")
 function backup_db(){
 	if(!confirm("Your DB will be backuped. Continue?")) return;
+	let backup_object=[];
+	let checked=$(".backup_object:checked");
+	for(let i=0 ; i<checked.length ; i++){
+		backup_object.push($(checked[i]).val())
+	}
+console.log(backup_object);
 	$.ajax({
 		url : '/admin/general/backup_db',
 		method : 'post',
 		data : {
 			"_token":"{{csrf_token()}}",
+			"backup_object":backup_object,
 		},
-		success:function(a,b){
+		success:function(ret){
 			alert("success");
-			console.log(a,b);
+			console.log(ret);
 		},
 		error:function(ret){
 			console.log(ret);
@@ -170,18 +177,31 @@ function saveEnv(){
 		<!-- Buttons -->
 		@if(Auth::user()->policy==="admin")
 		<div class='form-group row'>
-			<label class='col-sm-3 col-form-label'>Database</label>
+			<label class='col-sm-3 col-form-label'>DB Recover</label>
 			<div class="form-inline col-sm-9" style='text-align:left;'>
-				<select class=form-control style="width:90px margin-left:15px" id=target_backup>
+				<select class=form-control style="width:331px;" id=target_backup>
 <option value=none>BACKUP LIST</option>
 @forelse($env['entry'] as $entry)
 <option>{{$entry}}</option>
 @empty
 @endforelse
 </select>
-				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='recover_db();'>Recover</button>
-				<button style="margin-left:15px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
+				<button style="margin-left:15px;width:90px" type="button" class="btn btn-primary" onclick='recover_db();'>Recover</button>
 			</div>
+		</div>
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>DB Backup</label>
+			<div class="form-inline col-sm-9" style='text-align:left;'>
+				<input type=checkbox class=backup_object value=env>Env
+				<input type=checkbox class=backup_object value=user>User
+				<input type=checkbox class=backup_object value=job>Job(+User)
+				<input type=checkbox class=backup_object value=plugin>Plugin
+				<input type=checkbox class=backup_object value=page>Page
+				<input type=checkbox class=backup_object value=solver>Solver
+				<button style="margin-left:15px;width:90px" type="button" class="btn btn-primary" onclick='backup_db();'>BackUp</button>
+			</div>
+		</div>
+		<div class='form-group row'>
 			<div class="form-inline col-sm-12" style='margin-top:25px;text-align:right;'>
 				<button type="button" class="btn btn-success" onclick='saveEnv();' style="font-size:16px;width:80px;height:50px">Apply</button>
 			</div>

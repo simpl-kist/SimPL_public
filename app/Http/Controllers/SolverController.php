@@ -7,8 +7,8 @@ use App\SolverModel;
 
 class SolverController extends Controller
 {
-	public function get($id){
-		return SolverModel::findOrFail($id);
+	public function get($name){
+		return SolverModel::where('name',$name)->first();
 	}
     //
 	public function delete_solver(Request $request){
