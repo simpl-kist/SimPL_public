@@ -156,7 +156,7 @@ class AdminController extends Controller
 		$file=Repository::findOrFail($id);
 		$this->authorize('delete',$file);
 		$file->delete();
-		Storage::delete($file->filename);
+		Storage::disk('repos')->delete($file->filename);
 		return back();
 	}
 

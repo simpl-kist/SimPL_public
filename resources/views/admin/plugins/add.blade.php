@@ -1,6 +1,6 @@
 @extends('admin.master')
 @section('title')
-General
+Edit Plugin
 @stop
 @section('content')
 <script>

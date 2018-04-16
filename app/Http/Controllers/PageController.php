@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route;
 
 use App\PageModel;
 use App\CmsEnvModel;
@@ -68,7 +69,7 @@ class PageController extends Controller
 		if($request->input('title') === null || $request->input('alias') === null || $request->input('contents') === null ) return redirect()->back()->withInput($request->all); 
 		$pageM = PageModel::findOrNew($request->input('pageId'));
 		if($pageM->alias !== $request->alias){
-			if(count(PageModel::where('alias',$request->alias)->get())>0){
+			if(count(PageModel::where('alias',$request->input['alias'])->get())>0){
 				return $request->alias;
 				return redirect()->back()->withInput($request->all);
 			}
@@ -162,7 +163,14 @@ class PageController extends Controller
 		if($can_read==1){
 			$contents = $this->renderPageContent( $page->contents );
 		}else{
-			return redirect("/");
+			if(Auth::user()){
+				if(Route::current()->getName()==""){
+					return "UNAUTHORIZED";
+				}
+				return redirect("/");
+			}else{
+				return redirect("/login");
+			}
 		}
 		return view('page',[
 			'title'=>$page->title,

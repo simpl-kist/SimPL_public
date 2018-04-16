@@ -82,7 +82,7 @@ $user = App\User::where('id',$plugin->author)->first();
 		</td>
 		<td>
 		@can('delete',$plugin)
-			<a style="cursor:pointer" onclick=delete_plugin({{$plugin->id}},"{{$plugin->name}}")><span class="glyphicon glyphicon-trash"></span></a>
+			<a style="cursor:pointer" onclick='delete_plugin({{$plugin->id}},"{{$plugin->name}}");'><span class="glyphicon glyphicon-trash"></span></a>
 		@endcan
 		</td>
 	</tr>

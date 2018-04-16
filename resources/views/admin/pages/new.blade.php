@@ -1,6 +1,6 @@
 @extends('admin.master')
 @section('title')
-General
+Edit Page
 @stop
 @section('content')
 <script src={{asset('assets/vendor/codemirror/lib/')}}/codemirror.js></script>
@@ -79,7 +79,7 @@ $('document').ready(function(){
 		</div>
 
 		<div class='form-group row'>
-			<label class='col-sm-12 col-form-label'>Content</label>
+			<label class='col-sm-12 col-form-label'>Script</label>
 			<div class=col-sm-12>
 				<textarea class='contents form-control' name=contents>{{old('contents')}}</textarea>
 			</div>

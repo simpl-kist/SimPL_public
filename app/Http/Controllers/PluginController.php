@@ -17,6 +17,7 @@ class PluginController extends Controller
 		$s = Array();
 		$s[] = 'import os';
 		$s[] = 'from urllib2 import urlopen';
+		$s[] = 'import urllib2';
 		$s[] = 'import json';
 		$s[] = 'import requests';
 		$s[] = 'import subprocess';
@@ -467,9 +468,13 @@ fclose($pipes[2]);
 		return rmdir($dir);
 	}
 	public function getMyInfo(Request $request){
+		$ret=[];
 		if(!Auth::check()){
 			$logincheck=$this->loginCheckOrByKey($request->key);
-			if($logincheck == "no user") return;
+			if($logincheck == "no user"){
+				$ret["id"]=-1;
+				return $ret;
+			}
 		}
 		$ret=Auth::user();
 		return $ret;
