@@ -176,7 +176,6 @@ class PageController extends Controller
 			'title'=>$page->title,
 			'contents'=>$contents,
 			'env'=>$env
-			
 		]);
 		//$pageM->get()->where("alias",$pageName);
 	}

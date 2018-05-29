@@ -89,6 +89,10 @@ $('document').ready(function(){
 				<button type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
+		<div class='form-group row'>
+			<div class="col-sm-12 form-inline page_view" style='text-align:right;'>
+			</div>
+		</div>
 	</form>
 	</div>
 </div>
