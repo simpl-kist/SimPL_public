@@ -21,8 +21,45 @@ class AdminController extends Controller
 		return view("admin.index");
 	}
 	public function jobs(){
-		$jobs = JobModel::orderBy('created_at','desc')->select(['id','name','created_at','updated_at','output','pluginId','qinfo'])->paginate(10);
-		return view("admin.jobs",compact('jobs'));
+		$type=isset($_GET['type']) ? $_GET['type'] : "";
+		$value=isset($_GET['value']) ? $_GET['value'] : "";
+		$url="/admin/jobs";
+		if($value !== ""){
+			$url.="?type=".$type."&value=".$value;
+		}
+		$ori_type=$type;
+		$ori_value=$value;
+
+		switch($type){
+			case "pluginalias":
+				$type="pluginId";
+				$tmp_plugin=PluginModel::where("alias",$value)->first();
+				if($tmp_plugin!==null){
+					$value=$tmp_plugin->id;
+				}else{
+					$value=-2;
+				}
+				break;
+			case "pluginid":
+				$type = "pluginId";
+				break;
+			case "name":
+			case "":
+				break;
+			default:
+				$type="pluginId";
+				$value=-2;				
+		}
+		$jobs = JobModel::when(isset($type) and $type!=="", function($query) use($type, $value){
+			return $query->where($type,$value);
+		})->
+		orderBy('created_at','desc')->
+		select(['id','name','created_at','updated_at','output','pluginId','qinfo'])->
+		paginate(10);
+
+		$jobs->withPath($url);
+
+		return view("admin.jobs")->with(['jobs'=>$jobs,'type'=>$ori_type,'value'=>$ori_value]);
 	}
 	public function uploadFile(Request $request){
 //todo 임시설정 server=>0 web=>1
@@ -65,6 +102,7 @@ class AdminController extends Controller
 		->when($criteria,function($query) use($criteria){
 			return $query->where("alias","like","%".$criteria."%");
 		})
+		->orderBy("id","desc")
 		->paginate(18);
 		return view('admin.repository_web',compact('repos'));
 	}
@@ -73,6 +111,7 @@ class AdminController extends Controller
 		->when($criteria,function($query) use($criteria){
 			return $query->where("alias","like","%".$criteria."%");
 		})
+		->orderBy("id","desc")
 		->paginate(18);
 		return view('admin.repository_server',compact('repos'));
 	}
@@ -88,7 +127,6 @@ class AdminController extends Controller
 		})->
 		paginate(18);
 		return $repos;
-
 	}
 	public function dashboard(){
                 $server=[];
@@ -132,7 +170,6 @@ class AdminController extends Controller
                         'server'=>$server,
                         'concurrent'=>$concurrent,
                 ]);
-
 /*	
 		$users = User::where( "created_at", ">=", \Carbon\Carbon::now()->addyears(-1) )->orderBy('created_at','desc')->get(['name','affiliation','mypic','created_at']);
 		$plugins = PluginModel::get(['id', 'name']);
@@ -172,6 +209,9 @@ class AdminController extends Controller
 		$env = $this->getSimPLEnv();
 
 		$path = storage_path('backup');
+		if(!(is_dir($path))){
+			mkdir($path);
+		}
 		$entrys = array();
 		$dirs = dir($path);
 		while(false !== ($entry = $dirs->read())){ 

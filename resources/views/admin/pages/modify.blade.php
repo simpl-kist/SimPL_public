@@ -45,8 +45,7 @@ $('document').ready(function(){
 </script>
 <h2>Pages</h2>
 <div class=row>
-	<div class='col-md-2'></div>
-	<div class='col-md-8'>
+	<div class='col-md-12'>
 	<form method=post action="{{ route('admin.pages.add') }}">
 		{{ csrf_field() }}
 		<!-- URL  -->
@@ -77,22 +76,28 @@ $('document').ready(function(){
 			</div>
 		</div>
 		<div class='form-group row'>
-			<label class='col-sm-12 col-form-label'>Script</label>
 			<div class=col-sm-12>
+			<label class='col-form-label' onclick='open_content("script");'>Script</label>
+			<label class='col-form-label' onclick='open_content("view");'>View</label>
+			</div>
+			<div class='col-sm-12 page_script page_tab'>
+
 				<textarea class='form-control contents' name=contents>{{ $page->contents }}</textarea>
+				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
+			</div>
+			<div class='col-sm-12 page_view page_tab' style="display:none;">
+				<iframe src="/{!! $page->alias !!}" style="width:100%;height:500px;">
+				</iframe>
 			</div>
 		</div>
+
 		<div class='form-group row'>
 			<div class="col-sm-12 form-inline" style='text-align:right;'>
-				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 				<button type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
-		<div class='form-group row'>
-			<div class="col-sm-12 form-inline page_view" style='text-align:right;'>
-			</div>
-		</div>
+
 	</form>
 	</div>
 </div>
@@ -111,5 +116,39 @@ var changePublic = function(){
 		error:function(){},
 	})
 }
+
+var open_content = function(type){
+	$(".page_tab").hide();
+	$(".page_"+type).show();
+}
+
+class script_tool{
+	constructor(target,element){
+		this.element=element;
+		let st=this;
+		let ih="";
+		ih+="<div><a class=script_tool_grid>Grid</a></div>";
+		target.prepend(ih);
+		target.find(".script_tool_grid").off();
+		target.find(".script_tool_grid").click(function(){
+			st.addGridToTarget();
+		})
+	}
+
+	addGridToTarget(){
+		let ih="<div></div>";
+		let start = this.element.prop("selectionStart");
+		let end = this.element.prop("selectionEnd");
+		let text= this.element.val();
+		
+		let before=text.substring(0,start);
+		let after=text.substring(end,text.length);
+		console.log(start,end,text,before,after);
+		this.element.val(before+ih+after);
+	}
+}
+
+//var tool_script=new script_tool($(".page_script"),$(".contents"));
+
 </script>
 @stop

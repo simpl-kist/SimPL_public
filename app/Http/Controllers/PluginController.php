@@ -90,12 +90,13 @@ class PluginController extends Controller
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/getRepoforServer",jsonData).text';
 		$s[] = '	return ret';
 		$s[] = 'def saveJob(jobInfo):';
-		$s[] = '	jobInfo["pluginId"] = kCms["pluginId"]';
-		if(Auth::user()!=null){
-			$s[] = '	jobInfo["owner"] = '.Auth::id();
-		}else{
-			$s[] = '	jobInfo["owner"] = -1';
-		}
+		$s[] = '	if "pluginId" not in jobInfo:';
+		$s[] = '		jobInfo["pluginId"] = kCms["pluginId"]';
+	if(Auth::user()!=null){
+		$s[] = '	jobInfo["owner"] = '.Auth::id();
+	}else{
+		$s[] = '	jobInfo["owner"] = -1';
+	}
 		$s[] = '	if not "jobdir" in jobInfo : ';
 		$s[] = '		jobInfo["jobdir"] = kCms["jobdir"]';
 		$s[] = '	ret = requests.post("'.$env['url'].'/api/plugin/saveJob",json=jobInfo).text';
@@ -390,7 +391,13 @@ fclose($pipes[2]);
 		return $id;
 	}
 	public function getJobs(Request $request){
-                $jobs = JobModel::where($request->except(['cols','criteria','order','limit']))
+		if(null!==$request->pluginAlias){
+			$__pluginByAlias=PluginModel::where("alias",$request->pluginName)->first();
+			if($__pluginByAlias !== null){
+				$request['pluginId']=$__pluginByAlias->id;
+			}
+		}
+                $jobs = JobModel::where($request->except(['cols','criteria','order','limit','pluginName']))
                 ->when($request->criteria,function($query) use($request){
                         for($i=0 ; $i<count($request->criteria) ; $i++){
                                 $query=$query->whereRaw($request->criteria[$i]);
@@ -415,7 +422,11 @@ fclose($pipes[2]);
 				$_plugins[$__plugins[$i]['id']]=$__plugins[$i]['name'];
 			}
 			for($i=0 ; $i<count($jobs) ; $i++){
-				$__plugin_name=$_plugins[$jobs[$i]->pluginId];
+				if($jobs[$i]->pluginId == -1){
+					$__plugin_name = "TEST";
+				}else{
+					$__plugin_name=$_plugins[$jobs[$i]->pluginId];
+				}
 				$jobs[$i]['pluginName'] = $__plugin_name;
 			}
 		}
@@ -424,7 +435,6 @@ fclose($pipes[2]);
 //		return $jobs;
 		// R
 	}
-
 
         public function deleteJob(Request $request){
                 $jobs=JobModel::findOrFail($request->id);
