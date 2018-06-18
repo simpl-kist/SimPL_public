@@ -180,13 +180,15 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 					'as' => 'add',
 					'uses' => 'PageController@add'
 				]);
-				Route::post('/changePublic',[
+/*				Route::post('/changePublic',[
 					'as' => 'changePublic',
 					'uses' => 'PageController@changePublic',
 				]);
+*/
 				Route::get('/new',[
 					'as'=>'new',
-					'uses'=>function(){return view('admin.pages.new');}
+//					'uses'=>function(){return view('admin.pages.new');}
+					'uses'=>function(){return view('admin.pages.modify');}
 				])->middleware('can:create,App\PageModel');
 				Route::get('/setFront/{id}','PageController@setFront');
 				Route::get('/modify/{id}','PageController@modify');

@@ -42,12 +42,9 @@ $('document').ready(function(){
 	});
 });
 </script>
-
 <h2>Pages</h2>
-
 <div class=row>
-	<div class='col-md-2'></div>
-	<div class='col-md-8'>
+	<div class='col-md-12'>
 	<form method=post action="{{ route('admin.pages.add') }}">
 		{{ csrf_field() }}
 		<!-- URL  -->
@@ -77,7 +74,6 @@ $('document').ready(function(){
 				</select>
 			</div>
 		</div>
-
 		<div class='form-group row'>
 			<label class='col-sm-12 col-form-label'>Script</label>
 			<div class=col-sm-12>

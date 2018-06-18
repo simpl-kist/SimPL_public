@@ -69,8 +69,7 @@ class PageController extends Controller
 		if($request->input('title') === null || $request->input('alias') === null || $request->input('contents') === null ) return redirect()->back()->withInput($request->all); 
 		$pageM = PageModel::findOrNew($request->input('pageId'));
 		if($pageM->alias !== $request->alias){
-			if(count(PageModel::where('alias',$request->input['alias'])->get())>0){
-				return $request->alias;
+			if(count(PageModel::where('alias',$request->input('alias'))->get())>0){
 				return redirect()->back()->withInput($request->all);
 			}
 		}
