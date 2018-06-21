@@ -16,7 +16,7 @@ Edit Page
 <script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
-	.test_main div{
+	.editor_main div{
 		border:1px solid red;
 		min-height:15px;
 	}
@@ -30,13 +30,13 @@ Edit Page
   z-index: 9;
 }
 .modal_prop_label{
-	width:75px;
+	width:90px;
 }
 </style>
 <link href={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.css rel=stylesheet></script>
 <script>
 $('document').ready(function(){
-	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('contents')[0],{
+	scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('contents_wrapper')[0],{
 		mode : "htmlmixed",
 		lineWrapping:true,
 		extraKeys: {
@@ -98,10 +98,10 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12>
-			<label class='col-form-label' onclick='open_content("script");'>Script</label>
-			<label class='col-form-label' onclick='open_content("view");'>View</label>
+				<label class='col-form-label selected_view' data-type="script" onclick='open_content("script");'>Script</label>
+				<label class='col-form-label' data-type="editor" onclick='open_content("editor");'>Editor</label>
 			</div>
-			<div class='col-sm-12 page_view page_tab' style="display:none;">
+			<div class='col-sm-12 page_editor page_tab' style="display:none;">
 				<div class="row form-inline simpl_wysiwyg_tooltip">
 					<button class="btn btn-primary add_dom_element" value="div" type="button">Div</button>
 					<button class="btn btn-primary add_dom_element" value="label" type="button">Label</button>
@@ -113,6 +113,8 @@ $('document').ready(function(){
 					<button class="btn btn-primary add_dom_element" value="br" type="button">Br</button>
 					<button class="btn btn-primary add_dom_element" value="span" type="button">Text</button>
 					<button class="btn btn-primary add_dom_element" value="img" type="button">Img</button>
+					<button class="btn btn-primary add_dom_element" value="ul" type="button">List</button>
+					<button class="btn btn-primary add_dom_element" value="table" type="button">Table</button>
 					<button class="btn btn-danger remove_dom_element" value="backspace" type="button">BackSpace</button>
 					<button class="btn btn-danger remove_dom_element" value="delete" type="button">Delete</button>
 					<br>
@@ -128,12 +130,23 @@ $('document').ready(function(){
 					<button class="btn btn-primary align_dom_element" value="top" type="button">Top</button>
 					<button class="btn btn-primary align_dom_element" value="middle" type="button">Middle</button>
 					<button class="btn btn-primary align_dom_element" value="bottom" type="button">Bottom</button>
+					<br>
+					<label>Background-color : </label>
+					<input type="color" class="form-control style_dom_element" value="#ffffff" data-css="background-color" style="width:30px;height:30px;padding:0">
+					<label>Width : </label>
+					<input class="form-control style_dom_element" data-css="width" style="width:70px;">
+					<label>Height : </label>
+					<input class="form-control style_dom_element" data-css="height" style="width:70px;">
+					<label>Font-color : </label>
+					<input type="color" class="form-control style_dom_element" value="#000000" data-css="color" style="width:30px;height:30px;padding:0">
+					<label>Font-size : </label>
+					<input class="form-control style_dom_element" data-css="font-size" style="width:70px;">
 				</div>	
-				<div class="test_main">
+				<div class="editor_main">
 				</div>
 			</div>
 			<div class='col-sm-12 page_script page_tab'>
-				<textarea class='form-control contents' name=contents>{{ old('contents')!==NULL ? old('contents') : $page->contents }}</textarea>
+				<textarea class='form-control contents_wrapper' name=contents>{{ old('contents')!==NULL ? old('contents') : $page->contents }}</textarea>
 				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
 			</div>
 		</div>
@@ -169,14 +182,18 @@ $('document').ready(function(){
 </div>
 <script>
 var open_content = function(type){
+	if($(".selected_view").data('type')===type) return;
+	$(".selected_view").removeClass("selected_view");
+	$(this).addClass("selected_view");
 	$(".page_tab").hide();
 	$(".page_"+type).show();
 	if(type==="script"){
-		scriptEditor.setValue(formatFactory($(".test_main").html()));
+		scriptEditor.setValue(formatFactory($(".editor_main").html()));
 		scriptEditor.save();
-	}else if(type==="view"){
+	}else if(type==="editor"){
 		scriptEditor.save();
-		$(".test_main").html($(".contents").val());
+		$(".contents_wrapper").val(scriptEditor.getValue());
+		$(".editor_main").html($(".contents_wrapper").val());
 		add_event();
 	}
 }
@@ -223,7 +240,7 @@ var open_content = function(type){
   };
   //
   function add_event() {
-  	var a = [$(".test_main")[0]];
+  	var a = [$(".editor_main")[0]];
   	for (var i = 0; i < a.length; i++) {
   		if (i !== 0) {
   			$(a[i]).off();
@@ -235,15 +252,28 @@ var open_content = function(type){
   				e.preventDefault();
   			});
   		}
-  		var child = $(a[i]).children();
-  		for (var j = 0; j < child.length; j++) {
-  			a.push(child[j]);
-  		}
+		if($(a[i]).prop("tagName")!=="TABLE"){
+	  		var child = $(a[i]).children();
+  			for (var j = 0; j < child.length; j++) {
+  				a.push(child[j]);
+	  		}
+		}
   	}
 	$(".clicked_element").removeClass("clicked_element");
-  	scriptEditor.setValue(formatFactory($(".test_main").html()));
+  	scriptEditor.setValue(formatFactory($(".editor_main").html()));
 	scriptEditor.save();
   }
+$(".style_dom_element").off();
+$(".style_dom_element").change(function(){
+	if($(".clicked_element")[0] === undefined) return;
+	if($(this).data('css')==="height" || $(this).data('css')==="height" || $(this).data('css')==='font-size'){ 
+		$(".clicked_element").css($(this).data('css'),$(this).val()+"px");
+	}else{
+		$(".clicked_element").css($(this).data('css'),$(this).val());
+	}
+});
+
+
 function editProperties(){
   	let target = $(".clicked_element");
   	if (target.length===0) return;
@@ -262,8 +292,9 @@ function editProperties(){
 			ih+="<option value=checkbox "+(target.prop("type")==="checkbox"?"selected":"")+">Checkbox</option>";
 			ih+="<option value=file "+(target.prop("type")==="file"?"selected":"")+">File</option>";
 			ih+="</select></div>";
-			ih+="<div><label class=modal_prop_label>Placeholder</label><input id=modal_input_placeholder class=form-control value='"+target.prop('placeholder')+"'></div>";
-			ih+="<div><label class=modal_prop_label>Checked</label><input type=checkbox id=modal_input_checked class=form-control "+(target.prop('checked')?"checked":"")+"></div>";
+			ih+="<div id=modal_input_value_wrapper><label class=modal_prop_label>Value</label><input id=modal_input_value class=form-control value='"+target.val()+"'></div>";
+			ih+="<div id=modal_input_placeholder_wrapper><label class=modal_prop_label>Placeholder</label><input id=modal_input_placeholder class=form-control value='"+target.prop('placeholder')+"'></div>";
+			ih+="<div id=modal_input_checked_wrapper><label class=modal_prop_label>Checked</label><input type=checkbox id=modal_input_checked class=form-control "+(target.prop('checked')?"checked":"")+"></div>";
 			break;
 		case "DIV":
 			ih+="<div><label class=modal_prop_label>Text</label><input id=modal_div_text class=form-control value='"+target.text()+"'></div>";
@@ -286,9 +317,123 @@ function editProperties(){
 			ih+="<div><label class=modal_prop_label>Alt</label><input id=modal_img_alt class=form-control value='"+target.prop("alt")+"'></div>";
 			ih+="<div><label class=modal_prop_label>Title</label><input id=modal_img_title class=form-control value='"+target.prop("title")+"'></div>";
 			break;
+		case "SELECT":
+			ih+="<div><label class=modal_prop_label>Size</label><input id=modal_select_size class=form-control value='"+target.prop("size")+"'></div>";
+			var options=target.find('option');
+			ih+="<div><label class=modal_prop_label style='vertical-align:top;'>Options</label><div id=modal_select_options_wrapper style='display:inline-block;'>";
+			for(let i=0 ; i<options.length ; i++){
+				ih+="<div><input class='form-control modal_select_options_value' value='"+$(options[i]).val()+"'><input class='form-control modal_select_options_text' value='"+$(options[i]).text()+"'><input name=modal_select_option_selected type=radio "+($(options[i]).val()===target.val()?"checked":"")+"><i class='glyphicon glyphicon-minus-sign modal_select_delete_option'></i></div>";
+			}
+			ih+="<i class='glyphicon glyphicon-plus-sign modal_select_add_option'></i>";
+			ih+="</div></div>";
+			break;
+		case "UL":
+			var lists=target.find('li');
+			ih+="<div><label class=modal_prop_label style='vertical-align:top;'>List</label><div id=modal_ul_lists_wrapper style='display:inline-block;'>";
+			for(let i=0 ; i<lists.length ; i++){
+				ih+="<div><input class='form-control modal_ul_li' value='"+$(lists[i]).text()+"'><i class='glyphicon glyphicon-minus-sign modal_ul_delete_list'></i></div>";
+			}
+			ih+="<i class='glyphicon glyphicon-plus-sign modal_ul_add_list'></i>";
+			ih+="</div></div>";
+			break;
+		case "TABLE":
+			let element=['THead','TBody','TFoot'];
+			let table=[];
+			table['THead']=target.find('thead').find('tr');
+			table['TBody']=target.find('tbody').find('tr');
+			table['TFoot']=target.find('tfoot').find('tr');
+			ih+="<div class=modal_table_wrapper>";
+			for(let i=0 ; i<element.length ; i++){
+				ih+="<div><label class=modal_prop_label style='vertical-align:top;'>"+element[i]+"</label><div id=modal_table_"+element[i].toLowerCase()+"_wrapper style='display:inline-block;max-width:calc(100% - 90px);'>";
+				for(var j=0, len=table[element[i]].length; j<len ; j++){
+					ih+="<div class=modal_table_tr_wrapper>";
+					let td=[];
+					if(element[i]==="THead" || element[i]==="TFoot"){
+						td=$(table[element[i]][j]).find('th');
+					}else{
+						td=$(table[element[i]][j]).find('td');
+					}
+					for(var k=0, len2=td.length ; k<len2 ; k++){
+						ih+="<input class='form-control table_data_input' value='"+$(td[k]).text()+"'>";
+					}
+					ih+="<i class='glyphicon glyphicon-minus-sign modal_table_delete_row'></i>"
+					ih+="</div>";
+				}
+				ih+="<button class='btn btn-primary add_table_row'>Add Row</button></div></div>";
+			}
+			ih+="</div>";
+			ih+="<button class='btn btn-primary add_table_column'>Add Column</button>";
+			ih+="<button class='btn btn-danger remove_table_column'>Remove Column</button>";
+			break;
 	}
 	ih+="</div>";
 	$("#properties_modal").find(".modal-body").html(ih);
+	switch(tagName){
+		case "INPUT":
+			$("#modal_input_type").off();
+			$("#modal_input_type").change(function(){
+				let type_=$(this).val();
+				if(type_==="text"){
+					$("#modal_input_placeholder_wrapper").show();
+					$("#modal_input_value_wrapper").show();
+					$("#modal_input_checked_wrapper").hide();
+				}else{
+					$("#modal_input_placeholder_wrapper").hide();
+					$("#modal_input_value_wrapper").hide();
+					$("#modal_input_checked_wrapper").show();
+				}
+			});
+			$("#modal_input_type").change();
+			break;
+		case "SELECT":
+			$(".modal_select_add_option").off();
+			$(".modal_select_add_option").click(function(){
+				$("<div><input class='form-control modal_select_options_value'><input class='form-control modal_select_options_text'><input name=modal_select_option_selected type=radio><i class='glyphicon glyphicon-minus-sign modal_select_delete_option'></i></div>").insertBefore($(this));
+			});
+			$(".modal_select_delete_option").off();
+			$(".modal_select_delete_option").click(function(){
+				$(this).parent().remove();
+			});
+			break;
+		case "UL":
+			$(".modal_ul_add_list").off();
+			$(".modal_ul_add_list").click(function(){
+				$("<div><input class='form-control modal_ul_li'><i class='glyphicon glyphicon-minus-sign modal_ul_delete_list'></i></div>").insertBefore($(this));
+			});
+			$(".modal_ul_delete_list").off();
+			$(".modal_ul_delete_list").click(function(){
+				$(this).parent().remove();
+			});
+			break;
+		case "TABLE":
+			$(".modal_table_delete_row").off();
+			$(".modal_table_delete_row").click(function(){
+				$(this).parent().remove();
+			});
+			$(".add_table_row").off();
+			$(".add_table_row").click(function(){
+				let copy_target=$('.modal_table_wrapper').find('.modal_table_tr_wrapper')[0];
+				if(copy_target === undefined){
+
+				}else{
+					$(copy_target.outerHTML).insertBefore($(this).parent().find('button'));
+				}
+			});
+			$(".add_table_column").off();
+			$(".add_table_column").click(function(){
+				$(".modal_table_tr_wrapper").append("<input class='form-control table_data_input'>");
+			});
+			$(".remove_table_column").off();
+			$(".remove_table_column").click(function(){
+				let tr=$(".modal_table_tr_wrapper");
+				for(let i=0 ; i<tr.length ; i++){
+					let td=$(tr[i]).find('.table_data_input');
+console.log(td);
+					$(td[td.length-1]).remove();
+				}
+			});
+			break;
+	}
 	$("#properties_modal").modal("show");
 }
 $(".modal").off();
@@ -304,6 +449,7 @@ $("#change_properties").click(function(){
 	let tagName=target.prop("tagName");
 	switch(tagName){
 		case "INPUT":
+			target.val($("#modal_input_value").val());
 			target.prop("name",$("#modal_input_name").val());
 			target.prop("type",$("#modal_input_type").val());
 			target.prop("placeholder",$("#modal_input_placholder").val());
@@ -330,6 +476,46 @@ $("#change_properties").click(function(){
 			target.prop("alt",$("#modal_img_alt").val());
 			target.prop("title",$("#modal_img_title").val());
 			break;
+		case "SELECT":
+			target.prop("size",$("#modal_select_size").val());
+			target.empty();
+			var options=$("#modal_select_options_wrapper").children();
+			for(let i=0 ; i<options.length-1 ; i++){
+				target.append("<option value='"+$(options[i]).find('.modal_select_options_value').val()+"' "+($(options[i]).find("input[name=modal_select_option_selected]").prop("checked")?"selected":"")+">"+$(options[i]).find('.modal_select_options_text').val()+"</option>");
+			}
+			break;
+		case "UL":
+			target.empty();
+			let lists=$("#modal_ul_lists_wrapper").children();
+			for(let i=0 ; i<lists.length - 1 ; i++){
+				target.append("<li>"+$(lists[i]).find('.modal_ul_li').val()+"</li>");
+			}	
+			break;
+		case "TABLE":
+			target.empty();
+			let element=['thead','tbody','tfoot'];
+			let table=[];
+			for(let i=0 ; i<element.length ; i++){
+				target.append("<"+element[i]+"></"+element[i]+">");
+				let new_target=target.find(element[i]);
+				let tr_=$("#modal_table_"+element[i]+"_wrapper").find(".modal_table_tr_wrapper");
+				console.log(tr_);
+				for(let j=0 ; j<tr_.length ; j++){
+					let ih="<tr>";
+					let td_=$(tr_[j]).find(".table_data_input");
+					for(let k=0 ; k<td_.length ; k++){
+						if(element[i]==="tbody"){
+							ih+="<td>"+$(td_[k]).val()+"</td>";
+						}else{
+							ih+="<th>"+$(td_[k]).val()+"</th>";
+						}
+					}
+					ih+="</tr>";				
+					new_target.append(ih);		
+				}
+			}
+
+			break;
 	}
 	$("#properties_modal").modal('hide');
 });
@@ -353,6 +539,7 @@ $(".edit_properties").click(function(){
   });
   $(".align_dom_element").off();
   $(".align_dom_element").click(function() {
+	if($(".clicked_element")[0] === undefined) return;
   	let target = $(".clicked_element")[0];
   	if (target.tagName !== "DIV") return;
   	let align = $(this).val();
@@ -428,6 +615,15 @@ $(".edit_properties").click(function(){
 		case "img":
 			ih += "<img src=/repo/about_logo.png />";
 			break;
+		case "ul":
+			ih += "<ul><li>list</li></ul>";
+			break;
+		case "table":
+			ih += "<table><tr><td>table</td></tr></table>";
+			break;
+		case "div":
+			ih += "<div></div>";
+			break;
   		default:
   			ih += "<" + dom_ele + ">" + dom_ele + "</" + dom_ele + ">";
   	};
@@ -436,7 +632,7 @@ $(".edit_properties").click(function(){
   			$(target).prepend(ih);
   			break;
   		case "BODY":
-  			$(".test_main").append(ih);
+  			$(".editor_main").append(ih);
   			break;
   		default:
   			$(ih).insertAfter($(target));
