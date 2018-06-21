@@ -219,7 +219,9 @@ class AdminController extends Controller
 				if(is_dir($path.'/'.$entry)) {
 				} 
 				else {
-					$entrys[] = $entry; 
+					if(strrpos($entry,".sql")!==false){
+						$entrys[] = $entry; 
+					}
 				} 
 			} 
 		} 
