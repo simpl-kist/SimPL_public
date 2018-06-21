@@ -233,7 +233,10 @@ class PluginController extends Controller
 		//
 
 		if( !$request->has('istest') ){
-			$plugin = PluginModel::where("alias",$alias)->firstOrFail();
+			$plugin = PluginModel::where("alias",$alias)->first();
+			if($plugin === null){
+				return Array("output"=>"","error"=>"Plugin \"".$alias."\" Does Not Exist.");
+			}
 //plugin 실행권한 검사
 			$can_read=$this->canReadData($plugin);
 			if($can_read==0){

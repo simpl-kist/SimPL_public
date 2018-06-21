@@ -202,7 +202,10 @@ class PageController extends Controller
 
 	protected function parsePage($c,$originalTagStr,$tag){
 		$pageAlias = array_shift($tag);
-		$find_page=PageModel::where('alias',$pageAlias)->firstOrFail();
+		$find_page=PageModel::where('alias',$pageAlias)->first();
+		if($find_page === null){
+			return "Page \"".$pageAlias."\" Does Not Exist.";
+		}
 		$page=$find_page->contents;
 		$can_read=1;
 		if($find_page->ispublic*1 !== 0){
