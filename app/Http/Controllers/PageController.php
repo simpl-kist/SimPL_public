@@ -204,47 +204,50 @@ class PageController extends Controller
 		$pageAlias = array_shift($tag);
 		$find_page=PageModel::where('alias',$pageAlias)->first();
 		if($find_page === null){
-			return "Page \"".$pageAlias."\" Does Not Exist.";
-		}
-		$page=$find_page->contents;
-		$can_read=1;
-		if($find_page->ispublic*1 !== 0){
-			if(Auth::user() == null){
-				$can_read=0;
-			}else{
-				$_policy=Auth::user()->policy;
-				$_ispublic=$find_page->ispublic*1;
-				switch($_policy){
-					case "anonymous":
-						if($_ispublic > 1){
+			$page = "Page \"".$pageAlias."\" Does Not Exist.";
+		}else{
+			$page=$find_page->contents;
+			$can_read=1;
+			if($find_page->ispublic*1 !== 0){
+				if(Auth::user() == null){
+					$can_read=0;
+				}else{
+					$_policy=Auth::user()->policy;
+					$_ispublic=$find_page->ispublic*1;
+					switch($_policy){
+						case "anonymous":
+							if($_ispublic > 1){
+								$can_read=0;
+							}
+							break;
+						case "user":
+							if($_ispublic > 2){
+								$can_read=0;
+							}				
+							break;
+						case "editor":
+							if($_ispublic > 3){
+								$can_read=0;
+							}				
+							break;
+						case "admin":
+							if($_ispublic > 4){
+								$can_read=0;
+							}			
+							break;
+						default:
 							$can_read=0;
-						}
-						break;
-					case "user":
-						if($_ispublic > 2){
-							$can_read=0;
-						}				
-						break;
-					case "editor":
-						if($_ispublic > 3){
-							$can_read=0;
-						}				
-						break;
-					case "admin":
-						if($_ispublic > 4){
-							$can_read=0;
-						}			
-						break;
-					default:
-						$can_read=0;
+					}
 				}
 			}
-		}
-		if($can_read==0){
-			return "UNAUTHORIZED";
+			if($can_read==0){
+				return "UNAUTHORIZED";
+			}else{
+				$page = $this->renderPageContent($page);
+			}
 		}
 
-		$page = $this->renderPageContent($page);
+
 		
 		return str_replace($this->tagStrToOrg($originalTagStr),$page,$c);
 	}

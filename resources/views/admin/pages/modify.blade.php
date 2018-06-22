@@ -16,6 +16,29 @@ Edit Page
 <script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
+	.simpl_btn, .simpl_btn:hover{
+		padding:0 10px;
+		border:solid 1px #ddd9d8;
+		background-color:#ffffff;
+		border-radius:7.5px;
+	}
+	.simpl_btn:focus{
+		outline:none;
+		box-shadow: 0 0 10px 2px rgba(200, 200, 200, 1);
+	}
+
+	.selected_view{
+		background-color:black !important;
+		color:white !important;
+	}
+
+	.simpl_btn_danger, .simpl_btn_danger:hover, .simpl_btn_danger:focus{
+		padding:0 10px;
+		color:#fafafa;
+		border:solid 1px #ddd9d8;
+		background-color:#ff1234;
+		border-radius:7.5px;
+	}
 	.editor_main div{
 		border:1px solid red;
 		min-height:15px;
@@ -23,6 +46,7 @@ Edit Page
   .clicked_element{
     border: 1px solid blue !important; 
   }
+	
 .CodeMirror-fullscreen {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -31,6 +55,27 @@ Edit Page
 }
 .modal_prop_label{
 	width:90px;
+}
+.editor_main{
+	min-height:500px;
+	padding:10px;
+	border:solid 1px #dedede;
+	background-color:white;
+	margin-left:-10px;
+	margin-right:-10px;
+	margin-bottom:-10px;
+	border-bottom-left-radius:10px;
+	border-bottom-right-radius:10px;
+}
+.style_new_wrapper{
+	width:300px;
+	text-align:center;
+	display:none;
+	position:absolute;
+	padding:10px 25px;
+	border-radius:10px;
+	background-color:white;
+	box-shadow: 0 0 10px 2px rgba(200, 200, 200, 1);
 }
 </style>
 <link href={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.css rel=stylesheet></script>
@@ -98,51 +143,58 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12>
-				<label class='col-form-label selected_view' data-type="script" onclick='open_content("script");'>Script</label>
-				<label class='col-form-label' data-type="editor" onclick='open_content("editor");'>Editor</label>
+				<button class='simpl_btn selected_view edit_type' data-type="script" onclick='open_content("script");' type=button>Script</button>
+				<button class='simpl_btn edit_type' data-type="editor" onclick='open_content("editor");' type=button>Editor</button>
 			</div>
 			<div class='col-sm-12 page_editor page_tab' style="display:none;">
-				<div class="row form-inline simpl_wysiwyg_tooltip">
-					<button class="btn btn-primary add_dom_element" value="div" type="button">Div</button>
-					<button class="btn btn-primary add_dom_element" value="label" type="button">Label</button>
-					<button class="btn btn-primary add_dom_element" value="a" type="button">a link</button>
-					<button class="btn btn-primary add_dom_element" value="button" type="button">Button</button>
-					<button class="btn btn-primary add_dom_element" value="select" type="button">Select</button>
-					<button class="btn btn-primary add_dom_element" value="input" type="button">Input</button>
-					<button class="btn btn-primary add_dom_element" value="textarea" type="button">TextArea</button>
-					<button class="btn btn-primary add_dom_element" value="br" type="button">Br</button>
-					<button class="btn btn-primary add_dom_element" value="span" type="button">Text</button>
-					<button class="btn btn-primary add_dom_element" value="img" type="button">Img</button>
-					<button class="btn btn-primary add_dom_element" value="ul" type="button">List</button>
-					<button class="btn btn-primary add_dom_element" value="table" type="button">Table</button>
-					<button class="btn btn-danger remove_dom_element" value="backspace" type="button">BackSpace</button>
-					<button class="btn btn-danger remove_dom_element" value="delete" type="button">Delete</button>
+				<div style="border:solid 1px #a9a9a9;border-radius:10px;padding:10px;background-color:#f5f5f5">
+				<div class="form-inline simpl_wysiwyg_tooltip">
+					<button class="simpl_btn add_dom_element" value="div" type="button">Div</button>
+					<button class="simpl_btn add_dom_element" value="label" type="button">Label</button>
+					<button class="simpl_btn add_dom_element" value="a" type="button">a link</button>
+					<button class="simpl_btn add_dom_element" value="button" type="button">Button</button>
+					<button class="simpl_btn add_dom_element" value="select" type="button">Select</button>
+					<button class="simpl_btn add_dom_element" value="input" type="button">Input</button>
+					<button class="simpl_btn add_dom_element" value="textarea" type="button">TextArea</button>
+					<button class="simpl_btn add_dom_element" value="br" type="button">Br</button>
+					<button class="simpl_btn add_dom_element" value="span" type="button">Text</button>
+					<button class="simpl_btn add_dom_element" value="img" type="button">Img</button>
+					<button class="simpl_btn add_dom_element" value="ul" type="button">List</button>
+					<button class="simpl_btn add_dom_element" value="table" type="button">Table</button>
+					<button class="simpl_btn_danger remove_dom_element" value="backspace" type="button">BackSpace</button>
+					<button class="simpl_btn_danger remove_dom_element" value="remove" type="button">Remove</button>
+					<button class="simpl_btn_danger remove_dom_element" value="delete" type="button">Delete</button>
+					<button class="simpl_btn_danger remove_dom_element" value="empty" type="button">Empty</button>
 					<br>
-					<button class="btn btn-primary add_dom_element" value="page" type="button">Page</button>
-					<button class="btn btn-primary add_dom_element" value="vlatoms" type="button">Visualizer</button>
-					<button class="btn btn-primary edit_properties" type="button">Properties</button>					
+					<button class="simpl_btn add_dom_element" value="page" type="button">Page</button>
+					<button class="simpl_btn add_dom_element" value="vlatoms" type="button">Visualizer</button>
+					<button class="simpl_btn edit_properties" type="button">Properties</button>					
 					<br>
 					<label>Num :</label> <input class="form-control" id="divide_num" style="width:75px;">
-					<button class="btn btn-primary divide_div" type="button">Divide</button>
-					<button class="btn btn-primary align_dom_element" value="left" type="button">Left</button>
-					<button class="btn btn-primary align_dom_element" value="center" type="button">Center</button>
-					<button class="btn btn-primary align_dom_element" value="right" type="button">Right</button>
-					<button class="btn btn-primary align_dom_element" value="top" type="button">Top</button>
-					<button class="btn btn-primary align_dom_element" value="middle" type="button">Middle</button>
-					<button class="btn btn-primary align_dom_element" value="bottom" type="button">Bottom</button>
+					<button class="simpl_btn divide_div" type="button">Divide</button>
+					<button class="simpl_btn align_dom_element" value="left" type="button">Left</button>
+					<button class="simpl_btn align_dom_element" value="center" type="button">Center</button>
+					<button class="simpl_btn align_dom_element" value="right" type="button">Right</button>
+					<button class="simpl_btn align_dom_element" value="top" type="button">Top</button>
+					<button class="simpl_btn align_dom_element" value="middle" type="button">Middle</button>
+					<button class="simpl_btn align_dom_element" value="bottom" type="button">Bottom</button>
 					<br>
 					<label>Background-color : </label>
-					<input type="color" class="form-control style_dom_element" value="#ffffff" data-css="background-color" style="width:30px;height:30px;padding:0">
+					<input type="color" class="form-control style_dom_element" data-css="background-color" style="width:30px;height:30px;padding:0">
 					<label>Width : </label>
 					<input class="form-control style_dom_element" data-css="width" style="width:70px;">
 					<label>Height : </label>
 					<input class="form-control style_dom_element" data-css="height" style="width:70px;">
 					<label>Font-color : </label>
-					<input type="color" class="form-control style_dom_element" value="#000000" data-css="color" style="width:30px;height:30px;padding:0">
+					<input type="color" class="form-control style_dom_element" data-css="color" style="width:30px;height:30px;padding:0">
 					<label>Font-size : </label>
 					<input class="form-control style_dom_element" data-css="font-size" style="width:70px;">
-				</div>	
+					<label class=style_label data-type=padding><i class="glyphicon glyphicon-align-justify"></i>Padding</label>
+					<label class=style_label data-type=margin><i class="glyphicon glyphicon-align-justify"></i>Margin</label>
+					<label class=style_label data-type=border><i class="glyphicon glyphicon-align-justify"></i>Border</label>
+				</div>
 				<div class="editor_main">
+				</div>
 				</div>
 			</div>
 			<div class='col-sm-12 page_script page_tab'>
@@ -159,6 +211,87 @@ $('document').ready(function(){
 			</div>
 		</div>
 	</form>
+	</div>
+</div>
+<div class="padding_wrapper style_new_wrapper form-inline">
+	<div style="overflow:hidden;">
+		<label>Padding</label>
+		<i class="glyphicon glyphicon-remove hide_style_new_wrapper" style="float:right;"></i>
+	</div>
+	<div class=row>
+		<label class=col-md-3>Top</label>
+		<label class=col-md-3>Right</label>
+		<label class=col-md-3>Bottom</label>
+		<label class=col-md-3>Left</label>
+	</div>
+	<div class=row>
+		<input class="col-md-3 form-control style_dom_element" data-css="padding-top" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="padding-right" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="padding-bottom" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="padding-left" style="width:70px;">
+	</div>
+</div>
+<div class="margin_wrapper style_new_wrapper form-inline">
+	<div style="overflow:hidden;">
+		<label>Margin</label>
+		<i class="glyphicon glyphicon-remove hide_style_new_wrapper" style="float:right;"></i>
+	</div>
+	<div class=row>
+		<label class=col-md-3>Top</label>
+		<label class=col-md-3>Right</label>
+		<label class=col-md-3>Bottom</label>
+		<label class=col-md-3>Left</label>
+	</div>
+	<div class=row>
+		<input class="col-md-3 form-control style_dom_element" data-css="margin-top" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="margin-right" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="margin-bottom" style="width:70px;">
+		<input class="col-md-3 form-control style_dom_element" data-css="margin-left" style="width:70px;">
+	</div>
+</div>
+<div class="border_wrapper style_new_wrapper form-inline">
+	<div style="overflow:hidden;">
+		<label>Border</label>
+		<i class="glyphicon glyphicon-remove hide_style_new_wrapper" style="float:right;"></i>
+	</div>
+	<div class=row>
+		<div class=col-md-3 style="padding:0px;">
+			<input class="border_checkbox" data-direction="top" type=checkbox checked><label>Top</label>
+		</div>
+		<div class=col-md-3 style="padding:0px;">
+			<input class="border_checkbox" data-direction="right" type=checkbox checked><label>Right</label>
+		</div>
+		<div class=col-md-3 style="padding:0px;">
+			<input class="border_checkbox" data-direction="bottom" type=checkbox checked><label>Bottom</label>
+		</div>
+		<div class=col-md-3 style="padding:0px;">
+			<input class="border_checkbox" data-direction="left" type=checkbox checked><label>Left</label>
+		</div>
+	</div>
+	<div class=row>
+		<label class=col-md-4>Width</label>
+		<label class=col-md-4>Color</label>
+		<label class=col-md-4>Style</label>
+	</div>
+	<div class=row>
+		<div class="col-md-4">
+			<input class="form-control style_dom_element" data-css="border" data-type=width style="width:70px;">
+		</div>
+		<div class=col-md-4>
+			<input type="color" class="form-control style_dom_element" data-css="border" data-type=color style="width:30px;height:30px;padding:0">
+		</div>
+		<div class=col-md-4>
+			<select class="form-control style_dom_element" data-css="border" data-type="style" style="padding:5px 5px;">
+				<option value="none">None</option>
+				<option value="solid">Solid</option>
+				<option value="dotted">Dotted</option>
+				<option value="double">Double</option>
+				<option value="groove">Groove</option>
+				<option value="ridge">Ridge</option>
+				<option value="inset">Inset</option>
+				<option value="outset">Outset</option>
+			</select>
+		</div>
 	</div>
 </div>
 <div class="modal" role="dialog" tabindex="-1" id="properties_modal">
@@ -184,7 +317,7 @@ $('document').ready(function(){
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
 	$(".selected_view").removeClass("selected_view");
-	$(this).addClass("selected_view");
+	$(".edit_type[data-type="+type+"]").addClass("selected_view");
 	$(".page_tab").hide();
 	$(".page_"+type).show();
 	if(type==="script"){
@@ -201,7 +334,28 @@ var open_content = function(type){
 
   $(window).click(function() {
   	$(".clicked_element").removeClass("clicked_element");
+	$(".style_new_wrapper").hide();
   });
+	$(".style_label").off();
+	$(".style_label").click(function(e){
+		$(".style_new_wrapper").hide();
+		let type=$(this).data('type');
+		console.log(type);
+		let target=$("."+type+"_wrapper");
+		target.css("left",e.pageX);
+		target.css("top",e.pageY);
+		$("."+type+"_wrapper").show();
+		e.stopPropagation();
+	});
+	$(".style_new_wrapper").off();
+	$(".style_new_wrapper").click(function(e){
+		e.stopPropagation();
+	});
+	$(".hide_style_new_wrapper").off();
+	$(".hide_style_new_wrapper").click(function(){
+		console.log($(this));
+		$(this).parents(".style_new_wrapper").hide();
+	});
   //https://codepen.io/davidkacha/pen/zzNBxq
   function formatFactory(html) {
   	function parse(html, tab = 0) {
@@ -245,9 +399,47 @@ var open_content = function(type){
   		if (i !== 0) {
   			$(a[i]).off();
   			$(a[i]).click(function(e) {
-  				$(".clicked_element").removeClass("clicked_element");
+				let target=$(".clicked_element");
+  				target.removeClass("clicked_element");
   				$(this).addClass("clicked_element");
+				target=$(this);
+				let bg_color=target.css("background-color").replace(/[rgba() ]/g,"").split(",");
+				let bg_color_hex="#";
+				for(let j=0 ; j<3 ; j++){
+					bg_color[j]=parseInt(bg_color[j]).toString("16");
+					if(bg_color[j].length ===1){
+						bg_color[j] = "0"+bg_color[j];
+					}
+					bg_color_hex+=bg_color[j];
+				}
+				$(".style_dom_element[data-css=background-color]").val(bg_color_hex);
+
+				$(".style_dom_element[data-css=width]").val(target.css("width").replace("px",""));
+				$(".style_dom_element[data-css=height]").val(target.css("height").replace("px",""));
+
+				let f_color=target.css("color").replace(/[rgba() ]/g,"").split(",");
+				let f_color_hex="#";
+				for(let j=0 ; j<3 ; j++){
+					f_color[j]=parseInt(f_color[j]).toString("16");
+					if(f_color[j].length ===1){
+						f_color[j] = "0"+f_color[j];
+					}
+					f_color_hex+=f_color[j];
+				}
+				$(".style_dom_element[data-css=color]").val(f_color_hex);
+				$(".style_dom_element[data-css=font-size]").val(target.css("font-size").replace("px",""));
+
+				$(".style_dom_element[data-css=padding-top]").val(target.css("padding-top").replace("px",""));
+				$(".style_dom_element[data-css=padding-right]").val(target.css("padding-right").replace("px",""));
+				$(".style_dom_element[data-css=padding-bottom]").val(target.css("padding-bottom").replace("px",""));
+				$(".style_dom_element[data-css=padding-left]").val(target.css("padding-left").replace("px",""));
+
+				$(".style_dom_element[data-css=margin-top]").val(target.css("margin-top").replace("px",""));
+				$(".style_dom_element[data-css=margin-right]").val(target.css("margin-right").replace("px",""));
+				$(".style_dom_element[data-css=margin-bottom]").val(target.css("margin-bottom").replace("px",""));
+				$(".style_dom_element[data-css=margin-left]").val(target.css("margin-left").replace("px",""));
   				console.log(this.tagName);
+				$(".style_new_wrapper").hide();
   				e.stopPropagation();
   				e.preventDefault();
   			});
@@ -266,10 +458,36 @@ var open_content = function(type){
 $(".style_dom_element").off();
 $(".style_dom_element").change(function(){
 	if($(".clicked_element")[0] === undefined) return;
-	if($(this).data('css')==="height" || $(this).data('css')==="height" || $(this).data('css')==='font-size'){ 
-		$(".clicked_element").css($(this).data('css'),$(this).val()+"px");
-	}else{
-		$(".clicked_element").css($(this).data('css'),$(this).val());
+	switch($(this).data('css')){
+		case "height":
+		case "width":
+		case "font-size":
+		case "margin-top":
+		case "margin-right":
+		case "margin-bottom":
+		case "margin-left":
+		case "padding-top":
+		case "padding-right":
+		case "padding-bottom":
+		case "padding-left":
+			$(".clicked_element").css($(this).data('css'),$(this).val()+"px");
+			break;
+		case "border":
+			let checkbox=$(".border_checkbox:checked");
+			let element=['width','color','style'];
+			let data={};
+			data['width']=$(".style_dom_element[data-css=border][data-type=width]").val()+"px";
+			data['color']=$(".style_dom_element[data-css=border][data-type=color]").val();
+			data['style']=$(".style_dom_element[data-css=border][data-type=style]").val();
+			for(let i=0 ; i<checkbox.length ; i++){
+				let direction=$(checkbox[i]).data('direction');
+				for(let j=0 ; j<element.length  ; j++){
+					$(".clicked_element").css("border-"+direction+"-"+element[j],data[element[j]]);
+				}
+			}			
+			break;
+		default:
+			$(".clicked_element").css($(this).data('css'),$(this).val());		
 	}
 });
 
@@ -297,7 +515,7 @@ function editProperties(){
 			ih+="<div id=modal_input_checked_wrapper><label class=modal_prop_label>Checked</label><input type=checkbox id=modal_input_checked class=form-control "+(target.prop('checked')?"checked":"")+"></div>";
 			break;
 		case "DIV":
-			ih+="<div><label class=modal_prop_label>Text</label><input id=modal_div_text class=form-control value='"+target.text()+"'></div>";
+			ih+="<div><label class=modal_prop_label>Text</label><textarea id=modal_div_text class=form-control>"+target.text()+"</textarea></div>";
 			break;
 		case "A":
 			ih+="<div><label class=modal_prop_label>href</label><input id=modal_a_href class=form-control value='"+target.attr("href")+"'></div>";
@@ -421,7 +639,7 @@ function editProperties(){
 			});
 			$(".add_table_column").off();
 			$(".add_table_column").click(function(){
-				$(".modal_table_tr_wrapper").append("<input class='form-control table_data_input'>");
+				$("<input class='form-control table_data_input'>").insertBefore($(".modal_table_tr_wrapper").find('i'));
 			});
 			$(".remove_table_column").off();
 			$(".remove_table_column").click(function(){
@@ -452,7 +670,7 @@ $("#change_properties").click(function(){
 			target.val($("#modal_input_value").val());
 			target.prop("name",$("#modal_input_name").val());
 			target.prop("type",$("#modal_input_type").val());
-			target.prop("placeholder",$("#modal_input_placholder").val());
+			target.prop("placeholder",$("#modal_input_placeholder").val());
 			target.prop("checked",$("#modal_input_checked").prop("checked"));
 			break;
 		case "DIV":
@@ -517,6 +735,10 @@ $("#change_properties").click(function(){
 
 			break;
 	}
+	$(".clicked_element").removeClass("clicked_element");
+  	scriptEditor.setValue(formatFactory($(".editor_main").html()));
+	scriptEditor.save();
+
 	$("#properties_modal").modal('hide');
 });
 
@@ -528,13 +750,15 @@ $(".edit_properties").click(function(){
   	let width = Math.floor((100 / num) * 100) / 100;
   	let ih = "";
   	for (let i = 0; i < num; i++) {
-  		ih += "<div style='width:" + width + "%;float:left;'>Div</div>";
+  		ih += "<div style='width:" + width + "%;float:left;'></div>";
   	}
   	target.empty();
+	target.css("overflow","hidden");
   	target.append(ih);
   }
   $(".simpl_wysiwyg_tooltip").off();
   $(".simpl_wysiwyg_tooltip").click(function(e) {
+	$(".style_new_wrapper").hide();
   	e.stopPropagation();
   });
   $(".align_dom_element").off();
@@ -572,10 +796,22 @@ $(".edit_properties").click(function(){
   		return;
   	} else {
   		let opt = $(this).val();
+		switch(opt){
+			case "remove":
+	  			$(target).remove();
+				break;
+			case "backspace":
+	  			$(target).prev().remove();
+				break;
+			case "delete":
+  				$(target).next().remove();
+				break;
+			case "empty":
+  				$(target).empty()
+				break;
+		}
   		if (opt === "delete") {
-  			$(target).remove();
   		} else if (opt === "backspace") {
-  			$(target).prev().remove();
   		}
   		add_event();
   	}
