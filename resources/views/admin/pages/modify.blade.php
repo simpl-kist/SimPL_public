@@ -545,6 +545,9 @@ function editProperties(){
 			ih+="<i class='glyphicon glyphicon-plus-sign modal_select_add_option'></i>";
 			ih+="</div></div>";
 			break;
+		case "TEXTAREA":
+			ih+="<div><label class=modal_prop_label>Textarea</label><textarea id=modal_textarea_val class=form-control>"+target.val()+"</textarea></div>";
+			break;
 		case "UL":
 			var lists=target.find('li');
 			ih+="<div><label class=modal_prop_label style='vertical-align:top;'>List</label><div id=modal_ul_lists_wrapper style='display:inline-block;'>";
@@ -701,6 +704,9 @@ $("#change_properties").click(function(){
 			for(let i=0 ; i<options.length-1 ; i++){
 				target.append("<option value='"+$(options[i]).find('.modal_select_options_value').val()+"' "+($(options[i]).find("input[name=modal_select_option_selected]").prop("checked")?"selected":"")+">"+$(options[i]).find('.modal_select_options_text').val()+"</option>");
 			}
+			break;
+		case "TEXTAREA":
+			target.val($("#modal_textarea_val").val());
 			break;
 		case "UL":
 			target.empty();
