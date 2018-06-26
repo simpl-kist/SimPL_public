@@ -394,7 +394,7 @@ fclose($pipes[2]);
 		return $id;
 	}
 	public function getJobs(Request $request){
-		if(null!==$request->pluginAlias){
+		if(null!==$request->pluginName){
 			$__pluginByAlias=PluginModel::where("alias",$request->pluginName)->first();
 			if($__pluginByAlias !== null){
 				$request['pluginId']=$__pluginByAlias->id;
