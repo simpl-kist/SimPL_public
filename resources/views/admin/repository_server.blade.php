@@ -66,7 +66,7 @@ There is no file
 
 <!-- Uploader -->
 @can('create','App\Repository')
-<form action={{route("admin.repository.upload-file")}} method=post class=dropzone id=dropzone>
+<form action={{url("repos/upload-file")}} method=post class=dropzone id=dropzone>
 {{ csrf_field() }}
 	<input type=hidden name=repos_for value="server">
 	<div class=dz-message style='font-size:20px;'>

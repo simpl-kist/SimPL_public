@@ -69,7 +69,7 @@ There is no file
 
 <!-- Uploader -->
 @can('create','App\Repository')
-<form action={{route("admin.repository.upload-file")}} method=post class=dropzone id=dropzone>
+<form action={{url("repos/upload-file")}} method=post class=dropzone id=dropzone>
 {{ csrf_field() }}
 	<input type=hidden name=repos_for value="web">
 	<div class=dz-message style='font-size:20px;'>
@@ -116,9 +116,10 @@ Dropzone.options.dropzone = {
 		});
 	},  
 	success: function(file,done){
-		if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-			location.reload();
-		}
+console.log(done);
+//		if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+//			location.reload();
+//		}
 	},
 }
 var search_repos = function(criteria){

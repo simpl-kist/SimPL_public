@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
 	'simulation/txtDownloader',
+	'repos/download-file',
     ];
 }

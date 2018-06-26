@@ -50,6 +50,40 @@
 			});
 
 		};
+		that.uploadFile = function(repos_for,files,callback){
+			let formData=new FormData();
+			for(let i=0 ; i<files.length ; i++){
+				let file=files[i];
+				formData.append("files[]",file,file.name);
+			}
+			formData.append("_token","{{csrf_token()}}");
+			formData.append("repos_for",repos_for);
+console.log(formData);
+			$.ajax({
+				url:"{{url('repos/upload-file')}}",
+				type:"post",
+				data:formData,
+cache:false,
+				processData: false,
+				contentType: false,
+				success : function(ret){
+					if(typeof(callback) == "function"){
+						callback(ret);
+					}
+				}
+			})
+		}
+		that.downloadFile = function(repos_for,alias,callback){
+			var tmphtml="<form class=file_downloader target=_blank method=post action=/repos/download-file>";
+			    tmphtml+="<input type=hidden name=repos_for class=downloader_repos_for>";
+			    tmphtml+="<input type=hidden name=alias class=downloader_alias>";
+			    tmphtml+="</form>";
+			var tmphtml_=$(document.body).append(tmphtml);
+			$('.downloader_repos_for').val(repos_for);
+			$('.downloader_alias').val(JSON.stringify(alias));
+			$('.file_downloader').submit();
+			$('.file_downloader').remove();
+		}
 	}
 	var kCMS = new kCMSAPI();
 	var kCms = kCMS;

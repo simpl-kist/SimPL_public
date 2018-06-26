@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+use ZipArchive;
 use App\CmsEnvModel;
 use App\User;
 use App\SolverModel;
@@ -92,6 +93,27 @@ class AdminController extends Controller
 				'filename' => $filename,
 				'author' => Auth::user()->id,
 			]);
+		}
+	}
+	public function downloadFile(Request $request){
+		$repos_for = $request->repos_for === "web" ? 1 : 0;
+		$alias=json_decode($request->alias);
+		$repo = Repository::where("owner",$repos_for)->whereIn('alias',$alias)->get();
+		if($repo === null){
+			return "no file";
+		}
+		if(count($repo)===1){
+			return response()->download(storage_path("repos")."/".$repo[0]->filename,$repo[0]->alias);
+		}else{
+			$zip=new ZipArchive();
+			$opened=$zip->open("SimPL_files.zip",ZipArchive::CREATE);
+			if($opened ===true){
+				for($i=0, $len=count($repo) ; $i<$len ; $i++){
+					$zip->addFile(storage_path("repos")."/".$repo[$i]->filename,$repo[$i]->alias);
+				}
+				$zip->close();
+				return response()->download("SimPL_files.zip")->deleteFileAfterSend(true);
+			}
 		}
 	}
 	public function repository(){
@@ -246,7 +268,7 @@ class AdminController extends Controller
 		return view("admin.solvers",compact('solvers'));
 	}
 	public function saveEnv(){
-		foreach(['verifyemail','url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir'] as $param){
+		foreach(['verifyemail','url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir','repo_upload_permission'] as $param){
 			if(isset($_POST[$param])){
 				$env = CmsEnvModel::findOrNew($param);
 				$env->var_key = $param;

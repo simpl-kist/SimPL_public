@@ -108,10 +108,6 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 			Route::post('/deleteRepo','AdminController@deleteRepo');
 
 			Route::group(['prefix'=>'repository','as'=>'repository.'],function(){
-				Route::post('/upload-file',[
-					'as'=>'upload-file',
-					'uses'=>'AdminController@uploadFile'
-				])->middleware('can:create,App\Repository');
 				Route::post('/changePublic',[
 					'as'=>'changePublic',
 					'uses'=>'AdminController@repoChangePublic',
@@ -234,6 +230,8 @@ Route::get('repos/web/{filename}', function ($filename){
 
     return $response;
 });
+Route::post('repos/upload-file','AdminController@uploadFile')->middleware('can:create,App\Repository');
+Route::post('repos/download-file','AdminController@downloadFile');
 Route::get('userpic/{filename}', function ($filename)
 {
     $path = storage_path('userpic/' . $filename);
@@ -249,4 +247,5 @@ Route::get('userpic/{filename}', function ($filename)
 
     return $response;
 });
+
 Route::get('/{pagealias}','PageController@view');

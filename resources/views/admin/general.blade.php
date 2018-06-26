@@ -72,6 +72,7 @@ function saveEnv(){
 			qstat : $('.qstat').val(),
 			qdel : $('.qdel').val(),
 			verifyemail : $('#verify_email').is(":checked")?1:0,
+			repo_upload_permission : $("#repo_upload_permission").val(),
 		},
 		success : function(a,b){
 			alert("Success");
@@ -177,6 +178,20 @@ function saveEnv(){
 		<!-- Buttons -->
 		@if(Auth::user()->policy==="admin")
 		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>Repository Upload Permission</label>
+			<div class="form-inline col-sm-9" style='text-align:left;'>
+				<select class=form-control style="width:331px;" id=repo_upload_permission>
+<?php
+	$repo_permit=isset($env["repo_upload_permission"])?$env["repo_upload_permission"]:"editor";
+?>
+					<option value="admin" {{$repo_permit==="admin"?"selected":""}}>Admin</option>
+					<option value="editor" {{$repo_permit==="editor"?"selected":""}}>Editor</option>
+					<option value="user" {{$repo_permit==="user"?"selected":""}}>User</option>
+					<option value="anonymouse" {{$repo_permit==="anonymous"?"selected":""}}>Anonymous</option>
+				</select>
+			</div>
+		</div>
+		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>DB Recover</label>
 			<div class="form-inline col-sm-9" style='text-align:left;'>
 				<select class=form-control style="width:331px;" id=target_backup>
@@ -189,6 +204,7 @@ function saveEnv(){
 				<button style="margin-left:15px;width:90px" type="button" class="btn btn-primary" onclick='recover_db();'>Recover</button>
 			</div>
 		</div>
+
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>DB Backup</label>
 			<div class="form-inline col-sm-9" style='text-align:left;'>
