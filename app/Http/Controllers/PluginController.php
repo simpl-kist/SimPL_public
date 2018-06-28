@@ -372,6 +372,9 @@ fclose($pipes[2]);
 	}
 	public function saveJob(Request $request){
 		// C, U
+		if(isset($_SERVER["HTTP_REFERER"])){
+			return ["Wrong Access"];
+		}
 		$id = -1;
 		if( $request->has('id') ){
 			$id = $request->input('id');
@@ -394,6 +397,9 @@ fclose($pipes[2]);
 		return $id;
 	}
 	public function getJobs(Request $request){
+		if(isset($_SERVER["HTTP_REFERER"])){
+			return ["Wrong Access"];
+		}
 		if(null!==$request->pluginName){
 			$__pluginByAlias=PluginModel::where("alias",$request->pluginName)->first();
 			if($__pluginByAlias !== null){

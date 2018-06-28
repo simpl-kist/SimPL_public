@@ -99,7 +99,7 @@ class AdminController extends Controller
 		$repos_for = $request->repos_for === "web" ? 1 : 0;
 		$alias=json_decode($request->alias);
 		$repo = Repository::where("owner",$repos_for)->whereIn('alias',$alias)->get();
-		if($repo === null){
+		if(count($repo)===0){
 			return "no file";
 		}
 		if(count($repo)===1){
