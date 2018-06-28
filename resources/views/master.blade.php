@@ -73,7 +73,7 @@ cache:false,
 				}
 			})
 		}
-		that.downloadFile = function(repos_for,alias,callback){
+		that.downloadFile = function(repos_for,alias){
 			var tmphtml="<form class=file_downloader_"+repos_for+" target=_blank method=post action=/repos/download-file>";
 			    tmphtml+="<input type=hidden name=repos_for class=downloader_repos_for_"+repos_for+">";
 			    tmphtml+="<input type=hidden name=alias class=downloader_alias_"+repos_for+">";
@@ -81,11 +81,7 @@ cache:false,
 			var tmphtml_=$(document.body).append(tmphtml);
 			$('.downloader_repos_for_'+repos_for).val(repos_for);
 			$('.downloader_alias_'+repos_for).val(JSON.stringify(alias));
-			$('.file_downloader_'+repos_for).submit(function(){
-				if(typeof(callback) == "function"){
-					callback();
-				}
-			});
+			$('.file_downloader_'+repos_for).submit();
 			$('.file_downloader_'+repos_for).remove();
 		}
 	}
