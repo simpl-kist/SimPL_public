@@ -3,7 +3,19 @@
 Plugins
 @stop
 @section('content')
-
+<?php
+use App\CmsEnvModel;
+$url=CmsEnvModel::where("var_key","url")->first()->var_value;
+if(!isset($url) || $url ===""){
+?>
+<script>
+(function(){
+alert("Set URL in General Page!");
+})();
+</script>
+<?php
+}
+?>
 <h2>Plugins</h2>
 <div class="col-xs-12 form-inline" style="text-align:center">
         <select class=form-control id=filter_type>
