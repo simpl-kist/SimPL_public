@@ -81,11 +81,12 @@ cache:false,
 			var tmphtml_=$(document.body).append(tmphtml);
 			$('.downloader_repos_for_'+repos_for).val(repos_for);
 			$('.downloader_alias_'+repos_for).val(JSON.stringify(alias));
-			$('.file_downloader_'+repos_for).submit();
+			$('.file_downloader_'+repos_for).submit(function(){
+				if(typeof(callback) == "function"){
+					callback();
+				}
+			});
 			$('.file_downloader_'+repos_for).remove();
-			if(typeof(callback) == "function"){
-				callback();
-			}
 		}
 	}
 	var kCMS = new kCMSAPI();
