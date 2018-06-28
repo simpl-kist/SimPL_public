@@ -74,15 +74,15 @@ cache:false,
 			})
 		}
 		that.downloadFile = function(repos_for,alias,callback){
-			var tmphtml="<form class=file_downloader target=_blank method=post action=/repos/download-file>";
-			    tmphtml+="<input type=hidden name=repos_for class=downloader_repos_for>";
-			    tmphtml+="<input type=hidden name=alias class=downloader_alias>";
+			var tmphtml="<form class=file_downloader_"+repos_for+" target=_blank method=post action=/repos/download-file>";
+			    tmphtml+="<input type=hidden name=repos_for class=downloader_repos_for_"+repos_for+">";
+			    tmphtml+="<input type=hidden name=alias class=downloader_alias_"+repos_for+">";
 			    tmphtml+="</form>";
 			var tmphtml_=$(document.body).append(tmphtml);
-			$('.downloader_repos_for').val(repos_for);
-			$('.downloader_alias').val(JSON.stringify(alias));
-			$('.file_downloader').submit();
-			$('.file_downloader').remove();
+			$('.downloader_repos_for_'+repos_for).val(repos_for);
+			$('.downloader_alias_'+repos_for).val(JSON.stringify(alias));
+			$('.file_downloader_'+repos_for).submit();
+			$('.file_downloader_'+repos_for).remove();
 		}
 	}
 	var kCMS = new kCMSAPI();

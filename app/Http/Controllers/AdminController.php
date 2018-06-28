@@ -106,13 +106,13 @@ class AdminController extends Controller
 			return response()->download(storage_path("repos")."/".$repo[0]->filename,$repo[0]->alias);
 		}else{
 			$zip=new ZipArchive();
-			$opened=$zip->open("SimPL_files.zip",ZipArchive::CREATE);
+			$opened=$zip->open("SimPL_files_".$repos_for.".zip",ZipArchive::CREATE);
 			if($opened ===true){
 				for($i=0, $len=count($repo) ; $i<$len ; $i++){
 					$zip->addFile(storage_path("repos")."/".$repo[$i]->filename,$repo[$i]->alias);
 				}
 				$zip->close();
-				return response()->download("SimPL_files.zip")->deleteFileAfterSend(true);
+				return response()->download("SimPL_files".$repos_for.".zip")->deleteFileAfterSend(true);
 			}
 		}
 	}
