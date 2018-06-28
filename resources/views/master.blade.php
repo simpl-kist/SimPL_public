@@ -83,6 +83,9 @@ cache:false,
 			$('.downloader_alias_'+repos_for).val(JSON.stringify(alias));
 			$('.file_downloader_'+repos_for).submit();
 			$('.file_downloader_'+repos_for).remove();
+			if(typeof(callback) == "function"){
+				callback();
+			}
 		}
 	}
 	var kCMS = new kCMSAPI();
