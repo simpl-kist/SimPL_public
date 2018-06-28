@@ -116,10 +116,9 @@ Dropzone.options.dropzone = {
 		});
 	},  
 	success: function(file,done){
-console.log(done);
-//		if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-//			location.reload();
-//		}
+		if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+			location.reload();
+		}
 	},
 }
 var search_repos = function(criteria){

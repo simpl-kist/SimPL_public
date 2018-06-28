@@ -321,7 +321,7 @@ var open_content = function(type){
 	$(".page_tab").hide();
 	$(".page_"+type).show();
 	if(type==="script"){
-		scriptEditor.setValue(formatFactory($(".editor_main").html()));
+		scriptEditor.setValue($(".editor_main").html());
 		scriptEditor.save();
 	}else if(type==="editor"){
 		scriptEditor.save();
@@ -452,7 +452,7 @@ var open_content = function(type){
 		}
   	}
 	$(".clicked_element").removeClass("clicked_element");
-  	scriptEditor.setValue(formatFactory($(".editor_main").html()));
+  	scriptEditor.setValue($(".editor_main").html());
 	scriptEditor.save();
   }
 $(".style_dom_element").off();
@@ -742,7 +742,7 @@ $("#change_properties").click(function(){
 			break;
 	}
 	$(".clicked_element").removeClass("clicked_element");
-  	scriptEditor.setValue(formatFactory($(".editor_main").html()));
+  	scriptEditor.setValue($(".editor_main").html());
 	scriptEditor.save();
 
 	$("#properties_modal").modal('hide');
@@ -836,35 +836,35 @@ $(".edit_properties").click(function(){
   	let ih = "";
   	switch (dom_ele) {
   		case "br":
-  			ih += "<br/>";
+  			ih += "\n<br/>";
   			break;
   		case "select":
-  			ih += "<select><option>Select</option></select>";
+  			ih += "\n<select>\n<option>Select</option>\n</select>";
   			break;
   		case "input":
   			ih += "<input value=Input>";
   			break;
   		case "vlatoms":
-  			ih += "<div style='height:500px;'>";
-  			ih += "&#123;&#123;kCMS|VLATOMS|vla|widht:500,height:500}}";
+  			ih += "\n<div style='height:500px;'>\n";
+  			ih += "&#123;&#123;kCMS|VLATOMS|vla|widht:500,height:500}}\n";
   			ih += "</div>";
   			break;
   		case "page":
-			ih += "<div>";
-  			ih += "&#123;&#123;kCMS|PAGE|pagealias}}";
+			ih += "\n<div>\n";
+  			ih += "&#123;&#123;kCMS|PAGE|pagealias}}\n";
 			ih += "</div>";
   			break;
 		case "img":
 			ih += "<img src=/repo/about_logo.png />";
 			break;
 		case "ul":
-			ih += "<ul><li>list</li></ul>";
+			ih += "\n<ul>\n<li>list</li>\n</ul>";
 			break;
 		case "table":
-			ih += "<table><tr><td>table</td></tr></table>";
+			ih += "\n<table>\n<tr>\n<td>table</td>\n</tr>\n</table>";
 			break;
 		case "div":
-			ih += "<div></div>";
+			ih += "\n<div>\n</div>";
 			break;
   		default:
   			ih += "<" + dom_ele + ">" + dom_ele + "</" + dom_ele + ">";
