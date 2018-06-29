@@ -27,7 +27,7 @@ Route::group(['prefix'=>'plugin','as'=>'plugin.'],function(){
 	Route::post('/run',[
 		'as'=>'run',
 		'uses'=>'PluginController@run'
-	]);
+	])->middleware('cors');
 	Route::post('/saveJob',[
 		'as'=>'saveJob',
 		'uses'=>'PluginController@saveJob'

@@ -204,6 +204,7 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class="col-sm-12 form-inline" style='text-align:right;'>
+<button type="button" id=getFromSimPL class="btn btn-info" style='float:left;'>Get SimPL</button>
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif
@@ -313,6 +314,25 @@ $('document').ready(function(){
 		</div>
 	</div>
 </div>
+<div class="modal" role="dialog" tabindex="-1" id="simpl_modal">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<label>SimPL Page Repository</label>
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body form-inline">
+				<label>SimPL Repo ID</label><input class=form-control id=simpl_repo_id>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" id="SimPLtoContent" type="button">SimPL to Content</button>
+				<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
@@ -330,7 +350,28 @@ var open_content = function(type){
 		add_event();
 	}
 }
+$("#getFromSimPL").click(function(){
+	$("#simpl_modal").modal('show');
+})
 
+$("#SimPLtoContent").click(function(){
+	console.log($("#simpl_repo_id").val());
+	$.ajax({
+		"url":"http://simpl.vfab.org/api/plugin/run",
+		"type":"post",
+		"contentType":"text/plain",
+		"data":{
+			"input":{
+				"id":$("#simpl_repo_id").val(),
+			},
+			"alias":"ret_simpl_content",
+		},
+		"success":function(ret){
+			console.log(ret);
+		}
+	})
+	$("#simpl_modal").modal('hide');
+});
 
   $(window).click(function() {
   	$(".clicked_element").removeClass("clicked_element");
