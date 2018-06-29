@@ -204,7 +204,7 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class="col-sm-12 form-inline" style='text-align:right;'>
-<button type="button" id=getFromSimPL class="btn btn-info" style='float:left;'>Get SimPL</button>
+				<button type="button" id=getFromSimPL class="btn btn-info">Get SimPL</button>
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif
@@ -359,15 +359,16 @@ $("#SimPLtoContent").click(function(){
 	$.ajax({
 		"url":"http://simpl.vfab.org/api/plugin/run",
 		"type":"post",
-		"contentType":"text/plain",
 		"data":{
 			"input":{
 				"id":$("#simpl_repo_id").val(),
+				"type":"Page"
 			},
 			"alias":"ret_simpl_content",
 		},
 		"success":function(ret){
-			console.log(ret);
+			open_content("script");
+		  	scriptEditor.setValue(ret.output);			
 		}
 	})
 	$("#simpl_modal").modal('hide');

@@ -154,8 +154,8 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class=col-sm-12 style='text-align:right;'>
+			<button type="button" id=getFromSimPL class="btn btn-info">Get SimPL</button>
 				<button type="button" class="btn btn-primary" onclick=testScript();>Test</button>
-
 @if(isset($plugin))
 @can('update',$plugin)
 				<button type="submit" class="btn btn-primary">Apply</button>
@@ -181,6 +181,25 @@ $('document').ready(function(){
 	</form>
 	</div>
 </div>
+<div class="modal" role="dialog" tabindex="-1" id="simpl_modal">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<label>SimPL Page Repository</label>
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body form-inline">
+				<label>SimPL Repo ID</label><input class=form-control id=simpl_repo_id>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" id="SimPLtoContent" type="button">SimPL to Content</button>
+				<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 @if(isset($plugin))
 var changePublic = function(){
@@ -198,5 +217,28 @@ var changePublic = function(){
 	})
 }
 @endif
+$("#getFromSimPL").click(function(){
+	$("#simpl_modal").modal('show');
+})
+
+$("#SimPLtoContent").click(function(){
+	console.log($("#simpl_repo_id").val());
+	$.ajax({
+		"url":"http://simpl.vfab.org/api/plugin/run",
+		"type":"post",
+		"data":{
+			"input":{
+				"id":$("#simpl_repo_id").val(),
+				"type":"Plugin"
+			},
+			"alias":"ret_simpl_content",
+		},
+		"success":function(ret){
+		  	scriptEditor.setValue(ret.output);			
+		}
+	})
+	$("#simpl_modal").modal('hide');
+});
+
 </script>
 @stop

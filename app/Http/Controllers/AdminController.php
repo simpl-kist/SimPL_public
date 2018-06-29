@@ -268,7 +268,7 @@ class AdminController extends Controller
 		return view("admin.solvers",compact('solvers'));
 	}
 	public function saveEnv(){
-		foreach(['verifyemail','url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir','repo_upload_permission'] as $param){
+		foreach(['verifyemail','url','title','logo','header','footer','python','mpirun','qsub','qstat','qdel','jobdir','repo_upload_permission','allowApiRun'] as $param){
 			if(isset($_POST[$param])){
 				$env = CmsEnvModel::findOrNew($param);
 				$env->var_key = $param;

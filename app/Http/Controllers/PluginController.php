@@ -221,6 +221,13 @@ class PluginController extends Controller
 	}
 	public function run(Request $request){
 //python에서 실행한 경우 login이 안되어 있으므로 verification_code를 바탕으로 login
+		if(isset($_SERVER["HTTP_REFERER"]) && strrpos($_SERVER["HTTP_REFERER"],$_SERVER["HTTP_HOST"])===false){
+			$can_access=CmsEnvModel::where("var_key","allowApiRun")->first()->var_value;
+			if($can_access == false){
+				return "Wrong Access";
+			}
+		};
+
 		if(!Auth::check()){
 			$logincheck=$this->loginCheckOrByKey($request->key);
 		}

@@ -73,6 +73,7 @@ function saveEnv(){
 			qdel : $('.qdel').val(),
 			verifyemail : $('#verify_email').is(":checked")?1:0,
 			repo_upload_permission : $("#repo_upload_permission").val(),
+			allowApiRun : $("#allowApiRun").is(":checked")?1:0,
 		},
 		success : function(a,b){
 			alert("Success");
@@ -189,6 +190,12 @@ function saveEnv(){
 					<option value="user" {{$repo_permit==="user"?"selected":""}}>User</option>
 					<option value="anonymouse" {{$repo_permit==="anonymous"?"selected":""}}>Anonymous</option>
 				</select>
+			</div>
+		</div>
+		<div class='form-group row'>
+			<label class='col-sm-3 col-form-label'>Allow Api Plugin Run</label>
+			<div class="forminline col-sm-9" style="text-align:left;">
+				<input type=checkbox id=allowApiRun {{ ( isset($env['allowApiRun']) && $env['allowApiRun'] == true)?"checked":"" }}>	
 			</div>
 		</div>
 		<div class='form-group row'>
