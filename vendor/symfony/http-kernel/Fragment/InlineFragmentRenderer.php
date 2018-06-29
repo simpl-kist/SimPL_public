@@ -29,12 +29,6 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
     private $kernel;
     private $dispatcher;
 
-    /**
-     * Constructor.
-     *
-     * @param HttpKernelInterface      $kernel     A HttpKernelInterface instance
-     * @param EventDispatcherInterface $dispatcher A EventDispatcherInterface instance
-     */
     public function __construct(HttpKernelInterface $kernel, EventDispatcherInterface $dispatcher = null)
     {
         $this->kernel = $kernel;
@@ -132,7 +126,9 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
             // Do nothing
         }
 
-        $server['REMOTE_ADDR'] = '127.0.0.1';
+        $trustedProxies = Request::getTrustedProxies();
+        $server['REMOTE_ADDR'] = $trustedProxies ? reset($trustedProxies) : '127.0.0.1';
+
         unset($server['HTTP_IF_MODIFIED_SINCE']);
         unset($server['HTTP_IF_NONE_MATCH']);
 

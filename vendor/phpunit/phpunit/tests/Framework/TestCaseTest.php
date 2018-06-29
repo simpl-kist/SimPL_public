@@ -10,6 +10,7 @@
 
 namespace PHPUnit\Framework;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Runner\BaseTestRunner;
 
 class TestCaseTest extends TestCase
@@ -174,6 +175,7 @@ class TestCaseTest extends TestCase
         $this->assertTrue($test->testSomething);
         $this->assertTrue($test->assertPostConditions);
         $this->assertTrue($test->tearDown);
+        $this->assertEquals(BaseTestRunner::STATUS_ERROR, $test->getStatus());
     }
 
     public function testNoArgTestCasePasses()
@@ -615,7 +617,7 @@ class TestCaseTest extends TestCase
         $mock = $this->createMock(\Mockable::class);
 
         $this->assertInstanceOf(\Mockable::class, $mock);
-        $this->assertInstanceOf(\PHPUnit_Framework_MockObject_MockObject::class, $mock);
+        $this->assertInstanceOf(MockObject::class, $mock);
     }
 
     public function testCreateMockMocksAllMethods()
