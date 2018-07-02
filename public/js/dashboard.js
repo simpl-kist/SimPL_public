@@ -28,7 +28,7 @@ pages.forEach(function(e,i,array){
 		return;
 	}
 	let date=new Date(e.created);
-	latestPage.find("tbody").append("<tr><td>"+e.id+"</td><td>"+e.title+"</td><td>"+(date.getYear()-100)+"-"+date.getMonth()+"-"+date.getDate()+"</td></tr>")
+	latestPage.find("tbody").append("<tr><td>"+e.id+"</td><td>"+e.title+"</td><td>"+(date.getYear()-100)+"-"+(date.getMonth()+1)+"-"+date.getDate()+"</td></tr>")
 })
 plugins.forEach(function(e,i,array){
 	console.log(i);
@@ -36,7 +36,7 @@ plugins.forEach(function(e,i,array){
 		return;
 	}	
 	let date=new Date(e.created_at);
-	latestPlugin.find("tbody").append("<tr><td>"+e.id+"</td><td>"+e.name+"</td><td>"+(date.getYear()-100)+"-"+date.getMonth()+"-"+date.getDate()+"</td></tr>")
+	latestPlugin.find("tbody").append("<tr><td>"+e.id+"</td><td>"+e.name+"</td><td>"+(date.getYear()-100)+"-"+(date.getMonth()+1)+"-"+date.getDate()+"</td></tr>")
 })
 // top line
 var monthlyJoin = 0;
@@ -69,6 +69,9 @@ $('#npages').text(pages.length);
 //latest jobs
 var htmlTemp = "";
 jobs.forEach(function(d,i){
+if(i>=10){
+return;
+}
 		htmlTemp += "<tr>";
 		htmlTemp += "<td><a href='"+d.url+"'></a>"+d.id+"</td>";
 		htmlTemp += "<td>"+d.name+"</td>";
