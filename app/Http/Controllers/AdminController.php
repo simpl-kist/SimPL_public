@@ -170,7 +170,7 @@ class AdminController extends Controller
         // not exactly
 
                 $users = User::where( "created_at", ">=", \Carbon\Carbon::now()->addyears(-1) )->orderBy('created_at','desc')->get(['name','affiliation','mypic','created_at']);
-                $plugins = PluginModel::get(['id', 'name']);
+                $plugins = PluginModel::select(['id', 'name','created_at','alias'])->orderBy("created_at","desc")->get();
 
 		$_plugins=[];
 		for($i=0 ; $i<count($plugins) ; $i++){
@@ -178,7 +178,7 @@ class AdminController extends Controller
 		}
 
                 $solvers = SolverModel::get(['id']);
-                $pages = PageModel::get(['id']);
+                $pages = PageModel::select(['id','created','title','alias'])->orderBy("created","desc")->get();
                 $jobs = JobModel::orderBy('created_at','desc')->limit(12)->get(['id', 'name', 'created_at', 'updated_at', 'parent', 'owner', 'status', 'pluginID']);
                 $jobs_count=JobModel::count();
                 return view('admin.dashboard',[
