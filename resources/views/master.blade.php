@@ -28,7 +28,7 @@
 <script>
 	var kCMSAPI = function(){
 		var that = this;
-		that.callPlugin = function(alias,data,callback){
+		that.callPlugin = function(alias,data,callback,async=false){
 			$.ajaxSetup({
 			    headers: {
 			        'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -40,7 +40,7 @@
 				url:"/run_plugins",
 				dataType : "json",
 				method : 'post',
-				async : false,
+				async : async,
 				data : dataJson,
 				success : function(ret){
 					if(typeof(callback) == "function"){
