@@ -55,7 +55,7 @@ class AdminController extends Controller
 			return $query->where($type,$value);
 		})->
 		orderBy('created_at','desc')->
-		select(['id','name','created_at','updated_at','output','pluginId','qinfo'])->
+		select(['id','name','created_at','updated_at','output','pluginId','qinfo','jobdir'])->
 		paginate(10);
 
 		$jobs->withPath($url);

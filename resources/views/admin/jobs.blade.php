@@ -3,7 +3,11 @@
 General
 @stop
 @section('content')
-
+<style>
+	#job_table>tbody>tr>td{
+		word-break:break-all;
+	}
+</style>
 <h2>Jobs</h2>
 <div class="form-inline" style="text-align:left;">
         <select class=form-control id=filter_type>
@@ -16,19 +20,18 @@ General
 	        <i class="glyphicon glyphicon-search" style="font-size:15px"></i>
         </button>
 </div>
-<table class=table style="width:100%;">
+<table id=job_table class=table style="width:100%;">
 	<thead>
 		<tr>
-			<th style="width:3%;">ID</th>
+			<th style="width:5%;">ID</th>
 			<th style="width:5%;">Plugin</th>
-			<th style="width:5%;">Next</th>
+			<th style="width:15%;">Jobdir</th>
 			<th style="width:5%;">Name</th>
 			<th style="width:5%;">Status</th>
 			<th style="width:7%;">Queue ID</th>
-			<th style="width:10%;">Submitted</th>
-			<th style="width:10%;">Updated</th>
-			<th style="width:20%;">Input</th>
-			<th style="width:20%;">Output</th>
+			<th style="width:14%;">Time Record</th>
+			<th style="width:17%;">Input</th>
+			<th style="width:17%;">Output</th>
 			<th style="width:5%;"></th>
 		</tr>
 	</thead>
@@ -47,17 +50,16 @@ if(isset($job->qinfo)){
 }
 ?>
 		<tr>
-			<td>{{ $job->id }}</td>
-			<td>{{ $job->pluginId}}</td>
-			<td>{{ $job->pluginNext }}</td>
-			<td>{{ $job->name }}</td>
-			<td>{!! $stat !!}</td>
-			<td>{!! $qstr !!}</td>
-			<td>{{ $job->created_at }}</td>
-			<td>{{ $job->updated_at }}</td>
-			<td>{{ $job->input }}</td>
-			<td>{{ $job->output }}</td>
-			<td>
+			<td style="width:5%;">{{ $job->id }}</td>
+			<td style="width:5%;">{{ $job->pluginId}}</td>
+			<td style="width:15%;">{{ $job->jobdir }}</td>
+			<td style="width:5%;">{{ $job->name }}</td>
+			<td style="width:5%;">{!! $stat !!}</td>
+			<td style="width:7%;">{!! $qstr !!}</td>
+			<td style="width:14%;"><label>Created</label><br>{{ $job->created_at }}<br><label>Updated</label><br>{{ $job->updated_at }}</td>
+			<td style="width:17%;">{{ $job->input }}</td>
+			<td style="width:17%;">{{ $job->output }}</td>
+			<td style="width:5%;">
                         @if(Auth::user()->policy==="admin")
                                 <button class="btn btn-danger" onclick="delete_job({{$job->id}})">Delete</button>
                         @endif

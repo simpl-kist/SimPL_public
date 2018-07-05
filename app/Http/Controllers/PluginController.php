@@ -407,8 +407,8 @@ fclose($pipes[2]);
 		if(isset($_SERVER["HTTP_REFERER"])){
 			return ["Wrong Access"];
 		}
-		if(null!==$request->pluginName){
-			$__pluginByAlias=PluginModel::where("alias",$request->pluginName)->first();
+		if(null!==$request->pluginAlias){
+			$__pluginByAlias=PluginModel::where("alias",$request->pluginAlias)->first();
 			if($__pluginByAlias !== null){
 				$request['pluginId']=$__pluginByAlias->id;
 			}
