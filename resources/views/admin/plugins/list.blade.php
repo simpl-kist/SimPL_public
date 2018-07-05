@@ -5,7 +5,12 @@ Plugins
 @section('content')
 <?php
 use App\CmsEnvModel;
-$url=CmsEnvModel::where("var_key","url")->first()->var_value;
+$env=CmsEnvModel::where("var_key","url")->first();
+if($env!==null){
+	$url=$env->var_value;
+}else{
+	$url="";
+}
 if(!isset($url) || $url ===""){
 ?>
 <script>
