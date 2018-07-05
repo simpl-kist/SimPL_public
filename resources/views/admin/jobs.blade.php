@@ -1,6 +1,6 @@
 @extends('admin.master')
 @section('title')
-General
+Jobs
 @stop
 @section('content')
 <style>

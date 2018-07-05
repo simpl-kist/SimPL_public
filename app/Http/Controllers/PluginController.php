@@ -441,7 +441,11 @@ fclose($pipes[2]);
 				if($jobs[$i]->pluginId == -1){
 					$__plugin_name = "TEST";
 				}else{
-					$__plugin_name=$_plugins[$jobs[$i]->pluginId];
+					if(isset($_plugins[$jobs[$i]->pluginId])){
+						$__plugin_name=$_plugins[$jobs[$i]->pluginId];
+					}else{
+						$__plugin_name="Deleted Plugin";
+					}
 				}
 				$jobs[$i]['pluginName'] = $__plugin_name;
 			}
