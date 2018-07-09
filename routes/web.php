@@ -11,7 +11,6 @@
 |
 */
 Auth::routes();
-Route::get("d3test",function(){return view('d3test');});
 Route::get('logout','Auth\LoginController@logout');
 Route::get('verification',function(){
 	if(Auth::user()->verified===1){

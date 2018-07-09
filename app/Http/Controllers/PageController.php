@@ -67,6 +67,10 @@ class PageController extends Controller
 	}
 	public function add(Request $request){
 		if($request->input('title') === null || $request->input('alias') === null || $request->input('contents') === null ) return redirect()->back()->withInput($request->all); 
+		$forbid_alias=['login','logout','verification','verifyemail','repo','server','simulation','utils','preset','defaultPic','deleteMe','updateMe','admin','repos','userpic'];
+		if(in_array($request->input('alias'),$forbid_alias)){
+			return redirect()->back()->withInput($request->all);
+		}
 		$pageM = PageModel::findOrNew($request->input('pageId'));
 		if($pageM->alias !== $request->alias){
 			if(count(PageModel::where('alias',$request->input('alias'))->get())>0){

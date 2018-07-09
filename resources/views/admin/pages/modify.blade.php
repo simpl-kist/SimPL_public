@@ -39,7 +39,7 @@ Edit Page
 		background-color:#ff1234;
 		border-radius:7.5px;
 	}
-	.editor_main div{
+	.editor_main div, .editor_main canvas{
 		border:1px solid red;
 		min-height:15px;
 	}
@@ -95,8 +95,15 @@ $('document').ready(function(){
 		},
 		lineNumbers:true,
 	});
-
-	
+	$("input[name=alias]").off();
+	$("input[name=alias]").change(function(){
+		let forbid=['login','logout','verification','verifyemail','repo','server','simulation','utils','preset','defaultPic','deleteMe','updateMe','admin','repos','userpic'];
+		let alias=$(this).val();
+		if(forbid.indexOf(alias)>=0){
+			alert("You cannot use "+alias+" as alias.");
+			$(this).val("");
+		}
+	})	
 });
 </script>
 <?php
@@ -160,15 +167,16 @@ $('document').ready(function(){
 					<button class="simpl_btn add_dom_element" value="span" type="button">Text</button>
 					<button class="simpl_btn add_dom_element" value="img" type="button">Img</button>
 					<button class="simpl_btn add_dom_element" value="ul" type="button">List</button>
+					<button class="simpl_btn add_dom_element" value="canvas" type="button">Canvas</button>
 					<button class="simpl_btn add_dom_element" value="table" type="button">Table</button>
 					<button class="simpl_btn_danger remove_dom_element" value="backspace" type="button">BackSpace</button>
 					<button class="simpl_btn_danger remove_dom_element" value="remove" type="button">Remove</button>
 					<button class="simpl_btn_danger remove_dom_element" value="delete" type="button">Delete</button>
 					<button class="simpl_btn_danger remove_dom_element" value="empty" type="button">Empty</button>
 					<br>
-					<button class="simpl_btn add_dom_element" value="page" type="button">Page</button>
-					<button class="simpl_btn add_dom_element" value="vlatoms" type="button">Visualizer</button>
-					<button class="simpl_btn edit_properties" type="button">Properties</button>					
+					<button class="simpl_btn add_dom_element" value="page" type="button" style="background-color:#3333FF;color:white;">Page</button>
+					<button class="simpl_btn add_dom_element" value="vlatoms" type="button" style="background-color:#3333FF;color:white;">Visualizer</button>
+					<button class="simpl_btn edit_properties" type="button" style="background-color:#118811;color:white;">Properties</button>					
 					<br>
 					<label>Num :</label> <input class="form-control" id="divide_num" style="width:75px;">
 					<button class="simpl_btn divide_div" type="button">Divide</button>
