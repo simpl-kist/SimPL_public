@@ -522,7 +522,10 @@ fclose($pipes[2]);
 			$logincheck=$this->loginCheckOrByKey($request->key);
 			if($logincheck == "no user") return;
 		}
-		$file = Repository::where('owner',0)->where("alias",$request->alias)->firstOrFail();
+		$file = Repository::where('owner',0)->where("alias",$request->alias)->first();
+		if($file===null){
+			return "File does not exist.";
+		}
 		$can_read=$this->canReadData($file);
 		if($can_read==0){
 			return "UNAUTHORIZED";
