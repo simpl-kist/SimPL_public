@@ -572,7 +572,7 @@ fclose($pipes[2]);
 		foreach($this->strToArr($inc_data) as $inc){
 			if($inc == "") continue;
 			$_plugin = PluginModel::where("alias",$inc)->first();
-			if(count($_plugin) == 0) abort(404,"Included Plugin does not exist. Please check the alias.");
+			if($_plugin === null) abort(404,"Included Plugin does not exist. Please check the alias.");
 			$can_read=$this->canReadData($_plugin);
 			if($can_read==0) continue;
 			$_incFileName = "kCmsIncludes_".$inc;

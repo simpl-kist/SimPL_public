@@ -109,7 +109,7 @@ class PageController extends Controller
 	public function view($pageName=null){
 		if($pageName == null){
 			$frontPage = PageModel::where("isfront",true)->get(["alias"])->first();
-			if( $frontPage->count() == 0 ){ // There is no front page
+			if( $frontPage === null ){ // There is no front page
 				abort(404);
 			}else{
 				$pageName = $frontPage->alias;
@@ -125,7 +125,7 @@ class PageController extends Controller
 		$pageM = new PageModel;
 		$page = $pageM->get()->where('alias',$pageName)->first();
 // 없으면 빈 칸을 띄우게함
-		if(count($page)<1) return redirect('/');
+		if($page===null) return redirect('/');
 // page policy		
 		$can_read=1;
 		if($page->ispublic*1 !== 0){
