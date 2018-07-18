@@ -4,6 +4,7 @@ Edit Page
 @stop
 @section('content')
 <script src={{asset('assets/vendor/codemirror/lib/')}}/codemirror.js></script>
+<script src={{asset('assets/vendor/codemirror/lib/')}}/formatting.js></script>
 <script src={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.js></script>
 <script src={{asset('assets/vendor/codemirror/addon/hint/')}}/html-hint.js></script>
 <script src={{asset('assets/vendor/codemirror/addon/hint/')}}/javascript-hint.js></script>
@@ -184,6 +185,8 @@ $('document').ready(function(){
 					<button class="simpl_btn add_dom_element" value="page" type="button" style="background-color:#3333FF;color:white;">Page</button>
 					<button class="simpl_btn add_dom_element" value="vlatoms" type="button" style="background-color:#3333FF;color:white;">Visualizer</button>
 					<button class="simpl_btn edit_properties" type="button" style="background-color:#118811;color:white;">Properties</button>					
+					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('back');" value="backward" type="button" style="background-color:#EE33FF;color:white;">Backward</button>
+					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('front');" value="forward" type="button" style="background-color:#EE33FF;color:white;">Forward</button>
 					<br>
 					<label>Num :</label> <input class="form-control" id="divide_num" style="width:75px;">
 					<button class="simpl_btn divide_div" type="button">Divide</button>
@@ -224,7 +227,7 @@ $('document').ready(function(){
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif
-				<button type="submit" class="btn btn-primary">Apply</button>
+				<button onclick='$(".clicked_element").removeClass("clicked_element");javascript:script_change();' type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
 	</form>
@@ -408,6 +411,8 @@ $('document').ready(function(){
 						<option value=get_checked>Get Checked</option>
 						<option value=json_parse>Str To JSON</option>
 						<option value=json_stringify>JSON To Str</option>
+						<option value=hide>Hide</option>
+						<option value=show>Show</option>
 					</select>
 				</div>
 
@@ -517,6 +522,54 @@ $('document').ready(function(){
 </div>
 
 <script>
+function dom_move(direction){
+	let target = $(".clicked_element");
+	if(target[0] === undefined){
+		return false;
+	}
+	switch(direction){
+		case "back":
+			let prev=target.prev();
+			if(prev[0]===undefined){
+				if(target.parent().hasClass("editor_main")){
+					return false;
+				}else{
+					$(target[0]).insertBefore(target.parent());
+				}
+			}else{
+				if(prev[0].tagName==="DIV"){
+					prev.append(target[0])
+				}else{
+					$(target[0]).insertBefore(prev);
+				}
+			}
+			break;
+		case "front":
+			let next=target.next();
+			if(next[0]===undefined){
+				if(target.parent().hasClass("editor_main")){
+					return false;
+				}else{
+					$(target[0]).insertAfter(target.parent());
+				}
+			}else{
+				if(next[0].tagName==="DIV"){
+					next.prepend(target[0])					
+				}else{
+					$(target[0]).insertAfter(next);
+				}
+			}
+			break;
+		default:
+	}
+}
+
+var script_change = function(){
+//	$(".clicked_element").removeClass("clicked_element");
+	scriptEditor.setValue($(".editor_main").html());
+	scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
+	scriptEditor.save();
+}
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
 	$(".selected_view").removeClass("selected_view");
@@ -524,8 +577,8 @@ var open_content = function(type){
 	$(".page_tab").hide();
 	$(".page_"+type).show();
 	if(type==="script"){
-		scriptEditor.setValue($(".editor_main").html());
-		scriptEditor.save();
+		$(".clicked_element").removeClass("clicked_element");
+		script_change();
 	}else if(type==="editor"){
 		scriptEditor.save();
 		$(".contents_wrapper").val(scriptEditor.getValue());
@@ -639,8 +692,8 @@ $("#SimPLtoContent").click(function(){
 				}
 				$(".style_dom_element[data-css=background-color]").val(bg_color_hex);
 
-				$(".style_dom_element[data-css=width]").val(target.css("width").replace("px",""));
-				$(".style_dom_element[data-css=height]").val(target.css("height").replace("px",""));
+				$(".style_dom_element[data-css=width]").val(target.prop('style').width);
+				$(".style_dom_element[data-css=height]").val(target.prop('style').height);
 
 				let f_color=target.css("color").replace(/[rgba() ]/g,"").split(",");
 				let f_color_hex="#";
@@ -676,16 +729,18 @@ $("#SimPLtoContent").click(function(){
 	  		}
 		}
   	}
-	$(".clicked_element").removeClass("clicked_element");
-  	scriptEditor.setValue($(".editor_main").html());
-	scriptEditor.save();
+	script_change();
   }
 $(".style_dom_element").off();
 $(".style_dom_element").change(function(){
 	if($(".clicked_element")[0] === undefined) return;
 	switch($(this).data('css')){
 		case "height":
+			$(".clicked_element").prop('style').height=$(this).val();
+			break;
 		case "width":
+			$(".clicked_element").prop('style').width=$(this).val();
+			break;
 		case "font-size":
 		case "margin-top":
 		case "margin-right":
@@ -714,6 +769,9 @@ $(".style_dom_element").change(function(){
 		default:
 			$(".clicked_element").css($(this).data('css'),$(this).val());		
 	}
+  	scriptEditor.setValue($(".editor_main").html());
+	scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
+	scriptEditor.save();
 });
 
 
@@ -970,9 +1028,7 @@ $("#change_properties").click(function(){
 
 			break;
 	}
-	$(".clicked_element").removeClass("clicked_element");
-  	scriptEditor.setValue($(".editor_main").html());
-	scriptEditor.save();
+	script_change();
 
 	$("#properties_modal").modal('hide');
 });
@@ -1095,6 +1151,9 @@ $(".edit_properties").click(function(){
 		case "div":
 			ih += "\n<div>\n</div>";
 			break;
+		case "canvas":
+			ih += "\n<canvas></canvas>";
+			break;
   		default:
   			ih += "<" + dom_ele + ">" + dom_ele + "</" + dom_ele + ">";
   	};
@@ -1117,7 +1176,7 @@ $("#add_function").click(function(){
 	let trigger=$(".fc_helper_select[data-type=trigger]").find('option:selected').val();
 	let _trigger;
 	console.log(func,trigger);
-	ih="\n";
+	ih="";
 	switch(trigger){
 		case "none":
 			break;
@@ -1419,6 +1478,40 @@ $("#add_function").click(function(){
 			}
 			ih+="JSON.stringify("+o_val+");\n";
 			break;
+		case "hide":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="').hide();\n";
+			break;
+		case "show":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="').show();\n";
+			break;
 		default:
 	}
 	switch(trigger){
@@ -1521,6 +1614,12 @@ $(".fc_helper_wrapper[data-type=func]").change(function(){
 			break;
 		case "json_stringify":
 			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+		case "hide":
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "show":
+			$(".fc_property_wrapper[data-type=target]").show();
 			break;
 	}
 })
