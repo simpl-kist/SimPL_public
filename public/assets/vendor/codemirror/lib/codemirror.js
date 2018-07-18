@@ -6013,6 +6013,11 @@ var Doc = function(text, mode, firstLine, lineSep, direction) {
 };
 
 Doc.prototype = createObj(BranchChunk.prototype, {
+//added
+  addString:function(str){
+_addString(str,this.cm);
+  },
+//
   constructor: Doc,
   // Iterate over the document. Supports two forms -- with only one
   // argument, it calls that for each line in the document. With
@@ -8036,6 +8041,7 @@ function applyTextInput(cm, inserted, deleted, sel, origin) {
 
 function handlePaste(e, cm) {
   var pasted = e.clipboardData && e.clipboardData.getData("Text");
+console.log(pasted);
   if (pasted) {
     e.preventDefault();
     if (!cm.isReadOnly() && !cm.options.disableInput)
@@ -8043,6 +8049,16 @@ function handlePaste(e, cm) {
     return true
   }
 }
+
+//added
+function _addString(str,cm){
+    cm.state.pasteIncoming = true;
+setLastCopied(str);
+    if (!cm.isReadOnly() && !cm.options.disableInput){
+runInOp(cm, function () { return applyTextInput(cm, str, 0, null, "paste"); }); }
+    return true;
+}
+//
 
 function triggerElectric(cm, inserted) {
   // When an 'electric' character is inserted, immediately trigger a reindent

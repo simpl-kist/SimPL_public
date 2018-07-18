@@ -16,6 +16,12 @@ Edit Page
 <script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
+	.fc_property_wrapper{
+		display:none;
+	}
+	.fc_trigger_wrapper{
+		display:none;
+	}
 	.simpl_btn, .simpl_btn:hover{
 		padding:0 10px;
 		border:solid 1px #ddd9d8;
@@ -103,7 +109,8 @@ $('document').ready(function(){
 			alert("You cannot use "+alias+" as alias.");
 			$(this).val("");
 		}
-	})	
+	})
+	$(".fc_helper_select[data-type=func]").change();
 });
 </script>
 <?php
@@ -206,6 +213,7 @@ $('document').ready(function(){
 				</div>
 			</div>
 			<div class='col-sm-12 page_script page_tab'>
+				<button class="simpl_btn" type=button style="background-color:#5cb85c;color:white;" onclick="$('#function_helper_modal').modal('show');">Function Helper</button>
 				<textarea class='form-control contents_wrapper' name=contents>{{ old('contents')!==NULL ? old('contents') : $page->contents }}</textarea>
 				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
 			</div>
@@ -341,6 +349,173 @@ $('document').ready(function(){
 		</div>
 	</div>
 </div>
+<div class="modal" role="dialog" tabindex="-1" id="function_helper_modal">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<label>Javascript Function Helper</label>
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group form-inline fc_helper_wrapper" data-type="trigger">
+					<label style="width:120px;">Trigger</label>
+					<select class="form-control fc_helper_select" data-type=trigger>
+						<option value=none>None</option>
+						<option value=callByName>Call By Name</option>
+						<option value=click>Click</option>
+						<option value=change>Change</option>
+						<option value=documentready>Document Init</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_trigger_wrapper" data-type=name>
+					<label style="width:120px;">Name</label>
+					<input class="form-control fc_trigger_input" data-type=name>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_trigger_wrapper" data-type=in>
+					<label style="width:120px;">Input Properties</label>
+					<input class="form-control fc_trigger_input" data-type=in>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_trigger_wrapper" data-type=target>
+					<label style="width:120px;">Target Element</label>
+					<select class="form-control fc_trigger_select" data-type=target>
+						<option>Enter</option>
+						<option>ID</option>
+						<option>Class</option>
+					</select>
+					<input class="form-control fc_trigger_input" data-type=target>
+				</div>
+				<hr>
+				<div class="form-group form-inline fc_helper_wrapper" data-type="func">
+					<label style="width:120px;">Function</label>
+					<select class="form-control fc_helper_select" data-type=func>
+						<option value=call_plugin>Call Plugin</option>
+						<option value=append>Append</option>
+						<option value=console_log>Log on Console</option>
+						<option value=alert>Alert</option>
+						<option value=get_value>Get Value</option>
+						<option value=set_value>Set Value</option>
+						<option value=get_files>Get Files</option>
+						<option value=upload_file>Upload File</option>
+						<option value=download_file>Download File</option>
+						<option value=select_option>Option Select</option>
+						<option value=check_input>Check Input</option>
+						<option value=get_selected>Get Selected</option>
+						<option value=get_checked>Get Checked</option>
+						<option value=json_parse>Str To JSON</option>
+						<option value=json_stringify>JSON To Str</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=target>
+					<label style="width:120px;">Target Element</label>
+					<select class="form-control fc_property_select" data-type=target>
+						<option>Enter</option>
+						<option>ID</option>
+						<option>Class</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=target>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=position>
+					<label style="width:120px;">Position</label>
+					<select class="form-control fc_property_select" data-type=position>
+						<option>End</option>
+						<option>Beginning</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=append_type>
+					<label style="width:120px;">Append Type</label>
+					<select class="form-control fc_property_select" data-type=append_type>
+						<option>Option</option>
+						<option>Table Row</option>
+						<option>Custom</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=append_option data-wrapper=append>
+					<label style="width:120px;">Append Data</label><br/>
+					<label style="width:120px;">Text</label>
+					<select class="form-control fc_property_select" data-type=append_option data-to=text>
+						<option>Variable</option>
+						<option>String</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=append_option data-to=text><br/>
+					<label style="width:120px;">Property</label>
+					<input class="form-control fc_property_input" data-type=append_option data-to=prop_key placeholder=Key>
+					<input class="form-control fc_property_input" data-type=append_option data-to=prop_val placeholder=Value><br/>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=property>
+					<label style="width:120px;">Property</label>
+					<input class="form-control fc_property_input" data-type=property data-to=prop_key placeholder=Key>
+					<input class="form-control fc_property_input" data-type=property data-to=prop_val placeholder=Value>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=append_table_row data-wrapper=append>
+					<label style="width:120px;">Append Data</label><br/>
+					<div class=fc_table_wrapper>
+						<div>
+							<label style="width:120px;">Table Cell</label>
+							<select class="form-control fc_property_select" data-type=append_table_row>
+								<option>Variable</option>
+								<option>String</option>
+							</select>
+							<input class="form-control fc_property_input" data-type=append_table_row>
+						</div>
+					</div>
+					<div style="text-align:center;">
+						<i class="glyphicon glyphicon-plus table_cell_add" style="color:#00CC00;cursor:pointer;"></i>
+					</div>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=append_custom data-wrapper=append>
+					<label style="width:120px;">Append Data</label>
+					<input class="form-control fc_property_input" data-type=append_custom><br/>
+				</div>
+ 
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=repo_type>
+					<label style="width:120px;">Repo Type</label>
+					<select class="form-control fc_property_select" data-type=repo_type>
+						<option value=web>Web</option>
+						<option value=server>Server</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=alias>
+					<label style="width:120px;">Alias</label>
+					<input class="form-control fc_property_input" data-type=alias>
+				</div>
+
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=data>
+					<label style="width:120px;">Data</label>
+					<textarea class="form-control fc_property_input" data-type=data style="width:400px;height:200px;"></textarea>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=value>
+					<label style="width:120px;">Value</label>
+					<select class="form-control fc_property_select" data-type=value>
+						<option>Variable</option>
+						<option>String</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=value>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" id="add_function" type="button">Add Function</button>
+				<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
@@ -648,9 +823,13 @@ function editProperties(){
 					$("#modal_input_placeholder_wrapper").show();
 					$("#modal_input_value_wrapper").show();
 					$("#modal_input_checked_wrapper").hide();
-				}else{
-					$("#modal_input_placeholder_wrapper").hide();
+				}else if(type_==="file"){
 					$("#modal_input_value_wrapper").hide();
+					$("#modal_input_placeholder_wrapper").hide();
+					$("#modal_input_checked_wrapper").show();
+				}else{
+					$("#modal_input_value_wrapper").show();
+					$("#modal_input_placeholder_wrapper").hide();
 					$("#modal_input_checked_wrapper").show();
 				}
 			});
@@ -892,7 +1071,7 @@ $(".edit_properties").click(function(){
   			ih += "\n<select>\n<option>Select</option>\n</select>";
   			break;
   		case "input":
-  			ih += "<input value=Input>";
+  			ih += "<input>";
   			break;
   		case "vlatoms":
   			ih += "\n<div style='height:500px;'>\n";
@@ -933,6 +1112,441 @@ $(".edit_properties").click(function(){
   });
 
 //var tool_script=new script_tool($(".page_script"),$(".contents"));
+$("#add_function").click(function(){
+	let func=$(".fc_helper_select[data-type=func]").find('option:selected').val();
+	let trigger=$(".fc_helper_select[data-type=trigger]").find('option:selected').val();
+	let _trigger;
+	console.log(func,trigger);
+	ih="\n";
+	switch(trigger){
+		case "none":
+			break;
+		case "callByName":
+			ih+="function "+$(".fc_trigger_input[data-type=name]").val()+"("+$(".fc_trigger_input[data-type=in]").val()+"){\n"
+			break;
+		case "click":
+			ih+="$('";
+			_trigger=$(".fc_trigger_select[data-type=target]").find('option:selected').val();
+			switch(_trigger){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=$(".fc_trigger_input[data-type=target]").val()+"').click(function(){\n";
+			break;
+		case "change":
+			ih+="$('";
+			_trigger=$(".fc_trigger_select[data-type=target]").find('option:selected').val();
+			switch(_trigger){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=$(".fc_trigger_input[data-type=target]").val()+"').change(function(){\n";
+			break;
+		case "documentready":
+			ih+="$(document).ready(function(){\n";
+			break;
+		default:
+	}
+	switch(func){
+		case "call_plugin":
+			ih+="  kCms.callPlugin('"+$(".fc_property_input[data-type=alias]").val()+"',\n";
+			let _data=[];
+			try{
+				_data=JSON.stringify(JSON.parse($(".fc_property_input[data-type=data]").val()),null,2).split("\n");
+			}catch(e){
+				console.warn(e);
+				_data=["{}"];
+			}
+			for(let i=0 ; i<_data.length ; i++){
+				ih+="    "+_data[i]+",\n";
+			}
+			ih+="    function(ret){\n      \n    }\n";
+			ih+="  )\n";
+			break;
+		case "alert":
+			var v_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
+			var variable=$(".fc_property_input[data-type=value]").val();
+			ih+="  alert(";
+			if(v_type==="String"){
+				ih+='"';
+			}
+			ih+=variable;
+			if(v_type==="String"){
+				ih+='"';
+			}
+			ih+=");\n";
+			break;
+		case "console_log":
+			var v_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
+			var variable=$(".fc_property_input[data-type=value]").val();
+			ih+="  console.log(";
+			if(v_type==="String"){
+				ih+='"';
+			}
+			ih+=variable;
+			if(v_type==="String"){
+				ih+='"';
+			}
+			ih+=");\n";
+			break;
+		case "get_value":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="').val();\n";
+			break;
+		case "set_value":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			var o_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
+			var o_val=$(".fc_property_input[data-type=value]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			if(o_type==='String'){
+				o_val="'"+o_val+"'";
+			}
+			ih+="').val("+o_val+");\n";
+			break;
+		case "get_files":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="')[0].files;\n";
+			break;
+		case "append":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+=">tbody').";
+			var _pos=$(".fc_property_select[data-type=position]").find('option:selected').val();
+			switch(_pos){
+				case "Beginning":
+					ih+="prepend('";
+					break;
+				case "End":
+					ih+="append('";
+					break;
+			}
+			var a_type=$(".fc_property_select[data-type=append_type]").find('option:selected').val();
+			switch(a_type){
+				case "Option":
+					var op_text_type=$(".fc_property_select[data-type=append_option][data-to=text]").val();
+					var op_text_val=$(".fc_property_input[data-type=append_option][data-to=text]").val();
+					if(op_text_type==="Variable"){
+						op_text_val="'+"+op_text_val+"+'";
+					}
+					var op_prop_key=$(".fc_property_input[data-type=append_option][data-to=prop_key]").val();
+					var op_prop_val=$(".fc_property_input[data-type=append_option][data-to=prop_val]").val();
+					ih+="<option "+op_prop_key+"="+op_prop_val+">"+op_text_val+"</option>";
+					break;
+				case "Table Row":
+					ih+="<tr>";
+					var tbl_types=$(".fc_property_select[data-type=append_table_row]");
+					var tbl_values=$(".fc_property_input[data-type=append_table_row]");
+					for(var i=0, len=tbl_types.length ; i<len; i++){
+						var __val=$(tbl_values[i]).val();
+						var __type=$(tbl_types[i]).find('option:selected').val();
+						if(__type==="Variable"){
+							__val="'+"+__val+"+'";
+						}
+						ih+="<td>"+__val+"</td>";
+					}
+					ih+="</tr>";
+					break;
+				case "Custom":
+					var custom_val=$(".fc_property_input[data-type=append_custom]").val();
+					ih+=custom_val;
+					break;
+			}
+			ih+="')";
+			break;
+		case "download_file":
+			ih+="  kCms.downloadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"','"+$(".fc_property_input[data-type=alias]").val()+"')";
+			break;
+		case "upload_file":
+			ih+=" kCms.uploadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"', $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="')[0].files, function(ret){\n    \n  })\n";
+			break;
+		case "select_option":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="').find('option["+$(".fc_property_input[data-type=property][data-to=prop_key]").val()+"="+$(".fc_property_input[data-type=property][data-to=prop_val]").val()+"]').prop('selected',true);\n";
+			break;
+		case "check_input":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="["+$(".fc_property_input[data-type=property][data-to=prop_key]").val()+"="+$(".fc_property_input[data-type=property][data-to=prop_val]").val()+"]').prop('checked',true);\n";
+			break;
+		case "get_selected":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+="').find('option:selected').val();\n";
+			break;
+		case "get_checked":
+			ih+="  $('";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					break;
+				case "ID":
+					ih+="#";
+					break;
+				case "Class":
+					ih+=".";
+					break;
+			}
+			ih+=t_val;
+			ih+=":checked').val();\n";
+			break;
+		case "json_parse":
+			var o_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
+			var o_val=$(".fc_property_input[data-type=value]").val();
+			if(o_type==='String'){
+				o_val="'"+o_val+"'";
+			}
+			ih+="JSON.parse("+o_val+");\n";
+			break;
+		case "json_stringify":
+			var o_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
+			var o_val=$(".fc_property_input[data-type=value]").val();
+			if(o_type==='String'){
+				o_val="'"+o_val+"'";
+			}
+			ih+="JSON.stringify("+o_val+");\n";
+			break;
+		default:
+	}
+	switch(trigger){
+		case "none":
+			break;
+		case "callByName":
+			ih+="}\n";
+			break;
+		case "click":
+			ih+="})\n";
+			break;
+		case "change":
+			ih+="})\n";
+			break;
+		case "documentready":
+			ih+="})\n";
+			break;
+		default:
+	}
+	scriptEditor.addString(ih);
+	$('#function_helper_modal').modal('hide');
+});
+
+$(".fc_helper_wrapper[data-type=trigger]").change(function(){
+	let trigger=$(this).find('option:selected').val();
+	$(".fc_trigger_wrapper").hide();
+	switch(trigger){
+		case "none":
+			break;
+		case "callByName":
+			$(".fc_trigger_wrapper[data-type=name]").show();
+			$(".fc_trigger_wrapper[data-type=in]").show();
+			break;
+		case "click":
+			$(".fc_trigger_wrapper[data-type=target]").show();
+			break;
+		case "change":
+			$(".fc_trigger_wrapper[data-type=target]").show();
+			break;
+		case "documentready":
+			break;
+		default:
+	}
+})
+
+$(".fc_helper_wrapper[data-type=func]").change(function(){
+	let func=$(this).find('option:selected').val();
+	$(".fc_property_wrapper").hide();
+	switch(func){
+		case "call_plugin":
+			$(".fc_property_wrapper[data-type=alias]").show();
+			$(".fc_property_wrapper[data-type=data]").show();
+			break;
+		case "append":
+			$(".fc_property_wrapper[data-type=target]").show();
+			$(".fc_property_wrapper[data-type=position]").show();
+			$(".fc_property_wrapper[data-type=append_type]").show();
+			$(".fc_property_select[data-type=append_type]").change();
+			break;
+		case "console_log":
+			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+		case "alert":
+			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+		case "get_value":
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "set_value":
+			$(".fc_property_wrapper[data-type=target]").show();
+			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+		case "get_files":
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "upload_file":
+			$(".fc_property_wrapper[data-type=repo_type]").show();
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "download_file":
+			$(".fc_property_wrapper[data-type=repo_type]").show();
+			$(".fc_property_wrapper[data-type=alias]").show();				
+			break;
+		case "select_option":
+			$(".fc_property_wrapper[data-type=target]").show();
+			$(".fc_property_wrapper[data-type=property]").show();
+			break;
+		case "check_input":
+			$(".fc_property_wrapper[data-type=target]").show();
+			$(".fc_property_wrapper[data-type=property]").show();
+			break;
+		case "get_selected":
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "get_checked":
+			$(".fc_property_wrapper[data-type=target]").show();
+			break;
+		case "json_parse":
+			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+		case "json_stringify":
+			$(".fc_property_wrapper[data-type=value]").show();
+			break;
+	}
+})
+$(".fc_property_select[data-type=append_type]").change(function(){
+	let _type= $(this).find('option:selected').val();
+	$(".fc_property_wrapper[data-wrapper=append]").hide();
+	switch(_type){
+		case "Option":
+			$(".fc_property_wrapper[data-type=append_option]").show();
+			break;
+		case "Table Row":
+			$(".fc_property_wrapper[data-type=append_table_row]").show();
+			break;
+		case "Custom":
+			$(".fc_property_wrapper[data-type=append_custom]").show();
+			break;
+	}
+});
+$(".table_cell_add").click(function(){
+	$(".fc_table_wrapper").append('<div><label style="width:120px;">Table Cell</label> <select class="form-control fc_property_select" data-type=append_table_row><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=append_table_row> <i class="glyphicon glyphicon-minus table_cell_minus" style="color:#FF0000;cursor:pointer;"></i></div>');
+	$(".table_cell_minus").off();
+	$(".table_cell_minus").click(function(){
+		$(this).parent().remove();
+	});
+});
+
 
 </script>
 @stop
