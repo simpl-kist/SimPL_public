@@ -1094,7 +1094,7 @@ $("#change_properties").click(function(){
 			}
 			break;
 		case "TEXTAREA":
-			target.val($("#modal_textarea_val").val());
+			target.text($("#modal_textarea_val").val());
 			break;
 		case "UL":
 			target.empty();
