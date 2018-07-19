@@ -1324,6 +1324,9 @@ $("#add_function").click(function(){
 			ih+="    {\n";
 			for(let i=0, len=keys.length ;i<len ; i++){
 				let _vals=$(vals[i]).val();
+				if(_vals==="" && $(keys[i]).val()===""){
+					continue;
+				}
 				if($(types[i]).val()==="String"){
 					_vals='"'+_vals+'"';
 				}
