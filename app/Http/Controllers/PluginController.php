@@ -413,7 +413,7 @@ fclose($pipes[2]);
 				$request['pluginId']=$__pluginByAlias->id;
 			}
 		}
-                $jobs = JobModel::where($request->except(['cols','criteria','order','limit','pluginName']))
+                $jobs = JobModel::where($request->except(['cols','criteria','order','limit','pluginAlias']))
                 ->when($request->criteria,function($query) use($request){
                         for($i=0 ; $i<count($request->criteria) ; $i++){
                                 $query=$query->whereRaw($request->criteria[$i]);
