@@ -513,8 +513,12 @@ $('document').ready(function(){
 					</select>
 					<input class="form-control fc_property_input" data-type=append_option data-to=text><br/>
 					<label style="width:120px;">Property</label>
-					<input class="form-control fc_property_input" data-type=append_option data-to=prop_key placeholder=Key>
-					<input class="form-control fc_property_input" data-type=append_option data-to=prop_val placeholder=Value><br/>
+					<input class="form-control fc_property_input" data-type=append_option data-to=prop_key placeholder=Key style="width:120px;">
+					<select class="form-control fc_property_select" data-type=append_option data-to=property>
+						<option>Variable</option>
+						<option>String</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=append_option data-to=prop_val placeholder=Value style="width:120px;"><br/>
 				</div>
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=property>
@@ -1458,8 +1462,12 @@ $("#add_function").click(function(){
 					if(op_text_type==="Variable"){
 						op_text_val="'+"+op_text_val+"+'";
 					}
+					var op_prop_type=$(".fc_property_select[data-type=append_option][data-to=property]").find('option:selected').val();
 					var op_prop_key=$(".fc_property_input[data-type=append_option][data-to=prop_key]").val();
 					var op_prop_val=$(".fc_property_input[data-type=append_option][data-to=prop_val]").val();
+					if(op_prop_type!=="String"){
+						op_prop_val="'"+op_prop_val+"'";
+					}
 					ih+="<option "+op_prop_key+"="+op_prop_val+">"+op_text_val+"</option>";
 					break;
 				case "Table Row":
