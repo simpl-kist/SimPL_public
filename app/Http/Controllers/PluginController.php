@@ -398,7 +398,7 @@ fclose($pipes[2]);
 	
 			}
 		}
-		if($job->pluginId===-1) $job->jobdir=null;
+//		if($job->pluginId===-1) $job->jobdir=null;
 		$job->save();
 		if($id==-1) $id = $job->id;
 		return $id;

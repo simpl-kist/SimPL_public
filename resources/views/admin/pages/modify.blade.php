@@ -413,6 +413,9 @@ $('document').ready(function(){
 						<option value=json_stringify>JSON To Str</option>
 						<option value=hide>Hide</option>
 						<option value=show>Show</option>
+						<option value=make_chart>Make Chart</option>
+						<option value=add_chart_data>Add Chart Data</option>
+						<option value=remove_chart_data>Remove Chart Data</option>
 					</select>
 				</div>
 
@@ -500,7 +503,19 @@ $('document').ready(function(){
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=data>
 					<label style="width:120px;">Data</label>
-					<textarea class="form-control fc_property_input" data-type=data style="width:400px;height:200px;"></textarea>
+					<div class=fc_data_wrapper>
+						<div>
+							<input class="form-control fc_property_input" data-type=data data-to=key placeholder=key>
+							<select class="form-control fc_property_select" data-type=data data-to=val_type>
+								<option>Variable</option>
+								<option>String</option>
+							</select>
+							<input class="form-control fc_property_input" data-type=data data-to=val>
+						</div>
+					</div>
+					<div style="text-align:center;">
+						<i class="glyphicon glyphicon-plus data_value_add" style="color:#00CC00;cursor:pointer;"></i>
+					</div>
 				</div>
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=value>
@@ -512,6 +527,28 @@ $('document').ready(function(){
 					<input class="form-control fc_property_input" data-type=value>
 				</div>
 
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=variable>
+					<label style="width:120px;">Variable</label>
+					<input class="form-control fc_property_input" data-type=variable>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_label>
+					<label style="width:120px;">Variable</label>
+					<input class="form-control fc_property_input" data-type=chart_label>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_type>
+					<label style="width:120px;">Chart Type</label>
+					<select class="form-control fc_property_select" data-type=chart_type>
+						<option value=scatter>Line</option>
+						<option value=bar>Bar</option>
+					</select>
+				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_data>
+					<label style="width:120px;">Chart Data(Variable)</label>
+					<input class="form-control fc_property_input" data-type=chart_data>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary" id="add_function" type="button">Add Function</button>
@@ -566,9 +603,11 @@ function dom_move(direction){
 
 var script_change = function(){
 //	$(".clicked_element").removeClass("clicked_element");
-	scriptEditor.setValue($(".editor_main").html());
-	scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
-	scriptEditor.save();
+	if($(".selected_view").data('type')==="editor"){
+		scriptEditor.setValue($(".editor_main").html());
+		scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
+		scriptEditor.save();
+	}
 }
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
@@ -1220,17 +1259,19 @@ $("#add_function").click(function(){
 	}
 	switch(func){
 		case "call_plugin":
-			ih+="  kCms.callPlugin('"+$(".fc_property_input[data-type=alias]").val()+"',\n";
-			let _data=[];
-			try{
-				_data=JSON.stringify(JSON.parse($(".fc_property_input[data-type=data]").val()),null,2).split("\n");
-			}catch(e){
-				console.warn(e);
-				_data=["{}"];
+			ih+='  kCms.callPlugin("'+$(".fc_property_input[data-type=alias]").val()+'",\n';
+			let keys=$(".fc_property_input[data-type=data][data-to=key]");
+			let types=$(".fc_property_select[data-type=data][data-to=val_type]")
+			let vals=$(".fc_property_input[data-type=data][data-to=val]");
+			ih+="    {\n";
+			for(let i=0, len=keys.length ;i<len ; i++){
+				let _vals=$(vals[i]).val();
+				if($(types[i]).val()==="String"){
+					_vals='"'+_vals+'"';
+				}
+				ih+='      "'+$(keys[i]).val()+'":'+_vals+",\n";
 			}
-			for(let i=0 ; i<_data.length ; i++){
-				ih+="    "+_data[i]+",\n";
-			}
+			ih+="    },\n";
 			ih+="    function(ret){\n      \n    }\n";
 			ih+="  )\n";
 			break;
@@ -1331,7 +1372,15 @@ $("#add_function").click(function(){
 					break;
 			}
 			ih+=t_val;
-			ih+=">tbody').";
+			var a_type=$(".fc_property_select[data-type=append_type]").find('option:selected').val();
+			switch(a_type){
+				case "Table Row":
+					ih+=">tbody').";
+					break;
+				default:
+					ih+="').";
+					break;
+			}
 			var _pos=$(".fc_property_select[data-type=position]").find('option:selected').val();
 			switch(_pos){
 				case "Beginning":
@@ -1341,7 +1390,6 @@ $("#add_function").click(function(){
 					ih+="append('";
 					break;
 			}
-			var a_type=$(".fc_property_select[data-type=append_type]").find('option:selected').val();
 			switch(a_type){
 				case "Option":
 					var op_text_type=$(".fc_property_select[data-type=append_option][data-to=text]").val();
@@ -1372,7 +1420,7 @@ $("#add_function").click(function(){
 					ih+=custom_val;
 					break;
 			}
-			ih+="')";
+			ih+="');\n";
 			break;
 		case "download_file":
 			ih+="  kCms.downloadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"','"+$(".fc_property_input[data-type=alias]").val()+"')";
@@ -1512,6 +1560,54 @@ $("#add_function").click(function(){
 			ih+=t_val;
 			ih+="').show();\n";
 			break;
+		case "make_chart":
+			ih="let "+$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
+			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
+			var t_val=$(".fc_property_input[data-type=target]").val();
+			switch(t_type){
+				case "Enter":
+					alert("Please use ID or Class.");
+					return;
+					break;
+				case "ID":
+					ih+="getElementById('";
+					break;
+				case "Class":
+					ih+="getElementsByClass('";
+					break;
+			}
+			ih+=t_val;
+			ih+="').getContext('2d'),{\n";
+			ih+="  type:'"+$(".fc_property_select[data-type=chart_type]").find('option:selected').val()+"',\n";
+			ih+="  data:{},\n";
+			ih+="  options:{\n";
+			ih+="    scales:{\n";
+			ih+="      yAxes: [{\n";
+			ih+="        ticks: {\n";
+			ih+="          beginAtZero:true\n";
+			ih+="        }\n";
+			ih+="      }]\n";
+			ih+="    }\n";
+			ih+="  },\n";
+			ih+="})\n";
+			scriptEditor.addString(ih);
+			$('#function_helper_modal').modal('hide');
+			return;
+			break;
+		case "add_chart_data":
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets.push({\n";
+			ih+="    label:"+$(".fc_property_input[data-type=chart_label]").val()+",\n";
+			ih+="    data:"+$(".fc_property_input[data-type=chart_data]").val()+",\n";
+			ih+="    borderColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n';
+			ih+="    showLine:true,\n";
+			ih+="    fill:false\n";
+			ih+="  });\n";
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			break;
+		case "remove_chart_data":
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets=[];\n";
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			break;
 		default:
 	}
 	switch(trigger){
@@ -1621,6 +1717,19 @@ $(".fc_helper_wrapper[data-type=func]").change(function(){
 		case "show":
 			$(".fc_property_wrapper[data-type=target]").show();
 			break;
+		case "make_chart":
+			$(".fc_property_wrapper[data-type=target]").show();
+			$(".fc_property_wrapper[data-type=chart_type]").show();
+			$(".fc_property_wrapper[data-type=variable]").show();
+			break;
+		case "add_chart_data":
+			$(".fc_property_wrapper[data-type=variable]").show();
+			$(".fc_property_wrapper[data-type=chart_data]").show();
+			$(".fc_property_wrapper[data-type=chart_label]").show();
+			break;
+		case "remove_chart_data":
+			$(".fc_property_wrapper[data-type=variable]").show();
+			break;
 	}
 })
 $(".fc_property_select[data-type=append_type]").change(function(){
@@ -1638,6 +1747,14 @@ $(".fc_property_select[data-type=append_type]").change(function(){
 			break;
 	}
 });
+$(".data_value_add").click(function(){
+	$(".fc_data_wrapper").append('<div><input class="form-control fc_property_input" data-type=data data-to=key placeholder=key> <select class="form-control fc_property_select" data-type=data data-to=val_type><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=data data-to=val> <i class="glyphicon glyphicon-minus data_value_remove" style="color:#FF0000;cursor:pointer;"></i></div>');
+	$(".data_value_remove").off();
+	$(".data_value_remove").click(function(){
+		$(this).parent().remove();
+	});
+
+})
 $(".table_cell_add").click(function(){
 	$(".fc_table_wrapper").append('<div><label style="width:120px;">Table Cell</label> <select class="form-control fc_property_select" data-type=append_table_row><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=append_table_row> <i class="glyphicon glyphicon-minus table_cell_minus" style="color:#FF0000;cursor:pointer;"></i></div>');
 	$(".table_cell_minus").off();
