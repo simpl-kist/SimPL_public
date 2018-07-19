@@ -290,10 +290,12 @@ class AdminController extends Controller
 		$pass=escapeshellcmd(env('DB_PASSWORD'));
 		$db=escapeshellcmd(env('DB_DATABASE'));
 		$backup_target=$request->backup_object;
+		if($backup_target===null){
+			 return "Please Select At Least One Table.";
+		}
 		$filename=escapeshellcmd($db.(now()->format('Y-m-d_H:i:s'))."(".implode(",",$backup_target).").sql");
 		$path=storage_path("backup");
 		$tables="";
-		if(count($backup_target)===0) return;
 		if(array_search("job",$backup_target)!==false && array_search("user",$backup_target)===false){
 			array_push($backup_target,"user");
 			array_push($backup_target,"password_resets");
