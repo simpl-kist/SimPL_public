@@ -1466,7 +1466,7 @@ $("#add_function").click(function(){
 					var op_prop_key=$(".fc_property_input[data-type=append_option][data-to=prop_key]").val();
 					var op_prop_val=$(".fc_property_input[data-type=append_option][data-to=prop_val]").val();
 					if(op_prop_type!=="String"){
-						op_prop_val="'"+op_prop_val+"'";
+						op_prop_val="'+"+op_prop_val+"+'";
 					}
 					ih+="<option "+op_prop_key+"="+op_prop_val+">"+op_text_val+"</option>";
 					break;
