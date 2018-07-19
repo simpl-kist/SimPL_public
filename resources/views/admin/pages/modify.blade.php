@@ -47,11 +47,11 @@ Edit Page
 		border-radius:7.5px;
 	}
 	.editor_main div, .editor_main canvas{
-		border:1px solid red;
+		border:2px solid red;
 		min-height:15px;
 	}
   .clicked_element{
-    border: 1px solid blue !important; 
+    border: 2px solid blue !important; 
   }
 	
 .CodeMirror-fullscreen {
@@ -63,7 +63,7 @@ Edit Page
 .modal_prop_label{
 	width:90px;
 }
-.editor_main{
+.editor_main_wrapper{
 	min-height:500px;
 	padding:10px;
 	border:solid 1px #dedede;
@@ -211,8 +211,66 @@ $('document').ready(function(){
 					<label class=style_label data-type=margin><i class="glyphicon glyphicon-align-justify"></i>Margin</label>
 					<label class=style_label data-type=border><i class="glyphicon glyphicon-align-justify"></i>Border</label>
 				</div>
+<?php
+	$header=App\CmsEnvModel::where('var_key','header')->first();
+	$footer=App\CmsEnvModel::where('var_key','footer')->first();
+
+	if($header!==null){
+		$header=$header->var_value;
+		$in_style=false;
+		$swi=false;
+		for($i=0,$len=strlen($header); $i<$len ; $i++){
+			if($swi){
+				if($header[$i]!==" " && $header[$i]!=="\n" && $header[$i]!=="<"){
+					$newheader=substr($header,0,$i).".editor_main ".substr($header,$i,strlen($header)-$i);
+					$header=$newheader;
+					$swi=false;
+				}
+			}
+			if($header[$i]==="<"){
+				$swi=false;
+			}
+			if($header[$i]==="}"){
+				$swi=true;
+			}
+			if($header[$i]===">" && substr($header,$i-6,7)==="<style>"){
+					$swi=true;
+			}
+			$len=strlen($header);
+		}
+	}
+	if($footer!==null){
+		$footer=$footer->var_value;
+		$in_style=false;
+		$swi=false;
+		for($i=0,$len=strlen($footer); $i<$len ; $i++){
+			if($swi){
+				if($footer[$i]!==" " && $footer[$i]!=="\n" && $footer[$i]!=="<"){
+					$newheader=substr($footer,0,$i).".editor_main ".substr($footer,$i,strlen($footer)-$i);
+					$footer=$newheader;
+					$swi=false;
+				}
+			}
+			if($footer[$i]==="<"){
+				$swi=false;
+			}
+			if($footer[$i]==="}"){
+				$swi=true;
+			}
+			if($footer[$i]===">" && substr($footer,$i-6,7)==="<style>"){
+					$swi=true;
+			}
+			$len=strlen($footer);
+		}
+	}
+?>
+<div class="editor_main_wrapper">
+{!! $header !!}
 				<div class="editor_main">
+
 				</div>
+{!! $footer !!}
+</div>
 				</div>
 			</div>
 			<div class='col-sm-12 page_script page_tab'>

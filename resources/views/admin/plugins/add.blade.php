@@ -128,7 +128,7 @@ $('document').ready(function(){
 		<div class='form-group row'>
 			<label class='col-sm-3 col-form-label'>Input(for test)</label>
 			<div class=col-sm-9>
-				<textarea style='height:150px;overflow-y:auto;' class='form-control inputdata' name="inputdata" placeholder="Standard JSON format is supported"></textarea>
+				<textarea style='height:150px;overflow-y:auto;' class='form-control inputdata' name="inputdata" placeholder="Standard JSON format is supported">{!! old('inputdata') !!}</textarea>
 <!--				<div style='height:350px;overflow-y:auto;' class='form-control scriptDiv' contenteditable>{!! isset($plugin->script)?nl2br($plugin->script):"" !!}</div>
 			</div>
 				<input type=hidden name=script class=script>-->

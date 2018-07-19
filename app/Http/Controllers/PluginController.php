@@ -177,7 +177,7 @@ class PluginController extends Controller
 		$m->save();
 //		return redirect(route("admin.plugins"));
 		$id=$m->id;
-		return redirect(route("admin.plugins.modify", $id));
+		return redirect(route("admin.plugins.modify", $id))->withInput($_POST);
 	}
 	public function strToArr($str){
 		$str = preg_replace( '/^\s+/', '', $str);
