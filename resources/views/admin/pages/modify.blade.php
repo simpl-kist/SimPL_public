@@ -15,6 +15,7 @@ Edit Page
 <script src={{asset('assets/vendor/codemirror/mode/')}}/htmlmixed/htmlmixed.js></script>
 <script src={{asset('assets/vendor/codemirror/mode/')}}/python/python.js></script>
 <script src={{asset('js/fullscreen.js')}}></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
 	.vls_prop_wrapper{
@@ -539,6 +540,7 @@ $('document').ready(function(){
 						<option value=show>Show</option>
 						<option value=make_chart>Make Chart</option>
 						<option value=add_chart_data>Add Chart Data</option>
+						<option value=add_chart_dataset>Add Chart DataSet</option>
 						<option value=remove_chart_data>Remove Chart Data</option>
 						<option value=none>None</option>
 					</select>
@@ -662,7 +664,7 @@ $('document').ready(function(){
 				</div>
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_label>
-					<label style="width:120px;">Variable</label>
+					<label style="width:120px;">Label</label>
 					<input class="form-control fc_property_input" data-type=chart_label>
 				</div>
 
@@ -674,10 +676,25 @@ $('document').ready(function(){
 					</select>
 				</div>
 
-				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_data>
-					<label style="width:120px;">Chart Data(Variable)</label>
-					<input class="form-control fc_property_input" data-type=chart_data>
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=idx>
+					<label style="width:120px;">Dataset Index</label>
+					<input class="form-control fc_property_input" data-type=idx>
 				</div>
+
+				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=chart_data>
+					<label style="width:120px;">Chart Data</label>
+					<select class="form-control fc_property_select" data-type=chart_data data-to=x_axis_type>
+						<option>Variable</option>
+						<option>String</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=chart_data data-to=x_axis_val placeholder="X value" style="width:100px;">
+					<select class="form-control fc_property_select" data-type=chart_data data-to=y_axis_type>
+						<option>Variable</option>
+						<option>String</option>
+					</select>
+					<input class="form-control fc_property_input" data-type=chart_data data-to=y_axis_val placeholder="Y value" style="width:100px;">
+				</div>
+
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary" id="add_function" type="button">Add Function</button>
@@ -1721,7 +1738,7 @@ $("#add_function").click(function(){
 			ih+="').show();\n";
 			break;
 		case "make_chart":
-			ih="let "+$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
+			var ih="let "+$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			switch(t_type){
@@ -1755,17 +1772,73 @@ $("#add_function").click(function(){
 			return;
 			break;
 		case "add_chart_data":
+			var type = $(".fc_property_select[data-type=chart_type]").find('option:selected').val();
+			var idx=$(".fc_property_wrapper[data-type=idx]").val()*1;
+			if(Number.isNaN(idx) || !Number.isInteger(idx) || idx<0){
+				alert("Index must be an Integer 0 or above.");
+				$(".vls_prop_input[data-type=idx]").val("");
+				return;
+			}
+			let x_axis=$(".fc_property_input[data-type=chart_data][data-to=x_axis_val]").val();
+			let x_type=$(".fc_property_input[data-type=chart_data][data-to=x_axis_type]").find('option:selected').val();
+			let y_axis=$(".fc_property_input[data-type=chart_data][data-to=y_axis_val]").val();
+			let y_type=$(".fc_property_input[data-type=chart_data][data-to=y_axis_type]").find('option:selected').val();
+			if(x_type!=="String"){
+				x_type="'+"+x_axis+"+'";
+			}
+			if(y_type!=="String"){
+				y_type="'+"+y_axis+"+'";
+			}
+			switch(type){
+				case "scatter":
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx*1+"].data.push({\n";
+					ih+="    x:"+x_axis+",\n";
+					ih+="    y:"+y_axis+"\n";
+					ih+="  });\n";
+					break;
+				case "bar":
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels.push("+x_axis+");\n";
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx*1+"].data.push("+y_axis+");\n";
+					break;
+			}
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			break;
+		case "add_chart_dataset":
+			var type = $(".fc_property_select[data-type=chart_type]").find('option:selected').val();
+			switch(type){
+				case "scatter":
+					break;
+				case "bar":
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
+					break;
+			}
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets.push({\n";
-			ih+="    label:"+$(".fc_property_input[data-type=chart_label]").val()+",\n";
-			ih+="    data:"+$(".fc_property_input[data-type=chart_data]").val()+",\n";
+			ih+="    label:'"+$(".fc_property_input[data-type=chart_label]").val()+"',\n";
+			ih+="    data:[],\n";
 			ih+="    borderColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n';
-			ih+="    showLine:true,\n";
-			ih+="    fill:false\n";
+			switch(type){
+				case "scatter":
+					ih+="    showLine:true,\n";
+					ih+="    fill:false\n";
+					break;
+				case "bar":
+					ih+="    backgroundColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n';
+					break;
+			}
 			ih+="  });\n";
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		case "remove_chart_data":
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets=[];\n";
+			var idx=$(".fc_property_wrapper[data-type=idx]").val()*1;
+			if(Number.isNaN(idx) || !Number.isInteger(idx) || idx<0){
+				alert("Index must be an Integer 0 or above.");
+				$(".vls_prop_input[data-type=idx]").val("");
+				return;
+			}
+			ih+="  if("+$(".fc_property_input[data-type=variable]").val()+".data.labels!==undefined){\n";
+			ih+="    "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
+			ih+="  };\n";
+			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data=[];\n";
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		default:
@@ -1884,12 +1957,19 @@ $(".fc_helper_wrapper[data-type=func]").change(function(){
 			$(".fc_property_wrapper[data-type=chart_type]").show();
 			$(".fc_property_wrapper[data-type=variable]").show();
 			break;
-		case "add_chart_data":
+		case "add_chart_dataset":
+			$(".fc_property_wrapper[data-type=chart_type]").show();
 			$(".fc_property_wrapper[data-type=variable]").show();
-			$(".fc_property_wrapper[data-type=chart_data]").show();
 			$(".fc_property_wrapper[data-type=chart_label]").show();
 			break;
+		case "add_chart_data":
+			$(".fc_property_wrapper[data-type=idx]").show();
+			$(".fc_property_wrapper[data-type=chart_type]").show();
+			$(".fc_property_wrapper[data-type=chart_data]").show();
+			$(".fc_property_wrapper[data-type=variable]").show();
+			break;
 		case "remove_chart_data":
+			$(".fc_property_wrapper[data-type=idx]").show();
 			$(".fc_property_wrapper[data-type=variable]").show();
 			break;
 	}
