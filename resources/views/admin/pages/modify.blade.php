@@ -17,6 +17,10 @@ Edit Page
 <script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
+	.vls_prop_wrapper{
+		display:none;
+	}
+
 	.fc_property_wrapper{
 		display:none;
 	}
@@ -112,6 +116,7 @@ $('document').ready(function(){
 		}
 	})
 	$(".fc_helper_select[data-type=func]").change();
+	$(".vls_func_select").change();
 });
 </script>
 <?php
@@ -274,7 +279,9 @@ $('document').ready(function(){
 				</div>
 			</div>
 			<div class='col-sm-12 page_script page_tab'>
-				<button class="simpl_btn" type=button style="background-color:#5cb85c;color:white;" onclick="$('#function_helper_modal').modal('show');">Function Helper</button>
+				<button class="simpl_btn" type=button style="background-color:#b85c5c;color:white;" onclick="$('#function_helper_modal').modal('show');">Function Helper</button>
+				<button class="simpl_btn" type=button style="background-color:#113567;color:white;" onclick="$('#visualizer_helper_modal').modal('show');">Visualizer Helper</button>
+				<button class="simpl_btn" type=button style="background-color:#116735;color:white;" onclick="clear_script();">Clear Script</button>
 				<textarea class='form-control contents_wrapper' name=contents>{{ old('contents')!==NULL ? old('contents') : $page->contents }}</textarea>
 				<label style="font-size:12px;float:left">FullScreen Mode: Ctrl+Enter</label>
 			</div>
@@ -285,7 +292,7 @@ $('document').ready(function(){
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif
-				<button onclick='$(".clicked_element").removeClass("clicked_element");javascript:script_change();' type="submit" class="btn btn-primary">Apply</button>
+				<button onclick='$(".clicked_element").removeClass("clicked_element");javascript:save_script();' type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
 	</form>
@@ -410,6 +417,65 @@ $('document').ready(function(){
 		</div>
 	</div>
 </div>
+<div class="modal" role="dialog" tabindex="-1" id="visualizer_helper_modal">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<label>SimPL Page Repository</label>
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body form-inline">
+				<div>
+					<label style="width:120px;">Function</label>
+					<select class="form-control vls_func_select">
+						<option value=get_str_data>Get Structure Data</option>
+						<option value=set_str_data>Set Structure Data</option>
+						<option value=get_atoms>Get Atoms</option>
+						<option value=add_atoms>Add Atoms</option>
+						<option value=remove_atoms>Remove Atoms</option>
+						<option value=get_element_list>Get Element List</option>
+						<option value=str_to_cif>Structure to CIF</option>
+						<option value=str_to_poscar>Structure to Poscar</option>
+						<option value=cif_to_str>CIF to Structure</option>
+						<option value=poscar_to_str>Poscar to Structure</option>
+						<option value=xyz_to_str>XYZ to Structure</option>
+						<option value=inside_test>Atoms to Inside</option>
+						<option value=get_volume>Get Volumn</option>
+						<option value=update_cam>Update Cam Position</option>
+						<option value=readfiles>ReadFiles</option>
+						<option value=update_atoms>Draw Atoms</option>
+						<option value=update_bonds>Draw Bonds</option>
+					</select>
+				</div>
+				<div class=vls_prop_wrapper data-type=vls>
+					<label style="width:120px;">Target Visualizer</label>
+					<input class="form-control vls_prop_input" data-type=vls>
+				</div>
+				<div class=vls_prop_wrapper data-type=idx>
+					<label style="width:120px;">Index</label>
+					<input class="form-control vls_prop_input" data-type=idx>
+				</div>
+				<div class=vls_prop_wrapper data-type=variable>
+					<label style="width:120px;">Variable</label>
+					<input class="form-control vls_prop_input" data-type=variable>
+				</div>
+				<div class=vls_prop_wrapper data-type=atom_prop>
+					<label style="width:120px;">Property</label>
+					<input class="form-control vls_prop_input" data-type=atom_prop style="width:100px;" data-to=x placeholder=x>
+					<input class="form-control vls_prop_input" data-type=atom_prop style="width:100px;" data-to=y placeholder=y>
+					<input class="form-control vls_prop_input" data-type=atom_prop style="width:100px;" data-to=z placeholder=z>
+					<input class="form-control vls_prop_input" data-type=atom_prop style="width:100px;" data-to=element placeholder=Element>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" id="vls_add_btn" type="button">Add Function</button>
+				<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal" role="dialog" tabindex="-1" id="function_helper_modal">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -474,6 +540,7 @@ $('document').ready(function(){
 						<option value=make_chart>Make Chart</option>
 						<option value=add_chart_data>Add Chart Data</option>
 						<option value=remove_chart_data>Remove Chart Data</option>
+						<option value=none>None</option>
 					</select>
 				</div>
 
@@ -662,14 +729,36 @@ function dom_move(direction){
 		default:
 	}
 }
+var document_ready=function(script,on){
+	if(on){
+		script=script.replace(/var simpl_document_temp\=/g,"$(document).ready");
+	}else{
+		script=script.replace(/\$\(document\).ready/g,"var simpl_document_temp=");
+	}
+		console.log(script);
+	return script;
+}
 
+var clear_script = function(){
+	scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
+}
+var save_script = function(){
+	let type=$(".selected_view").data('type');
+	console.log(type);
+	switch(type){
+		case "script":
+			break;
+		case "editor":
+			$(".clicked_element").removeClass("clicked_element");
+			scriptEditor.setValue(document_ready($(".editor_main").html(),true));
+			scriptEditor.save();	
+			break;
+	}
+}
 var script_change = function(){
 //	$(".clicked_element").removeClass("clicked_element");
-	if($(".selected_view").data('type')==="editor"){
-		scriptEditor.setValue($(".editor_main").html());
-		scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
-		scriptEditor.save();
-	}
+	scriptEditor.setValue($(".editor_main").html());
+	scriptEditor.save();
 }
 var open_content = function(type){
 	if($(".selected_view").data('type')===type) return;
@@ -679,11 +768,12 @@ var open_content = function(type){
 	$(".page_"+type).show();
 	if(type==="script"){
 		$(".clicked_element").removeClass("clicked_element");
-		script_change();
+		scriptEditor.setValue(document_ready($(".editor_main").html(),true));
+		scriptEditor.save();
 	}else if(type==="editor"){
 		scriptEditor.save();
 		$(".contents_wrapper").val(scriptEditor.getValue());
-		$(".editor_main").html($(".contents_wrapper").val());
+		$(".editor_main").html(document_ready($(".contents_wrapper").val(),false));
 		add_event();
 	}
 }
@@ -1280,6 +1370,7 @@ $("#add_function").click(function(){
 	ih="";
 	switch(trigger){
 		case "none":
+			ih+="";
 			break;
 		case "callByName":
 			ih+="function "+$(".fc_trigger_input[data-type=name]").val()+"("+$(".fc_trigger_input[data-type=in]").val()+"){\n"
@@ -1726,6 +1817,8 @@ $(".fc_helper_wrapper[data-type=func]").change(function(){
 	let func=$(this).find('option:selected').val();
 	$(".fc_property_wrapper").hide();
 	switch(func){
+		case "none":
+			break;
 		case "call_plugin":
 			$(".fc_property_wrapper[data-type=alias]").show();
 			$(".fc_property_wrapper[data-type=data]").show();
@@ -1832,6 +1925,168 @@ $(".table_cell_add").click(function(){
 	});
 });
 
-
+$(".vls_func_select").change(function(){
+	let func=$(this).find('option:selected').val();
+	console.log(func);
+	$(".vls_prop_wrapper").hide();
+	switch(func){
+		case "get_str_data":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "set_str_data":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=variable]").show();
+			break;
+		case "get_atoms":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "add_atoms":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=atom_prop]").show();
+			break;
+		case "remove_atoms":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=idx]").show();
+			break;
+		case "get_element_list":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "str_to_cif":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "str_to_poscar":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "cif_to_str":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=variable]").show();
+			break;
+		case "poscar_to_str":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=variable]").show();
+			break;
+		case "xyz_to_str":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=variable]").show();
+			break;
+		case "inside_test":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "get_volume":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "update_cam":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "readfiles":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			$(".vls_prop_wrapper[data-type=variable]").show();
+			break;
+		case "update_atoms":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+		case "update_bonds":
+			$(".vls_prop_wrapper[data-type=vls]").show();
+			break;
+	}
+});
+$("#vls_add_btn").click(function(){
+	let func=$(".vls_func_select").find('option:selected').val();
+	let vls="";
+	let vari="";
+	let idx="";
+	ih="";
+	switch(func){
+		case "get_str_data":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=  vls+".Structure;\n";
+			break;
+		case "set_str_data":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			vari=$(".vls_prop_input[data-type=variable]").val();
+			ih+=vls+".Structure = VLatoms.Utils.redefineStructure("+vari+");\n";
+			ih+=vls+".update.atomsChanged=true;\n";
+			ih+=vls+".update.bondsChanged=true;\n";
+			ih+=vls+".setOptimalCamPosition();\n";
+			break;
+		case "get_atoms":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=vls+".Structure.atoms;\n";
+			break;
+		case "add_atoms":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			let ele=$(".vls_prop_input[data-type=atom_prop][data-to=element]").val();
+			let pos_x=$(".vls_prop_input[data-type=atom_prop][data-to=x]").val();
+			let pos_y=$(".vls_prop_input[data-type=atom_prop][data-to=y]").val();
+			let pos_z=$(".vls_prop_input[data-type=atom_prop][data-to=z]").val();
+			ih+=vls+".Structure.atoms.push(new VLatoms.Atom("+pos_x+","+pos_y+","+pos_z+",'"+ele+"');\n";
+			break;
+		case "remove_atoms":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			idx=$(".vls_prop_input[data-type=idx]").val()*1;
+			if(Number.isNaN(idx) || !Number.isInteger(idx) || idx<0){
+				alert("Index must be an Integer 0 or above.");
+				$(".vls_prop_input[data-type=idx]").val("");
+				return;
+			}
+			ih+=vls+"Structure.atoms.split("+idx+",1);\n";
+			break;
+		case "get_element_list":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+="Object.keys("+vls+".Structure.formula.formulaArr);\n";
+			break;
+		case "str_to_cif":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+="VLatoms.Utils.Structure.toCIF("+vls+".Structure"+");\n";
+			break;
+		case "str_to_poscar":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+="VLatoms.Utils.Structure.toPoscar("+vls+".Structure"+");\n";
+			break;
+		case "cif_to_str":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			vari=$(".vls_prop_input[data-type=variable]").val();
+			ih+=vls+".Structure=VLatoms.Utils.Structure.cifToVLatoms("+vari+");\n";
+			break;
+		case "poscar_to_str":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			vari=$(".vls_prop_input[data-type=variable]").val();
+			ih+=vls+".Structure=VLatoms.Utils.Structure.poscarToVLatoms("+vari+");\n";
+			break;
+		case "xyz_to_str":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			vari=$(".vls_prop_input[data-type=variable]").val();
+			ih+=vls+".Structure=VLatoms.Utils.Structure.xyzToVLatoms("+vari+");\n";
+			break;
+		case "inside_test":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=vls+".Manipulate.insideTest("+vls+".Structure.atoms,{'onEscape':true});\n";
+			break;
+		case "get_volume":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+="VLatoms.Utils.getVolume("+vls+".Structure);\n";
+			break;
+		case "update_cam":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=vls+".setOptimalCamPosition();\n";
+			break;
+		case "readfiles":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			vari=$(".vls_prop_input[data-type=variable]").val();
+			ih+=vls+".IO.readFiles("+vari+");\n";
+			break;
+		case "update_atoms":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=vls+".update.atomsChanged=true;\n";
+			break;
+		case "update_bonds":
+			vls=$(".vls_prop_input[data-type=vls]").val();
+			ih+=vls+".update.bondsChanged=true;\n";
+			break;
+	}
+	console.log(ih);
+	scriptEditor.addString(ih);
+	$("#visualizer_helper_modal").modal("hide");
+});
 </script>
 @stop
