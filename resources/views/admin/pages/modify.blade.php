@@ -1773,12 +1773,8 @@ $("#add_function").click(function(){
 			break;
 		case "add_chart_data":
 			var type = $(".fc_property_select[data-type=chart_type]").find('option:selected').val();
-			var idx=$(".fc_property_wrapper[data-type=idx]").val()*1;
-			if(Number.isNaN(idx) || !Number.isInteger(idx) || idx<0){
-				alert("Index must be an Integer 0 or above.");
-				$(".vls_prop_input[data-type=idx]").val("");
-				return;
-			}
+			var idx=$(".fc_property_input[data-type=idx]").val();
+
 			let x_axis=$(".fc_property_input[data-type=chart_data][data-to=x_axis_val]").val();
 			let x_type=$(".fc_property_input[data-type=chart_data][data-to=x_axis_type]").find('option:selected').val();
 			let y_axis=$(".fc_property_input[data-type=chart_data][data-to=y_axis_val]").val();
@@ -1791,14 +1787,16 @@ $("#add_function").click(function(){
 			}
 			switch(type){
 				case "scatter":
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx*1+"].data.push({\n";
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push({\n";
 					ih+="    x:"+x_axis+",\n";
 					ih+="    y:"+y_axis+"\n";
 					ih+="  });\n";
 					break;
 				case "bar":
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels.push("+x_axis+");\n";
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx*1+"].data.push("+y_axis+");\n";
+					if(x_axis!==""){
+						ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels.push("+x_axis+");\n";
+					}
+					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push("+y_axis+");\n";
 					break;
 			}
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
@@ -1829,14 +1827,18 @@ $("#add_function").click(function(){
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		case "remove_chart_data":
-			var idx=$(".fc_property_wrapper[data-type=idx]").val()*1;
-			if(Number.isNaN(idx) || !Number.isInteger(idx) || idx<0){
-				alert("Index must be an Integer 0 or above.");
-				$(".vls_prop_input[data-type=idx]").val("");
-				return;
-			}
+			var idx=$(".fc_property_input[data-type=idx]").val();
 			ih+="  if("+$(".fc_property_input[data-type=variable]").val()+".data.labels!==undefined){\n";
-			ih+="    "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
+			ih+="    let __delete_label=true;\n";
+			ih+="    for(let __i=0,__len="+$(".fc_property_input[data-type=variable]").val()+".data.datasets.length ; __i<__len ; __i++){\n";
+			ih+="      if("+$(".fc_property_input[data-type=variable]").val()+".data.datasets[__i].data.length !==0){\n";
+			ih+="        __delete_label=false;\n";
+			ih+="        break;\n";
+			ih+="      }\n";
+			ih+="    };\n";
+			ih+="    if(__delete_label){\n";
+			ih+="      "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
+			ih+="    }\n";
 			ih+="  };\n";
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data=[];\n";
 			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
