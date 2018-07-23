@@ -57,7 +57,7 @@ Solvers
 @endcan
 </table>
 <script>
-var delete_page = function(idx,title){
+var delete_solver = function(idx,title){
 	if(confirm("Solver "+title+" will be deleted. Continue?")){
 		$.ajax({
 			'url':"{{url('/admin/solvers/delete')}}",

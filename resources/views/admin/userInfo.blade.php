@@ -7,5 +7,5 @@ User Info
 @endif
 @stop
 @section('content')
-@include('parts.userInfo',['user'=>$user])
+@include('parts.userInfo',['user'=>$user,'from'=>"admin"])
 @stop

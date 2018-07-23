@@ -42,8 +42,10 @@ a:hover
 </style>
 	<meta charset="UTF-8">
 <script src={{URL::asset('assets/vendor/jquery/dist/jquery.min.js')}}></script>
+<!--
 <link rel=stylesheet type=text/css href={{URL::asset('assets/vendor/dropzone/dist/dropzone.css')}}>
 <script src={{URL::asset('assets/vendor/dropzone/dist/dropzone.js')}}></script>
+-->
 <!--<script src={{URL::asset('assets/vendor/bootstrap/dist/js/bootstrap.min.js')}}></script>
 <link rel=stylesheet href={{URL::asset('assets/vendor/bootstrap/dist/css/bootstrap.min.css')}}>-->
 <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">

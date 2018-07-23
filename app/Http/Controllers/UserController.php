@@ -51,13 +51,7 @@ class UserController extends Controller
 		$user->save();
 		return redirect()->route('admin.users.page');
 	}
-	public function deleteUser(Request $request)
-	{
-		$user = User::where('id',$request->Input('index'))->first();
-		$this->authorize('update',$user);
-		$user->delete();
-		return redirect()->route('admin.users');
-	}
+
 	public function deleteMe(Request $request)
 	{
 		$inputPassword = $request->password;
@@ -80,7 +74,7 @@ class UserController extends Controller
 	{
 		$user = User::findOrFail($id);
 		$this->authorize('read',$user);
-		return view('admin.userInfo')->with('user',$user);
+		return redirect()->back()->with('user',$user);
 	}
 	public function defaultPic(Request $request)
 	{
@@ -89,6 +83,32 @@ class UserController extends Controller
 		Storage::delete($user->mypic);
 		$user->mypic = null;
 		$user->save();
-		return route('admin.myInfo');
+		return redirect()->back()->with('user',$user);
+	}
+
+	public function reset_verification_key(Request $request){
+		$user=Auth::user();
+		if($user===null){
+			return;
+		}
+		$inputPassword = $request->password;
+	        $pwhash = $user->password;
+	        if( Hash::check($inputPassword,$pwhash) ){
+			$user->verification_code=$this->make_rand_string(32);
+			$user->save();
+			return "success";
+		}else{
+			return "password error";
+		}
+	}
+
+	public function make_rand_string($len){
+		$rand_str="1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz=";
+		$rand_string="";
+		for($i=0 ; $i<$len ; $i++){
+			$randnum=rand(0,62);
+			$rand_string.=$rand_str[$randnum];
+		}
+		return $rand_string;
 	}
 }

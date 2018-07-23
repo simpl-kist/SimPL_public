@@ -46,6 +46,13 @@ $properties = ['email','name','affiliation','tel','phone','policy'];
 	@empty
 	@endforelse
 	@if($user->id===Auth::user()->id)
+		@if($from==="admin")
+		<tr>
+			<td>Key</td>
+			<td><input class=form-control value={{$user["verification_code"]}} style="width:300px;display:inline-block;" readonly><button class="btn btn-success" style="float:right;" type=button onclick="reset_key();">Reset</button>
+			</td>
+		</tr>
+		@endif
 		<tr>
 			<td>Password</td>
 			<td><input class=form-control type='password' id=simpl_users_password name=password></td>
@@ -71,6 +78,28 @@ $properties = ['email','name','affiliation','tel','phone','policy'];
 </table>
 <script>
 @if($user->id===Auth::user()->id)
+	@if($from==="admin")
+		function reset_key(){
+			$.ajax({
+				type:"POST",
+				url:"{{route('admin.users.reset_key')}}",
+				data:{
+					_token:"{{csrf_token()}}",
+					password:$('#simpl_users_password').val(),
+				},
+				success:function(ret){
+					if(ret==="success"){
+						location.reload();
+					}else{
+						alert(ret);
+					}
+				},
+				error:function(ret){
+					console.log(ret)
+				},
+			});
+		}
+	@endif
 function deleteMe(){
 	if(confirm('Your account will be deleted. Continue?')){
 		$.ajax({

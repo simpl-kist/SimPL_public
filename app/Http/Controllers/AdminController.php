@@ -348,10 +348,7 @@ class AdminController extends Controller
 		$user = User::where('id',Auth::user()->id)->first();
 		return view('admin.userInfo')->with('user',$user);
 	}
-	public function myInfo_preset(){
-		$user = User::where('id',Auth::user()->id)->first();
-		return view('preset.userInfo')->with('user',$user);
-	}
+
         public function structureDownload(Request $request){
                 $fp=fopen($request->filename,"w");
                 fwrite($fp,$request->content);

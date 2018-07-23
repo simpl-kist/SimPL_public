@@ -38,8 +38,35 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 	Route::group(['prefix' => 'preset', 'as' => 'preset.'],function(){
 		Route::get('/myInfo',[
 			'as'=>'myInfo',
-			'uses'=>'AdminController@myInfo_preset'
+			'uses'=>'PresetController@myInfo'
 		]);
+Route::middleware(['can:create,App\Repository'])->group(function(){
+		Route::get('/repository',[
+			'as'=>'myInfo',
+			'uses'=>'PresetController@repository'
+		]);
+		Route::post('/repository',[
+			'as' => 'repository',
+			'uses' => 'PresetController@repos_list',
+		]);
+		Route::post('/deleteRepo','PresetController@deleteRepo');
+
+		Route::group(['prefix'=>'repository','as'=>'repository.'],function(){
+			Route::post('/changePublic',[
+				'as'=>'changePublic',
+				'uses'=>'PresetController@repoChangePublic',
+			]);
+			Route::get('/web/{criteria?}',[
+				'as' => 'web',
+				'uses' => 'PresetController@repos_web'
+			]);
+			Route::get('/server/{criteria?}',[
+				'as' => 'server',
+				'uses' => 'PresetController@repos_server'
+			]);
+		});
+});
+
 		Route::POST('defaultPic','UserController@defaultPic')->name('defaultPic');
         
 		Route::POST('/deleteMe',[
@@ -136,6 +163,10 @@ Route::middleware(['auth','checkVerify','NotAnonymous'])->group(function(){
 						'as'=>'deleteUser',
 						'uses'=>'UserController@deleteUser',
 					]);
+					Route::POST('reset_key',[
+						'as'=>'reset_key',
+						'uses'=>'UserController@reset_verification_key'
+					]);
 				});
 			});
 //관리자권한필요
@@ -231,6 +262,7 @@ Route::get('repos/web/{filename}', function ($filename){
 });
 Route::post('repos/upload-file','AdminController@uploadFile')->middleware('can:create,App\Repository');
 Route::post('repos/download-file','AdminController@downloadFile');
+Route::get('repos/list/{repos_for}','AdminController@getRepoList');
 Route::get('userpic/{filename}', function ($filename)
 {
     $path = storage_path('userpic/' . $filename);
