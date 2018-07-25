@@ -511,9 +511,9 @@ $('document').ready(function(){
 				<div class="form-group form-inline fc_helper_wrapper fc_trigger_wrapper" data-type=target>
 					<label style="width:120px;">Target Element</label>
 					<select class="form-control fc_trigger_select" data-type=target>
-						<option>Enter</option>
 						<option>ID</option>
 						<option>Class</option>
+						<option>Enter</option>
 					</select>
 					<input class="form-control fc_trigger_input" data-type=target>
 				</div>
@@ -549,9 +549,9 @@ $('document').ready(function(){
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=target>
 					<label style="width:120px;">Target Element</label>
 					<select class="form-control fc_property_select" data-type=target>
-						<option>Enter</option>
 						<option>ID</option>
 						<option>Class</option>
+						<option>Enter</option>
 					</select>
 					<input class="form-control fc_property_input" data-type=target>
 				</div>
