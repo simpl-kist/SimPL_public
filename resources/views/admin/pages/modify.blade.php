@@ -46,7 +46,7 @@ Edit Page
 		padding:0 10px;
 		color:#fafafa;
 		border:solid 1px #ddd9d8;
-		background-color:#ff1234;
+		background-color:#d70f2b;
 		border-radius:7.5px;
 	}
 	.editor_main div, .editor_main canvas{
@@ -87,10 +87,7 @@ Edit Page
 	background-color:white;
 	box-shadow: 0 0 10px 2px rgba(200, 200, 200, 1);
 }
-	.remove_dom_element{
-		background-color:#d70f2b;
-		color:white;
-	}
+
 	.simpl_wysiwyg_input{
 		height:23px;
 		margin-bottom:2px;
@@ -195,10 +192,10 @@ $('document').ready(function(){
 					<button class="simpl_btn add_dom_element" value="ul" type="button">List</button>
 					<button class="simpl_btn add_dom_element" value="canvas" type="button">Canvas</button>
 					<button class="simpl_btn add_dom_element" value="table" type="button">Table</button>
-					<button class="simpl_btn remove_dom_element" value="backspace" type="button">BackSpace</button>
-					<button class="simpl_btn remove_dom_element" value="remove" type="button">Remove</button>
-					<button class="simpl_btn remove_dom_element" value="delete" type="button">Delete</button>
-					<button class="simpl_btn remove_dom_element" value="empty" type="button">Empty</button>
+					<button class="simpl_btn remove_dom_element simpl_btn_danger" value="backspace" type="button">BackSpace</button>
+					<button class="simpl_btn remove_dom_element simpl_btn_danger" value="remove" type="button">Remove</button>
+					<button class="simpl_btn remove_dom_element simpl_btn_danger" value="delete" type="button">Delete</button>
+					<button class="simpl_btn remove_dom_element simpl_btn_danger" value="empty" type="button">Empty</button>
 					<br>
 					<button class="simpl_btn add_dom_element" value="page" type="button" style="background-color:#F27221;color:white;">Page</button>
 					<button class="simpl_btn add_dom_element" value="vlatoms" type="button" style="background-color:#F27221;color:white;">Visualizer</button>
