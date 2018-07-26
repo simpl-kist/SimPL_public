@@ -25,9 +25,7 @@ Edit Page
 	.fc_property_wrapper{
 		display:none;
 	}
-	.fc_trigger_wrapper{
-		display:none;
-	}
+
 	.simpl_btn, .simpl_btn:hover{
 		padding:0 10px;
 		border:solid 1px #ddd9d8;
@@ -89,6 +87,19 @@ Edit Page
 	background-color:white;
 	box-shadow: 0 0 10px 2px rgba(200, 200, 200, 1);
 }
+	.remove_dom_element{
+		background-color:#d70f2b;
+		color:white;
+	}
+	.simpl_wysiwyg_input{
+		height:23px;
+		margin-bottom:2px;
+	}
+	.simpl_wysiwyg_color{
+		height:20px;
+		width:20px;
+		margin-bottom:2px;
+	}
 </style>
 <link href={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.css rel=stylesheet></script>
 <script>
@@ -116,6 +127,7 @@ $('document').ready(function(){
 			$(this).val("");
 		}
 	})
+	$(".fc_helper_select[data-type=trigger]").change();
 	$(".fc_helper_select[data-type=func]").change();
 	$(".vls_func_select").change();
 });
@@ -183,18 +195,18 @@ $('document').ready(function(){
 					<button class="simpl_btn add_dom_element" value="ul" type="button">List</button>
 					<button class="simpl_btn add_dom_element" value="canvas" type="button">Canvas</button>
 					<button class="simpl_btn add_dom_element" value="table" type="button">Table</button>
-					<button class="simpl_btn_danger remove_dom_element" value="backspace" type="button">BackSpace</button>
-					<button class="simpl_btn_danger remove_dom_element" value="remove" type="button">Remove</button>
-					<button class="simpl_btn_danger remove_dom_element" value="delete" type="button">Delete</button>
-					<button class="simpl_btn_danger remove_dom_element" value="empty" type="button">Empty</button>
+					<button class="simpl_btn remove_dom_element" value="backspace" type="button">BackSpace</button>
+					<button class="simpl_btn remove_dom_element" value="remove" type="button">Remove</button>
+					<button class="simpl_btn remove_dom_element" value="delete" type="button">Delete</button>
+					<button class="simpl_btn remove_dom_element" value="empty" type="button">Empty</button>
 					<br>
-					<button class="simpl_btn add_dom_element" value="page" type="button" style="background-color:#3333FF;color:white;">Page</button>
-					<button class="simpl_btn add_dom_element" value="vlatoms" type="button" style="background-color:#3333FF;color:white;">Visualizer</button>
-					<button class="simpl_btn edit_properties" type="button" style="background-color:#118811;color:white;">Properties</button>					
-					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('back');" value="backward" type="button" style="background-color:#EE33FF;color:white;">Backward</button>
-					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('front');" value="forward" type="button" style="background-color:#EE33FF;color:white;">Forward</button>
+					<button class="simpl_btn add_dom_element" value="page" type="button" style="background-color:#F27221;color:white;">Page</button>
+					<button class="simpl_btn add_dom_element" value="vlatoms" type="button" style="background-color:#F27221;color:white;">Visualizer</button>
+					<button class="simpl_btn edit_properties" type="button" style="background-color:#449B37;color:white;">Properties</button>					
+					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('back');" value="backward" type="button" style="background-color:#1D97DA;color:white;">Backward</button>
+					<button class="simpl_btn move_dom_element" onclick="javascript:dom_move('front');" value="forward" type="button" style="background-color:#1D97DA;color:white;">Forward</button>
 					<br>
-					<label>Num :</label> <input class="form-control" id="divide_num" style="width:75px;">
+					<label>Num :</label> <input class="form-control simpl_wysiwyg_input" id="divide_num" style="width:75px;">
 					<button class="simpl_btn divide_div" type="button">Divide</button>
 					<button class="simpl_btn align_dom_element" value="left" type="button">Left</button>
 					<button class="simpl_btn align_dom_element" value="center" type="button">Center</button>
@@ -204,18 +216,18 @@ $('document').ready(function(){
 					<button class="simpl_btn align_dom_element" value="bottom" type="button">Bottom</button>
 					<br>
 					<label>Background-color : </label>
-					<input type="color" class="form-control style_dom_element" data-css="background-color" style="width:30px;height:30px;padding:0">
+					<input type="color" class="form-control style_dom_element simpl_wysiwyg_color" data-css="background-color" style="width:30px;height:30px;padding:0">
 					<label>Width : </label>
-					<input class="form-control style_dom_element" data-css="width" style="width:70px;">
+					<input class="form-control style_dom_element simpl_wysiwyg_input" data-css="width" style="width:70px;">
 					<label>Height : </label>
-					<input class="form-control style_dom_element" data-css="height" style="width:70px;">
+					<input class="form-control style_dom_element simpl_wysiwyg_input" data-css="height" style="width:70px;">
 					<label>Font-color : </label>
-					<input type="color" class="form-control style_dom_element" data-css="color" style="width:30px;height:30px;padding:0">
+					<input type="color" class="form-control style_dom_element simpl_wysiwyg_color" data-css="color" style="width:30px;height:30px;padding:0">
 					<label>Font-size : </label>
-					<input class="form-control style_dom_element" data-css="font-size" style="width:70px;">
-					<label class=style_label data-type=padding><i class="glyphicon glyphicon-align-justify"></i>Padding</label>
-					<label class=style_label data-type=margin><i class="glyphicon glyphicon-align-justify"></i>Margin</label>
-					<label class=style_label data-type=border><i class="glyphicon glyphicon-align-justify"></i>Border</label>
+					<input class="form-control style_dom_element simpl_wysiwyg_input" data-css="font-size" style="width:70px;">
+					<button class="simpl_btn style_label" type=button data-type=padding><i class="glyphicon glyphicon-align-justify" style="margin-right:2px;"></i>Padding</button>
+					<button class="simpl_btn style_label" type=button data-type=margin><i class="glyphicon glyphicon-align-justify" style="margin-right:2px;"></i>Margin</button>
+					<button class="simpl_btn style_label" type=button data-type=border><i class="glyphicon glyphicon-align-justify" style="margin-right:2px;"></i>Border</button>
 				</div>
 <?php
 	$header=App\CmsEnvModel::where('var_key','header')->first();
@@ -609,7 +621,7 @@ $('document').ready(function(){
 						</div>
 					</div>
 					<div style="text-align:center;">
-						<i class="glyphicon glyphicon-plus table_cell_add" style="color:#00CC00;cursor:pointer;"></i>
+						<i class="glyphicon glyphicon-plus-sign table_cell_add" style="color:#00CC00;cursor:pointer;"></i>
 					</div>
 				</div>
 
@@ -645,7 +657,7 @@ $('document').ready(function(){
 						</div>
 					</div>
 					<div style="text-align:center;">
-						<i class="glyphicon glyphicon-plus data_value_add" style="color:#00CC00;cursor:pointer;"></i>
+						<i class="glyphicon glyphicon-plus-sign data_value_add" style="color:#00CC00;cursor:pointer;"></i>
 					</div>
 				</div>
 
@@ -888,6 +900,11 @@ $("#SimPLtoContent").click(function(){
 				let target=$(".clicked_element");
   				target.removeClass("clicked_element");
   				$(this).addClass("clicked_element");
+		$(".clicked_element").dblclick(function(e){
+			console.log(e);
+			$(".edit_properties").click();
+		});
+
 				target=$(this);
 				let bg_color=target.css("background-color").replace(/[rgba() ]/g,"").split(",");
 				let bg_color_hex="#";
@@ -940,7 +957,9 @@ $("#SimPLtoContent").click(function(){
 	script_change();
   }
 $(".style_dom_element").off();
-$(".style_dom_element").change(function(){
+$(".style_dom_element").change(function(e){
+	console.log("change");
+	e.stopPropagation();
 	if($(".clicked_element")[0] === undefined) return;
 	switch($(this).data('css')){
 		case "height":
@@ -980,6 +999,7 @@ $(".style_dom_element").change(function(){
   	scriptEditor.setValue($(".editor_main").html());
 	scriptEditor.autoFormatRange({"line":0,"ch":0},{"line":scriptEditor.lineCount()});
 	scriptEditor.save();
+	
 });
 
 
@@ -1868,19 +1888,22 @@ $("#add_function").click(function(){
 
 $(".fc_helper_wrapper[data-type=trigger]").change(function(){
 	let trigger=$(this).find('option:selected').val();
-	$(".fc_trigger_wrapper").hide();
+	$(".fc_trigger_wrapper>select").prop("disabled",true);
+	$(".fc_trigger_wrapper>input").prop("readonly",true);
 	switch(trigger){
 		case "none":
 			break;
 		case "callByName":
-			$(".fc_trigger_wrapper[data-type=name]").show();
-			$(".fc_trigger_wrapper[data-type=in]").show();
+			$(".fc_trigger_wrapper[data-type=name]>input").prop("readonly",false);
+			$(".fc_trigger_wrapper[data-type=in]>input").prop("readonly",false);
 			break;
 		case "click":
-			$(".fc_trigger_wrapper[data-type=target]").show();
+			$(".fc_trigger_wrapper[data-type=target]>input").prop("readonly",false);
+			$(".fc_trigger_wrapper[data-type=target]>select").prop("disabled",false);
 			break;
 		case "change":
-			$(".fc_trigger_wrapper[data-type=target]").show();
+			$(".fc_trigger_wrapper[data-type=target]>input").prop("readonly",false);
+			$(".fc_trigger_wrapper[data-type=target]>select").prop("disabled",false);
 			break;
 		case "documentready":
 			break;
@@ -1992,7 +2015,7 @@ $(".fc_property_select[data-type=append_type]").change(function(){
 	}
 });
 $(".data_value_add").click(function(){
-	$(".fc_data_wrapper").append('<div><input class="form-control fc_property_input" data-type=data data-to=key placeholder=key> <select class="form-control fc_property_select" data-type=data data-to=val_type><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=data data-to=val> <i class="glyphicon glyphicon-minus data_value_remove" style="color:#FF0000;cursor:pointer;"></i></div>');
+	$(".fc_data_wrapper").append('<div><input class="form-control fc_property_input" data-type=data data-to=key placeholder=key> <select class="form-control fc_property_select" data-type=data data-to=val_type><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=data data-to=val> <i class="glyphicon glyphicon-minus-sign data_value_remove" style="color:#FF0000;cursor:pointer;"></i></div>');
 	$(".data_value_remove").off();
 	$(".data_value_remove").click(function(){
 		$(this).parent().remove();
@@ -2000,7 +2023,7 @@ $(".data_value_add").click(function(){
 
 })
 $(".table_cell_add").click(function(){
-	$(".fc_table_wrapper").append('<div><label style="width:120px;">Table Cell</label> <select class="form-control fc_property_select" data-type=append_table_row><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=append_table_row> <i class="glyphicon glyphicon-minus table_cell_minus" style="color:#FF0000;cursor:pointer;"></i></div>');
+	$(".fc_table_wrapper").append('<div><label style="width:120px;">Table Cell</label> <select class="form-control fc_property_select" data-type=append_table_row><option>Variable</option><option>String</option></select> <input class="form-control fc_property_input" data-type=append_table_row> <i class="glyphicon glyphicon-minus-sign table_cell_minus" style="color:#FF0000;cursor:pointer;"></i></div>');
 	$(".table_cell_minus").off();
 	$(".table_cell_minus").click(function(){
 		$(this).parent().remove();
@@ -2170,5 +2193,16 @@ $("#vls_add_btn").click(function(){
 	scriptEditor.addString(ih);
 	$("#visualizer_helper_modal").modal("hide");
 });
+$(".simpl_wysiwyg_input").keypress(function(e){
+	console.log("enter");
+	if(e.keyCode===13){
+		if($(this).hasClass('style_dom_element')){
+			$(this).change();
+		}
+		e.stopPropagation();
+		e.preventDefault();
+	}
+});
+
 </script>
 @stop
