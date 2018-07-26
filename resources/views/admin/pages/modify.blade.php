@@ -1387,7 +1387,7 @@ $(".edit_properties").click(function(){
   	};
   	switch (target_tag) {
   		case "DIV":
-  			$(target).prepend(ih);
+  			$(target).append(ih);
   			break;
   		case "BODY":
   			$(".editor_main").append(ih);
