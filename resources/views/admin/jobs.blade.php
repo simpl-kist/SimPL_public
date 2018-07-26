@@ -7,6 +7,16 @@ Jobs
 	#job_table>tbody>tr>td{
 		word-break:break-all;
 	}
+	#job_table{
+		table-layout:fixed;
+	}
+	.hide_job_td{	
+		width:17%;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		height: 100px;
+	}
 </style>
 <h2>Jobs</h2>
 <div class="form-inline" style="text-align:left;">
@@ -57,8 +67,8 @@ if(isset($job->qinfo)){
 			<td style="width:5%;">{!! $stat !!}</td>
 			<td style="width:7%;">{!! $qstr !!}</td>
 			<td style="width:14%;"><label>Created</label><br>{{ $job->created_at }}<br><label>Updated</label><br>{{ $job->updated_at }}</td>
-			<td style="width:17%;">{{ $job->input }}</td>
-			<td style="width:17%;">{{ $job->output }}</td>
+			<td class=hide_job_td style="width:17%;" onclick="show_all_data($(this));">{{ $job->input }}</td>
+			<td class=hide_job_td style="width:17%;">{{ $job->output }}</td>
 			<td style="width:5%;">
                         @if(Auth::user()->policy==="admin")
                                 <button class="btn btn-danger" onclick="delete_job({{$job->id}})">Delete</button>
@@ -74,6 +84,14 @@ if(isset($job->qinfo)){
 </table>
 {{$jobs}}
 <script>
+var show_all_data=function(td){
+	if(td.hasClass("hide_job_td")){
+		td.removeClass("hide_job_td");
+	}else{
+		td.addClass("hide_job_td");
+	}
+}
+
 var search_data = function(){
         location.href="{{url('/admin/jobs')}}"+"?type="+$('#filter_type').val().toLowerCase()+"&value="+$('#filter_criteria').val();
 }

@@ -586,7 +586,7 @@ $('document').ready(function(){
 				</div>
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=append_option data-wrapper=append>
-					<label style="width:120px;">Append Data</label><br/>
+					<hr>
 					<label style="width:120px;">Text</label>
 					<select class="form-control fc_property_select" data-type=append_option data-to=text>
 						<option>Variable</option>
@@ -600,6 +600,7 @@ $('document').ready(function(){
 						<option>String</option>
 					</select>
 					<input class="form-control fc_property_input" data-type=append_option data-to=prop_val placeholder=Value style="width:120px;"><br/>
+					<hr>
 				</div>
 
 				<div class="form-group form-inline fc_helper_wrapper fc_property_wrapper" data-type=property>

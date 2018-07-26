@@ -45,8 +45,12 @@ class UserController extends Controller
     }
 	public function changePolicy(Request $request)
 	{
+		if(Auth::user()->id==$request->Input('index')){
+			return redirect()->route('admin.users.page');	
+		}
 		$user = User::where('id',$request->Input('index'))->first();
 		$this->authorize('update',$user);
+
 		$user->policy = $request->Input('policy');
 		$user->save();
 		return redirect()->route('admin.users.page');

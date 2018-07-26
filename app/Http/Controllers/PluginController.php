@@ -411,6 +411,8 @@ fclose($pipes[2]);
 			$__pluginByAlias=PluginModel::where("alias",$request->pluginAlias)->first();
 			if($__pluginByAlias !== null){
 				$request['pluginId']=$__pluginByAlias->id;
+			}else{
+				$request['pluginId']=-2;
 			}
 		}
                 $jobs = JobModel::where($request->except(['cols','criteria','order','limit','pluginAlias']))
