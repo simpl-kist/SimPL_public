@@ -440,23 +440,23 @@ $('document').ready(function(){
 				<div>
 					<label style="width:120px;">Function</label>
 					<select class="form-control vls_func_select">
-						<option value=get_str_data>Get Structure Data</option>
-						<option value=set_str_data>Set Structure Data</option>
-						<option value=get_atoms>Get Atoms</option>
-						<option value=add_atoms>Add Atoms</option>
-						<option value=remove_atoms>Remove Atoms</option>
-						<option value=get_element_list>Get Element List</option>
-						<option value=str_to_cif>Structure to CIF</option>
-						<option value=str_to_poscar>Structure to Poscar</option>
-						<option value=cif_to_str>CIF to Structure</option>
-						<option value=poscar_to_str>Poscar to Structure</option>
-						<option value=xyz_to_str>XYZ to Structure</option>
-						<option value=inside_test>Atoms to Inside</option>
-						<option value=get_volume>Get Volumn</option>
-						<option value=update_cam>Update Cam Position</option>
-						<option value=readfiles>ReadFiles</option>
-						<option value=update_atoms>Draw Atoms</option>
-						<option value=update_bonds>Draw Bonds</option>
+						<option value=get_str_data>Structure Data-Get</option>
+						<option value=set_str_data>Structure Data-Set</option>
+						<option value=get_atoms>Atoms-Get</option>
+						<option value=add_atoms>Atoms-Add</option>
+						<option value=remove_atoms>Atoms-Remove</option>
+						<option value=get_element_list>Atoms-Element List</option>
+						<option value=inside_test>Atoms-to Inside</option>
+						<option value=str_to_cif>Structure-to CIF</option>
+						<option value=str_to_poscar>Structure-to Poscar</option>
+						<option value=cif_to_str>Structure-from CIF</option>
+						<option value=poscar_to_str>Structure-from Poscar</option>
+						<option value=xyz_to_str>Structure-from XYZ</option>
+						<option value=readfiles>Structure-ReadFiles</option>
+						<option value=get_volume>Cell-Get Volumn</option>
+						<option value=update_cam>Camera-Optimal Position</option>
+						<option value=update_atoms>Draw-Atoms</option>
+						<option value=update_bonds>Draw-Bonds</option>
 					</select>
 				</div>
 				<div class=vls_prop_wrapper data-type=vls>
@@ -503,7 +503,7 @@ $('document').ready(function(){
 						<option value=callByName>Call By Name</option>
 						<option value=click>Click</option>
 						<option value=change>Change</option>
-						<option value=documentready>Document Init</option>
+						<option value=documentready>Document Ready</option>
 					</select>
 				</div>
 
@@ -535,22 +535,22 @@ $('document').ready(function(){
 						<option value=console_log>Console log</option>
 						<option value=alert>Alert</option>
 						<option value=get_value>Get Value</option>
-						<option value=set_value>Set Value</option>
-						<option value=get_files>Get Files</option>
-						<option value=upload_file>Upload File</option>
-						<option value=download_file>Download File</option>
-						<option value=select_option>Option Select</option>
-						<option value=check_input>Check Input</option>
 						<option value=get_selected>Get Selected</option>
 						<option value=get_checked>Get Checked</option>
-						<option value=json_parse>Str To JSON</option>
-						<option value=json_stringify>JSON To Str</option>
+						<option value=get_files>Get Files</option>
+						<option value=set_value>Set Value</option>
+						<option value=select_option>Select Option</option>
+						<option value=check_input>Check Input</option>
+						<option value=upload_file>File-Upload</option>
+						<option value=download_file>File-Download</option>
+						<option value=json_parse>Covert-Str to JSON</option>
+						<option value=json_stringify>Convert-JSON to Str</option>
+						<option value=make_chart>Chart-Make</option>
+						<option value=add_chart_dataset>Chart-Add DataSet</option>
+						<option value=add_chart_data>Chart-Add Data</option>
+						<option value=remove_chart_data>Chart-Remove Data</option>
 						<option value=hide>Hide</option>
 						<option value=show>Show</option>
-						<option value=make_chart>Make Chart</option>
-						<option value=add_chart_data>Add Chart Data</option>
-						<option value=add_chart_dataset>Add Chart DataSet</option>
-						<option value=remove_chart_data>Remove Chart Data</option>
 						<option value=none>None</option>
 					</select>
 				</div>
@@ -838,8 +838,8 @@ $("#SimPLtoContent").click(function(){
 	})
 	$("#simpl_modal").modal('hide');
 });
-
-$(".editor_main").keydown(function(e){
+$(window).keydown(function(e){
+	console.log(e.target);
 	if($(".clicked_element").length===0) return;
 	if(wysiwyg_data.type==="script") return;	
 	if(e.keyCode==17){
@@ -1177,6 +1177,9 @@ console.log(td);
 	$("#properties_modal").modal("show");
 }
 $(".modal").off();
+$(".modal").keydown(function(e){
+	e.stopPropagation();
+});
 $(".modal").click(function(e){
 	e.stopPropagation();
 });
@@ -1311,11 +1314,14 @@ $(".edit_properties").click(function(){
 	target.css("overflow","hidden");
   	target.append(ih);
   }
-  $(".simpl_wysiwyg_tooltip").off();
-  $(".simpl_wysiwyg_tooltip").click(function(e) {
+$(".simpl_wysiwyg_tooltip").off();
+$(".simpl_wysiwyg_tooltip").keydown(function(e){
+	e.stopPropagation();
+});
+$(".simpl_wysiwyg_tooltip").click(function(e){
 	$(".style_new_wrapper").hide();
-  	e.stopPropagation();
-  });
+	e.stopPropagation();
+});
   $(".align_dom_element").off();
   $(".align_dom_element").click(function() {
 	if($(".clicked_element")[0] === undefined) return;
