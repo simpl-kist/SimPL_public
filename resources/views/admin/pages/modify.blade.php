@@ -97,6 +97,22 @@ Edit Page
 		width:20px;
 		margin-bottom:2px;
 	}
+.CodeMirror{
+	height:450px;
+}
+.btn-simpl{
+	background-image: -webkit-linear-gradient(top,#505050 0,#070707 100%);
+	background-image: -o-linear-gradient(top,#505050 0,#070707 100%);
+	background-image: -webkit-gradient(linear,left top,left bottom,from(#505050),to(#070707));
+	background-image: linear-gradient(to bottom,#505050 0,#070707 100%);
+	border-color:black;
+	color:white;
+}
+.btn-simpl:hover, .btn-simpl:focus, .btn-simpl:active, .btn-simpl:visited{
+	background-image:none;
+	background-color:#070707;
+	color:white;
+}
 </style>
 <link href={{asset('assets/vendor/codemirror/addon/hint/')}}/show-hint.css rel=stylesheet></script>
 <script>
@@ -298,7 +314,7 @@ $('document').ready(function(){
 		</div>
 		<div class='form-group row'>
 			<div class="col-sm-12 form-inline" style='text-align:right;'>
-				<button type="button" id=getFromSimPL class="btn btn-info">Get SimPL</button>
+				<button type="button" id=getFromSimPL class="btn btn-simpl">Get SimPL</button>
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif

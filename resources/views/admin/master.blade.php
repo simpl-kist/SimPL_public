@@ -42,6 +42,8 @@ a:hover
 </style>
 	<meta charset="UTF-8">
 <script src={{URL::asset('assets/vendor/jquery/dist/jquery.min.js')}}></script>
+<link rel=stylesheet href={{ asset("/assets/kcms/vlatoms/css/jquery-ui.min.css") }}>
+<script src={{ asset("/assets/kcms/vlatoms/js/jquery-ui.min.js") }}></script>
 <!--
 <link rel=stylesheet type=text/css href={{URL::asset('assets/vendor/dropzone/dist/dropzone.css')}}>
 <script src={{URL::asset('assets/vendor/dropzone/dist/dropzone.js')}}></script>
