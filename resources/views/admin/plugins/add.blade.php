@@ -237,7 +237,7 @@ $('document').ready(function(){
 </div>
 <div class=built-in-functions-wrapper>
 <div style="text-align:right;">
-	<i class="glyphicon glyphicon-remove hide-built-in-wrapper" style="font-size:15px;"></i>
+	<i class="glyphicon glyphicon-remove hide-built-in-wrapper" style="font-size:15px;cursor:pointer;"></i>
 </div>
 <div>
 <table class="table">
