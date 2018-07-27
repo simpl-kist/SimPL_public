@@ -522,7 +522,7 @@ $('document').ready(function(){
 					<select class="form-control fc_trigger_select" data-type=target>
 						<option>ID</option>
 						<option>Class</option>
-						<option>Enter</option>
+						<option>Custom</option>
 					</select>
 					<input class="form-control fc_trigger_input" data-type=target>
 				</div>
@@ -532,7 +532,7 @@ $('document').ready(function(){
 					<select class="form-control fc_helper_select" data-type=func>
 						<option value=call_plugin>Call Plugin</option>
 						<option value=append>Append</option>
-						<option value=console_log>Log on Console</option>
+						<option value=console_log>Console log</option>
 						<option value=alert>Alert</option>
 						<option value=get_value>Get Value</option>
 						<option value=set_value>Set Value</option>
@@ -560,7 +560,7 @@ $('document').ready(function(){
 					<select class="form-control fc_property_select" data-type=target>
 						<option>ID</option>
 						<option>Class</option>
-						<option>Enter</option>
+						<option>Custom</option>
 					</select>
 					<input class="form-control fc_property_input" data-type=target>
 				</div>
@@ -715,6 +715,15 @@ $('document').ready(function(){
 </div>
 
 <script>
+class wysiwyg_info{
+	constructor(){
+		this.ctrl_pressed=false;
+		this.shift_pressed=false;
+		this.alt_pressed=false;
+		this.type="script";
+	}
+}
+let wysiwyg_data=new wysiwyg_info;
 function dom_move(direction){
 	let target = $(".clicked_element");
 	if(target[0] === undefined){
@@ -797,10 +806,12 @@ var open_content = function(type){
 		$(".clicked_element").removeClass("clicked_element");
 		scriptEditor.setValue(document_ready($(".editor_main").html(),true));
 		scriptEditor.save();
+		wysiwyg_data.type="script";
 	}else if(type==="editor"){
 		scriptEditor.save();
 		$(".contents_wrapper").val(scriptEditor.getValue());
 		$(".editor_main").html(document_ready($(".contents_wrapper").val(),false));
+		wysiwyg_data.type="editor";
 		add_event();
 	}
 }
@@ -828,80 +839,72 @@ $("#SimPLtoContent").click(function(){
 	$("#simpl_modal").modal('hide');
 });
 
-  $(window).click(function() {
-  	$(".clicked_element").removeClass("clicked_element");
-	$(".style_new_wrapper").hide();
-  });
-	$(".style_label").off();
-	$(".style_label").click(function(e){
-		$(".style_new_wrapper").hide();
-		let type=$(this).data('type');
-		console.log(type);
-		let target=$("."+type+"_wrapper");
-		target.css("left",e.pageX);
-		target.css("top",e.pageY);
-		$("."+type+"_wrapper").show();
-		e.stopPropagation();
-	});
-	$(".style_new_wrapper").off();
-	$(".style_new_wrapper").click(function(e){
-		e.stopPropagation();
-	});
-	$(".hide_style_new_wrapper").off();
-	$(".hide_style_new_wrapper").click(function(){
-		console.log($(this));
-		$(this).parents(".style_new_wrapper").hide();
-	});
-  //https://codepen.io/davidkacha/pen/zzNBxq
-  function formatFactory(html) {
-  	function parse(html, tab = 0) {
-  		var tab;
-  		var html = $.parseHTML(html);
-  		var formatHtml = new String();
+$(".editor_main").keydown(function(e){
+	if($(".clicked_element").length===0) return;
+	if(wysiwyg_data.type==="script") return;	
+	if(e.keyCode==17){
+		wysiwyg_data.ctrl_pressed=true;
+	}
+	if(e.keyCode==86){
+		if(wysiwyg_data.ctrl_pressed){
+			console.log(e);
+			copy_element();
+		}
+	}
+	if(e.keyCode==46){
+		$(".remove_dom_element[value=remove]").click()
+	}
+});
+function copy_element(){
+	var target=$(".clicked_element");
+	target.removeClass("clicked_element");
+	var ih=target[0].outerHTML;
+	target.addClass("clicked_element");
+	$(ih).insertAfter(".clicked_element");
+	add_event();
+}
+$("body").keyup(function(e){
+	if(e.keyCode==17){
+		wysiwyg_data.ctrl_pressed=false;
+	}
+});
 
-  		function setTabs() {
-  			var tabs = new String();
-  			for (i = 0; i < tab; i++) {
-  				tabs += '  ';
-  			}
-  			return tabs;
-  		};
-  		$.each(html, function(i, el) {
-  			if (el.nodeName == '#text') {
-  				if (($(el).text().trim()).length) {
-  					formatHtml += setTabs() + $(el).text().trim() + '\n';
-  				}
-  			} else {
-  				var innerHTML = $(el).html().trim();
-  				$(el).html(innerHTML.replace('\n', '').replace(/ +(?= )/g, ''));
-  				if ($(el).children().length) {
-  					$(el).html('\n' + parse(innerHTML, (tab + 1)) + setTabs());
-  					var outerHTML = $(el).prop('outerHTML').trim();
-  					formatHtml += setTabs() + outerHTML + '\n';
-  				} else {
-  					var outerHTML = $(el).prop('outerHTML').trim();
-  					formatHtml += setTabs() + outerHTML + '\n';
-  				}
-  			}
-  		});
-  		return formatHtml;
-  	};
-  	return parse(html.replace(/(\r\n|\n|\r)/gm, " ").replace(/ +(?= )/g, ''));
-  };
-  //
-  function add_event() {
-  	var a = [$(".editor_main")[0]];
-  	for (var i = 0; i < a.length; i++) {
+$(window).click(function() {
+	$(".clicked_element").removeClass("clicked_element");
+	$(".style_new_wrapper").hide();
+});
+
+$(".style_label").off();
+$(".style_label").click(function(e){
+	$(".style_new_wrapper").hide();
+	let type=$(this).data('type');
+	console.log(type);
+	let target=$("."+type+"_wrapper");
+	target.css("left",e.pageX);
+	target.css("top",e.pageY);
+	$("."+type+"_wrapper").show();
+	e.stopPropagation();
+});
+$(".style_new_wrapper").off();
+$(".style_new_wrapper").click(function(e){
+	e.stopPropagation();
+});
+$(".hide_style_new_wrapper").off();
+$(".hide_style_new_wrapper").click(function(){
+	$(this).parents(".style_new_wrapper").hide();
+});
+function add_event() {
+	var a = [$(".editor_main")[0]];
+	for (var i = 0; i < a.length; i++) {
   		if (i !== 0) {
   			$(a[i]).off();
   			$(a[i]).click(function(e) {
 				let target=$(".clicked_element");
+				if(target===$(this)){
+					return;
+				}
   				target.removeClass("clicked_element");
   				$(this).addClass("clicked_element");
-		$(".clicked_element").dblclick(function(e){
-			console.log(e);
-			$(".edit_properties").click();
-		});
 
 				target=$(this);
 				let bg_color=target.css("background-color").replace(/[rgba() ]/g,"").split(",");
@@ -943,6 +946,9 @@ $("#SimPLtoContent").click(function(){
 				$(".style_new_wrapper").hide();
   				e.stopPropagation();
   				e.preventDefault();
+				$(".clicked_element").dblclick(function(e){
+					$(".edit_properties").click();
+				});
   			});
   		}
 		if($(a[i]).prop("tagName")!=="TABLE"){
@@ -1024,7 +1030,7 @@ function editProperties(){
 			ih+="<div id=modal_input_checked_wrapper><label class=modal_prop_label>Checked</label><input type=checkbox id=modal_input_checked class=form-control "+(target.prop('checked')?"checked":"")+"></div>";
 			break;
 		case "DIV":
-			ih+="<div><label class=modal_prop_label>Text</label><textarea id=modal_div_text class=form-control>"+target.text()+"</textarea></div>";
+			ih+="<div><label class=modal_prop_label>HtmlText</label><textarea id=modal_div_html class=form-control style='width:450px;'>"+target.html()+"</textarea></div>";
 			break;
 		case "A":
 			ih+="<div><label class=modal_prop_label>href</label><input id=modal_a_href class=form-control value='"+target.attr("href")+"'></div>";
@@ -1055,7 +1061,7 @@ function editProperties(){
 			ih+="</div></div>";
 			break;
 		case "TEXTAREA":
-			ih+="<div><label class=modal_prop_label>Textarea</label><textarea id=modal_textarea_val class=form-control>"+target.val()+"</textarea></div>";
+			ih+="<div><label class=modal_prop_label>Textarea</label><textarea id=modal_textarea_val class=form-control style='width:450px;'>"+target.val()+"</textarea></div>";
 			break;
 		case "UL":
 			var lists=target.find('li');
@@ -1178,23 +1184,51 @@ $(".modal").click(function(e){
 $("#change_properties").off();
 $("#change_properties").click(function(){
 	let target=$(".clicked_element");
-	target.prop("class","clicked_element "+$("#modal_class_input").val());
-	target.prop("id",$("#modal_id_input").val());
+	if($("#modal_class_input").val()!==""){
+		target.prop("class","clicked_element "+$("#modal_class_input").val());
+	}else{
+		target.prop("class","clicked_element");
+	}
+	if($("#modal_id_input").val()!==""){
+		target.prop("id",$("#modal_id_input").val());
+	}else{
+		target.prop("id",undefined);
+	}
 	let tagName=target.prop("tagName");
 	switch(tagName){
 		case "INPUT":
 			target.val($("#modal_input_value").val());
-			target.prop("name",$("#modal_input_name").val());
+			if($("#modal_input_name").val()!==""){
+				target.prop("name",$("#modal_input_name").val());
+			}else{
+				target.prop("name",undefined);
+			}
+			if($("#modal_input_name").val()!==""){
+				target.prop("name",$("#modal_input_name").val());
+			}else{
+				target.prop("name",undefined);
+			}
+
 			target.prop("type",$("#modal_input_type").val());
-			target.prop("placeholder",$("#modal_input_placeholder").val());
+			if($("#modal_input_placeholder").val()!==""){
+				target.prop("placeholder",$("#modal_input_placeholder").val());
+			}else{
+				target.prop("placeholder",undefined);
+			}
+
 			target.prop("checked",$("#modal_input_checked").prop("checked"));
+			target.attr("checked",$("#modal_input_checked").prop("checked"));
 			break;
 		case "DIV":
-			target.text($("#modal_div_text").val());
+			target.html($("#modal_div_html").val());
 			break;
 		case "A":
 			target.attr("href",$("#modal_a_href").val());
-			target.text($("#modal_a_text").val());
+			if($("#modal_a_text").val()===""){
+				target.text("a");
+			}else{
+				target.text($("#modal_a_text").val());
+			}
 			break;
 		case "LABEL":
 			target.text($("#modal_label_text").val());
@@ -1208,7 +1242,11 @@ $("#change_properties").click(function(){
 		case "IMG":
 			target.attr("src",$("#modal_img_src").val());
 			target.prop("alt",$("#modal_img_alt").val());
-			target.prop("title",$("#modal_img_title").val());
+			if($("#modal_img_title").val()!==""){
+				target.prop("title",$("#modal_img_title").val());
+			}else{
+				target.prop("title",undefined);
+			}
 			break;
 		case "SELECT":
 			target.prop("size",$("#modal_select_size").val());
@@ -1395,63 +1433,68 @@ $(".edit_properties").click(function(){
   	}
   	add_event();
   });
-
+function make_jquery_selector(value, type){
+	var ih="$(";
+	switch(type){
+		case "Custom":
+			ih+=value+")";
+			break;
+		case "ID":
+			ih+="'#"+value+"')";
+			break;
+		case "Class":
+			ih+="'."+value+"')";
+			break;
+	}
+	return ih;
+}
 //var tool_script=new script_tool($(".page_script"),$(".contents"));
 $("#add_function").click(function(){
 	let func=$(".fc_helper_select[data-type=func]").find('option:selected').val();
 	let trigger=$(".fc_helper_select[data-type=trigger]").find('option:selected').val();
 	let _trigger;
+	let __space="";
+	for(let i=0 ; i<scriptEditor.getCursor().ch ; i++){
+		__space+=" ";
+	}
 	console.log(func,trigger);
 	ih="";
+
 	switch(trigger){
 		case "none":
 			ih+="";
 			break;
 		case "callByName":
-			ih+="function "+$(".fc_trigger_input[data-type=name]").val()+"("+$(".fc_trigger_input[data-type=in]").val()+"){\n"
+			__space+="  ";
+			ih+="function "+$(".fc_trigger_input[data-type=name]").val()+"("+$(".fc_trigger_input[data-type=in]").val()+"){\n"+__space;
 			break;
 		case "click":
-			ih+="$('";
+			__space+="  ";
+			ih+="";
 			_trigger=$(".fc_trigger_select[data-type=target]").find('option:selected').val();
-			switch(_trigger){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=$(".fc_trigger_input[data-type=target]").val()+"').click(function(){\n";
+			ih+=make_jquery_selector($(".fc_trigger_input[data-type=target]").val(),_trigger);
+			ih+=".click(function(){\n"+__space;
 			break;
 		case "change":
-			ih+="$('";
+			__space+="  ";
+			ih+="";
 			_trigger=$(".fc_trigger_select[data-type=target]").find('option:selected').val();
-			switch(_trigger){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=$(".fc_trigger_input[data-type=target]").val()+"').change(function(){\n";
+			ih+=make_jquery_selector($(".fc_trigger_input[data-type=target]").val(),_trigger);
+			ih+=".change(function(){\n"+__space;
 			break;
 		case "documentready":
-			ih+="$(document).ready(function(){\n";
+			__space+="  ";
+			ih+="$(document).ready(function(){\n"+__space;
 			break;
 		default:
 	}
 	switch(func){
 		case "call_plugin":
-			ih+='  kCms.callPlugin("'+$(".fc_property_input[data-type=alias]").val()+'",\n';
+			ih+='kCms.callPlugin("'+$(".fc_property_input[data-type=alias]").val()+'",\n'+__space;
 			let keys=$(".fc_property_input[data-type=data][data-to=key]");
 			let types=$(".fc_property_select[data-type=data][data-to=val_type]")
 			let vals=$(".fc_property_input[data-type=data][data-to=val]");
-			ih+="    {\n";
+			ih+="  {\n"+__space;
 			for(let i=0, len=keys.length ;i<len ; i++){
 				let _vals=$(vals[i]).val();
 				if(_vals==="" && $(keys[i]).val()===""){
@@ -1460,16 +1503,16 @@ $("#add_function").click(function(){
 				if($(types[i]).val()==="String"){
 					_vals='"'+_vals+'"';
 				}
-				ih+='      "'+$(keys[i]).val()+'":'+_vals+",\n";
+				ih+='    "'+$(keys[i]).val()+'":'+_vals+",\n"+__space;
 			}
-			ih+="    },\n";
-			ih+="    function(ret){\n      \n    }\n";
-			ih+="  )\n";
+			ih+="  },";
+			ih+="function(ret){\n    "+__space+"\n"+__space+"  }\n"+__space;
+			ih+=")\n";
 			break;
 		case "alert":
 			var v_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
 			var variable=$(".fc_property_input[data-type=value]").val();
-			ih+="  alert(";
+			ih+="alert(";
 			if(v_type==="String"){
 				ih+='"';
 			}
@@ -1482,7 +1525,7 @@ $("#add_function").click(function(){
 		case "console_log":
 			var v_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
 			var variable=$(".fc_property_input[data-type=value]").val();
-			ih+="  console.log(";
+			ih+="console.log(";
 			if(v_type==="String"){
 				ih+='"';
 			}
@@ -1493,83 +1536,43 @@ $("#add_function").click(function(){
 			ih+=");\n";
 			break;
 		case "get_value":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="').val();\n";
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+=".val();\n";
 			break;
 		case "set_value":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			var o_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
 			var o_val=$(".fc_property_input[data-type=value]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
+			ih+=make_jquery_selector(t_val,t_type);
 			if(o_type==='String'){
 				o_val="'"+o_val+"'";
 			}
-			ih+="').val("+o_val+");\n";
+			ih+=".val("+o_val+");\n";
 			break;
 		case "get_files":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="')[0].files;\n";
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+="[0].files;\n";
 			break;
 		case "append":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
+			ih+=make_jquery_selector(t_val,t_type);
 			var a_type=$(".fc_property_select[data-type=append_type]").find('option:selected').val();
 			switch(a_type){
 				case "Table Row":
-					ih+=">tbody').";
+					ih+=".find('tbody').";
 					break;
 				default:
-					ih+="').";
+					ih+=".";
 					break;
 			}
 			var _pos=$(".fc_property_select[data-type=position]").find('option:selected').val();
@@ -1618,48 +1621,28 @@ $("#add_function").click(function(){
 			ih+="');\n";
 			break;
 		case "download_file":
-			ih+="  kCms.downloadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"','"+$(".fc_property_input[data-type=alias]").val()+"')";
+			ih+="kCms.downloadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"','"+$(".fc_property_input[data-type=alias]").val()+"')";
 			break;
 		case "upload_file":
-			ih+=" kCms.uploadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"', $('";
+			ih+="kCms.uploadFile('"+$(".fc_property_select[data-type=repo_type]").find('option:selected').val()+"', ";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="')[0].files, function(ret){\n    \n  })\n";
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+="[0].files, function(ret){\n"+__space+"  \n"+__space+"})\n";
 			break;
 		case "select_option":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="').find('option["+$(".fc_property_input[data-type=property][data-to=prop_key]").val()+"="+$(".fc_property_input[data-type=property][data-to=prop_val]").val()+"]').prop('selected',true);\n";
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+=".find('option["+$(".fc_property_input[data-type=property][data-to=prop_key]").val()+"="+$(".fc_property_input[data-type=property][data-to=prop_val]").val()+"]').prop('selected',true);\n";
 			break;
 		case "check_input":
-			ih+="  $('";
+			ih+="$('";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			switch(t_type){
-				case "Enter":
+				case "Custom":
 					break;
 				case "ID":
 					ih+="#";
@@ -1672,28 +1655,19 @@ $("#add_function").click(function(){
 			ih+="["+$(".fc_property_input[data-type=property][data-to=prop_key]").val()+"="+$(".fc_property_input[data-type=property][data-to=prop_val]").val()+"]').prop('checked',true);\n";
 			break;
 		case "get_selected":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="').find('option:selected').val();\n";
+
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+=".find('option:selected').val();\n";
 			break;
 		case "get_checked":
-			ih+="  $('";
+			ih+="$('";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			switch(t_type){
-				case "Enter":
+				case "Custom":
 					break;
 				case "ID":
 					ih+="#";
@@ -1722,45 +1696,27 @@ $("#add_function").click(function(){
 			ih+="JSON.stringify("+o_val+");\n";
 			break;
 		case "hide":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="').hide();\n";
+
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+=".hide();\n";
 			break;
 		case "show":
-			ih+="  $('";
+			ih+="";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
-			switch(t_type){
-				case "Enter":
-					break;
-				case "ID":
-					ih+="#";
-					break;
-				case "Class":
-					ih+=".";
-					break;
-			}
-			ih+=t_val;
-			ih+="').show();\n";
+
+			ih+=make_jquery_selector(t_val,t_type);
+			ih+=".show();\n";
 			break;
 		case "make_chart":
 			var ih="let "+$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			switch(t_type){
-				case "Enter":
+				case "Custom":
 					alert("Please use ID or Class.");
 					return;
 					break;
@@ -1772,18 +1728,18 @@ $("#add_function").click(function(){
 					break;
 			}
 			ih+=t_val;
-			ih+="').getContext('2d'),{\n";
-			ih+="  type:'"+$(".fc_property_select[data-type=chart_type]").find('option:selected').val()+"',\n";
-			ih+="  data:{},\n";
-			ih+="  options:{\n";
-			ih+="    scales:{\n";
-			ih+="      yAxes: [{\n";
-			ih+="        ticks: {\n";
-			ih+="          beginAtZero:true\n";
-			ih+="        }\n";
-			ih+="      }]\n";
-			ih+="    }\n";
-			ih+="  },\n";
+			ih+="').getContext('2d'),{\n"+__space;
+			ih+="  type:'"+$(".fc_property_select[data-type=chart_type]").find('option:selected').val()+"',\n"+__space;
+			ih+="  data:{},\n"+__space;
+			ih+="  options:{\n"+__space;
+			ih+="    scales:{\n"+__space;
+			ih+="      yAxes: [{\n"+__space;
+			ih+="        ticks: {\n"+__space;
+			ih+="          beginAtZero:true\n"+__space;
+			ih+="        }\n"+__space;
+			ih+="      }]\n"+__space;
+			ih+="    }\n"+__space;
+			ih+="  },\n"+__space;
 			ih+="})\n";
 			scriptEditor.addString(ih);
 			$('#function_helper_modal').modal('hide');
@@ -1805,19 +1761,19 @@ $("#add_function").click(function(){
 			}
 			switch(type){
 				case "scatter":
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push({\n";
-					ih+="    x:"+x_axis+",\n";
-					ih+="    y:"+y_axis+"\n";
-					ih+="  });\n";
+					ih+=$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push({\n"+__space;
+					ih+="  x:"+x_axis+",\n"+__space;
+					ih+="  y:"+y_axis+"\n"+__space;
+					ih+="});\n"+__space;
 					break;
 				case "bar":
 					if(x_axis!==""){
-						ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels.push("+x_axis+");\n";
+						ih+=$(".fc_property_input[data-type=variable]").val()+".data.labels.push("+x_axis+");\n"+__space;
 					}
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push("+y_axis+");\n";
+					ih+=$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data.push("+y_axis+");\n"+__space;
 					break;
 			}
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			ih+=$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		case "add_chart_dataset":
 			var type = $(".fc_property_select[data-type=chart_type]").find('option:selected').val();
@@ -1825,61 +1781,63 @@ $("#add_function").click(function(){
 				case "scatter":
 					break;
 				case "bar":
-					ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
+					ih+=$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n"+__space;
 					break;
 			}
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets.push({\n";
-			ih+="    label:'"+$(".fc_property_input[data-type=chart_label]").val()+"',\n";
-			ih+="    data:[],\n";
-			ih+="    borderColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n';
+			ih+=$(".fc_property_input[data-type=variable]").val()+".data.datasets.push({\n"+__space;
+			ih+="  label:'"+$(".fc_property_input[data-type=chart_label]").val()+"',\n"+__space;
+			ih+="  data:[],\n"+__space;
+			ih+="  borderColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n'+__space;
 			switch(type){
 				case "scatter":
-					ih+="    showLine:true,\n";
-					ih+="    fill:false\n";
+					ih+="  showLine:true,\n"+__space;
+					ih+="  fill:false\n"+__space;
 					break;
 				case "bar":
-					ih+="    backgroundColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n';
+					ih+="  backgroundColor:"+'"rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')",\n'+__space ;
 					break;
 			}
-			ih+="  });\n";
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			ih+="});\n"+__space;
+			ih+=$(".fc_property_input[data-type=variable]").val()+".update();\n"+__space;
 			break;
 		case "remove_chart_data":
 			var idx=$(".fc_property_input[data-type=idx]").val();
-			ih+="  if("+$(".fc_property_input[data-type=variable]").val()+".data.labels!==undefined){\n";
-			ih+="    let __delete_label=true;\n";
-			ih+="    for(let __i=0,__len="+$(".fc_property_input[data-type=variable]").val()+".data.datasets.length ; __i<__len ; __i++){\n";
-			ih+="      if("+$(".fc_property_input[data-type=variable]").val()+".data.datasets[__i].data.length !==0){\n";
-			ih+="        __delete_label=false;\n";
-			ih+="        break;\n";
-			ih+="      }\n";
-			ih+="    };\n";
-			ih+="    if(__delete_label){\n";
-			ih+="      "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n";
-			ih+="    }\n";
-			ih+="  };\n";
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data=[];\n";
-			ih+="  "+$(".fc_property_input[data-type=variable]").val()+".update();\n";
+			ih+="if("+$(".fc_property_input[data-type=variable]").val()+".data.labels!==undefined){\n"+__space;
+			ih+="  let __delete_label=true;\n"+__space;
+			ih+="  for(let __i=0,__len="+$(".fc_property_input[data-type=variable]").val()+".data.datasets.length ; __i<__len ; __i++){\n"+__space;
+			ih+="    if("+$(".fc_property_input[data-type=variable]").val()+".data.datasets[__i].data.length !==0){\n"+__space;
+			ih+="      __delete_label=false;\n"+__space;
+			ih+="      break;\n"+__space;
+			ih+="    }\n"+__space;
+			ih+="  };\n"+__space;
+			ih+="  if(__delete_label){\n"+__space;
+			ih+="    "+$(".fc_property_input[data-type=variable]").val()+".data.labels=[];\n"+__space;
+			ih+="  }\n"+__space;
+			ih+="};\n"+__space;
+			ih+=$(".fc_property_input[data-type=variable]").val()+".data.datasets["+idx+"].data=[];\n"+__space;
+			ih+=$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		default:
 	}
+	__space=__space.substring(0,__space.length-2);
 	switch(trigger){
 		case "none":
 			break;
 		case "callByName":
-			ih+="}\n";
+			ih+=__space+"}\n";
 			break;
 		case "click":
-			ih+="})\n";
+			ih+=__space+"})\n";
 			break;
 		case "change":
-			ih+="})\n";
+			ih+=__space+"})\n";
 			break;
 		case "documentready":
-			ih+="})\n";
+			ih+=__space+"})\n";
 			break;
 		default:
 	}
+	ih+=__space;
 	scriptEditor.addString(ih);
 	$('#function_helper_modal').modal('hide');
 });
@@ -2098,6 +2056,10 @@ $("#vls_add_btn").click(function(){
 	let vls="";
 	let vari="";
 	let idx="";
+	let __space="";
+	for(let i=0 ; i<scriptEditor.getCursor().ch ; i++){
+		__space+=" ";
+	}
 	ih="";
 	switch(func){
 		case "get_str_data":
@@ -2108,9 +2070,9 @@ $("#vls_add_btn").click(function(){
 			vls=$(".vls_prop_input[data-type=vls]").val();
 			vari=$(".vls_prop_input[data-type=variable]").val();
 			ih+=vls+".Structure = VLatoms.Utils.redefineStructure("+vari+");\n";
-			ih+=vls+".update.atomsChanged=true;\n";
-			ih+=vls+".update.bondsChanged=true;\n";
-			ih+=vls+".setOptimalCamPosition();\n";
+			ih+=__space+vls+".update.atomsChanged=true;\n";
+			ih+=__space+vls+".update.bondsChanged=true;\n";
+			ih+=__space+vls+".setOptimalCamPosition();\n";
 			break;
 		case "get_atoms":
 			vls=$(".vls_prop_input[data-type=vls]").val();
