@@ -50,6 +50,7 @@ Edit Page
 		border-radius:7.5px;
 	}
 	.editor_main div, .editor_main canvas{
+		padding : 1px;
 		border:2px solid red;
 		min-height:15px;
 	}
