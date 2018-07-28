@@ -4,12 +4,53 @@ Edit Plugin
 @stop
 @section('content')
 <script>
-$(document).ready(function(){
-/*	$('.scriptDiv').each(function(i,block){
-		hljs.highlightBlock(block);
-	});*/
-//		var script = $($('.scriptDiv').html().replace(/<br[^>]*>/gi,"\n")).text()
-});
+var built_in_functions_arr = [{
+	'name': 'file_get_contents',
+	'description': 'Read File data',
+	'input': 'filename, use_include_path = 0, context = None, offset = -1, maxlen = -1',
+	'output': 'File Context',
+}, {
+	'name': 'getSolver',
+	'description': 'Import registered Solver information for using.',
+	'input': 'solvername',
+	'output': 'Sover Information',
+}, {
+	'name': 'qsub',
+	'description': 'Submit the job to the scheduler.',
+	'input': 'params={<br/>mpi : True|False,<br/>solverExec : [execution command for solver],<br/># ppn : processors per node,<br/>#  nnodes : number of nodes<br/>}',
+	'output': 'Queue ID',
+}, {
+	'name': 'qstat',
+	'description': 'Check the status of jobs in the scheduler.',
+	'input': 'id=-1',
+	'output': 'Status of the job in Scheduler',
+}, {
+	'name': 'callPlugin',
+	'description': 'Call another plugin.',
+	'input': 'Plugin Alias, Input Data',
+	'output': 'Output of the called Plugin',
+}, {
+	'name': 'getMyInfo',
+	'description': 'Load the information of the user who called the plugin ',
+	'input': '-',
+	'output': 'User information',
+}, {
+	'name': 'getRepo',
+	'description': 'Read the file in the Repository for Server.',
+	'input': 'Alias of file in Repository for server',
+	'output': 'File Contents',
+}, {
+	'name': 'saveJob',
+	'description': 'Save Data to DB.',
+	'input': 'args={<br/>qinfo:[value],<br/>status:[value],<br/>pluginId:[value],<br/>jobBefore:[value],<br/>jobNext:[value],<br/>input:[value],<br/>output:[value],<br/>name:[value],<br/>jobdir:[value]<br/>}',
+	'output': 'DB id of Job',
+}, {
+	'name': 'getJobs',
+	'description': 'Load Saved Job Data from DB.',
+	'input': 'args={<br/>"cols":[column list you want to get],<br/>"order": [key, ("asc" or "desc"),<br/>"limit": ["offset", "limit"],<br/>"criteria": ["array of criteria(Raw Where Query)"],<br/>[columns]: [value]<br/>}',
+	'output': 'Jobs that meet the conditions.',
+}]
+
 function testScript(){
 	$.ajaxSetup({
 	    headers: {
@@ -57,6 +98,27 @@ $('document').ready(function(){
 			}
 		},
 	});
+
+
+	$(".built-in-functions-wrapper").append("<div class=row style='border-bottom:1px solid #ababab;'><div class=col-md-4><label>Name</label></div><div class=col-md-8><label>Description</label></div></div>")
+	for(let i=0,len=built_in_functions_arr.length;i<len ; i++){
+		let ih="<div class='built-in-each' data-name="+built_in_functions_arr[i].name+">";
+		ih+="<div class='row built-in-nd'><div class=col-md-3>"+built_in_functions_arr[i].name+"</div>";
+		ih+="<div class=col-md-9>"+built_in_functions_arr[i].description+"</div></div>";
+		ih+="<div class='row built-in-io' data-name="+built_in_functions_arr[i].name+">";
+		ih+="<div class=col-md-12><label>Input</label><br/>"+built_in_functions_arr[i].input+"</div>";
+		ih+="<div class=col-md-12><label>Output</label><br/>"+built_in_functions_arr[i].output+"</div></div></div>";
+		$(".built-in-functions-wrapper").append(ih);
+	}
+	$(".built-in-nd").click(function(){
+		let name=$(this).parent().data('name');
+		if($(".built-in-io[data-name="+name+"]").css("display")==="none"){
+			$(".built-in-io").hide();
+			$(".built-in-io[data-name="+name+"]").show()
+		}else{
+			$(".built-in-io").hide();
+		}
+	})
 });
 </script>
 <script src={{asset('assets/vendor/codemirror/lib/')}}/codemirror.js></script>
@@ -64,6 +126,18 @@ $('document').ready(function(){
 <script src={{asset('js/fullscreen.js')}}></script>
 <link href={{asset('assets/vendor/codemirror/lib/')}}/codemirror.css rel=stylesheet></script>
 <style>
+.built-in-nd{
+	padding:10px 0;
+	cursor:pointer;	
+}
+.built-in-each{
+	border-bottom:1px solid #ececec;
+}
+.built-in-io{
+	display:none;
+	background-color:#ececec;
+	padding:5px;
+}
 .CodeMirror{
 	height:450px;
 }
@@ -91,7 +165,7 @@ $('document').ready(function(){
 	cursor:pointer;
 }
 .built-in-functions-wrapper{
-	padding:10px;
+	padding:15px;
 	-webkit-box-shadow: 4px 4px 14px 4px rgba(206,206,206,1);
 	-moz-box-shadow: 4px 4px 14px 4px rgba(206,206,206,1);
 	box-shadow: 4px 4px 14px 4px rgba(206,206,206,1);
@@ -100,9 +174,9 @@ $('document').ready(function(){
 	top:0;
 	right:0;
 	position:fixed;
-	width:600px;
+	width:550px;
 	overflow:auto;
-	height:750px;
+	height:450px;
 	z-index:999;
 }
 </style>
@@ -236,82 +310,11 @@ $('document').ready(function(){
 	</div>
 </div>
 <div class=built-in-functions-wrapper>
-<div style="text-align:right;">
-	<i class="glyphicon glyphicon-remove hide-built-in-wrapper" style="font-size:15px;cursor:pointer;"></i>
-</div>
-<div>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Input</th>
-      <th>Output</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>file_get_contents</td>
-      <td>Read File data</td>
-      <td>filename, use_include_path = 0, context = None, offset = -1, maxlen = -1</td>
-      <td>File Context</td>
-    </tr>
-    <tr>
-      <td>getSolver</td>
-      <td>Import registered Solver information for using.</td>
-      <td>solvername</td>
-      <td>Sover Information</td>
-    </tr>
-    <tr>
-      <td>qsub</td>
-      <td>Submit the job to the scheduler.</td>
-      <td>params={<br/>mpi : True|False,<br/>solverExec : [execution command for solver],<br/># ppn : processors per node,<br/>#  nnodes : number of nodes<br/>}</td>
-      <td>Queue ID</td>
-    </tr>
-    <tr>
-      <td>qstat</td>
-      <td>Check the status of jobs in the scheduler.</td>
-      <td>id=-1</td>
-      <td>Status of the job in Scheduler</td>
-    </tr>
-    <tr>
-      <td>callPlugin</td>
-      <td>Call another plugin.</td>
-      <td>Plugin Alias, Input Data</td>
-      <td>Output of the called Plugin</td>
-    </tr>
-    <tr>
-      <td>getMyInfo</td>
-      <td>Load the information of the user who called the plugin </td>
-      <td>-</td>
-      <td>User information</td>
-    </tr>
-    <tr>
-      <td>getRepo</td>
-      <td>Read the file in the Repository for Server.</td>
-      <td>Alias of file in Repository for server</td>
-      <td>File Contents</td>
-    </tr>
-    <tr>
-      <td>saveJob</td>
-      <td>Save Data to DB.</td>
-      <td>args={qinfo, status, pluginId, jobBefore, jobNext, input, output, name, jobdir}</td>
-      <td>DB id of Job</td>
-    </tr>
-    <tr>
-      <td>getJobs</td>
-      <td>Load Saved Job Data from DB.</td>
-      <td>args=<br/>{"cols":[column list you want to get],<br/>
-"order":[key,("asc" or "desc"),<br/>
-"limit":["offset","limit"],<br/>
-"criteria":["array of criteria(Raw Where Query)"],<br/>
-[columns]:[value]<br/>
-}</td>
-      <td>Jobs that meet the conditions.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+	<div style="text-align:right;">
+		<i class="glyphicon glyphicon-remove hide-built-in-wrapper" style="font-size:15px;cursor:pointer;"></i>
+	</div>
+	<div>
+	</div>
 <script>
 $(".built-in-functions-wrapper").draggable();
 $(".built-in-label").click(function(){
