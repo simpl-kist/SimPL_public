@@ -319,7 +319,7 @@ $('document').ready(function(){
 @if(isset($page->id))
 				<button type="button" id="open_page" class="btn btn-primary" onclick="window.open('{{url($page->alias)}}')">Open</button>
 @endif
-				<button onclick='$(".clicked_element").removeClass("clicked_element");javascript:save_script();' type="submit" class="btn btn-primary">Apply</button>
+				<button onclick='javascript:save_script();' type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</div>
 	</form>
@@ -802,7 +802,13 @@ var save_script = function(){
 		case "script":
 			break;
 		case "editor":
-			$(".clicked_element").removeClass("clicked_element");
+			target=$(".clicked_element");
+			if(target.length!==0){
+				target.removeClass("clicked_element");
+				if(target[0].className===""){
+					target.removeAttr("class");
+				}
+			}
 			scriptEditor.setValue(document_ready($(".editor_main").html(),true));
 			scriptEditor.save();	
 			break;
@@ -820,7 +826,14 @@ var open_content = function(type){
 	$(".page_tab").hide();
 	$(".page_"+type).show();
 	if(type==="script"){
-		$(".clicked_element").removeClass("clicked_element");
+		target=$(".clicked_element");
+		if(target.length !==0){
+			target.removeClass("clicked_element");
+			console.log(target[0]);
+			if(target[0].className===""){
+				target.removeAttr("class");
+			}
+		}
 		scriptEditor.setValue(document_ready($(".editor_main").html(),true));
 		scriptEditor.save();
 		wysiwyg_data.type="script";
@@ -920,7 +933,13 @@ function add_event() {
 				if(target===$(this)){
 					return;
 				}
-  				target.removeClass("clicked_element");
+				if(target.hasClass("clicked_element")){
+	  				target.removeClass("clicked_element");
+					if(target[0].className===""){
+						console.log(target[0].className);
+						target.removeAttr("class");
+					}
+				}
   				$(this).addClass("clicked_element");
 
 				target=$(this);
@@ -1212,7 +1231,7 @@ $("#change_properties").click(function(){
 	if($("#modal_id_input").val()!==""){
 		target.prop("id",$("#modal_id_input").val());
 	}else{
-		target.prop("id",undefined);
+		target.removeAttr("id");
 	}
 	let tagName=target.prop("tagName");
 	switch(tagName){
@@ -1549,12 +1568,11 @@ $("#add_function").click(function(){
 			var v_type=$(".fc_property_select[data-type=value]").find('option:selected').val();
 			var variable=$(".fc_property_input[data-type=value]").val();
 			ih+="console.log(";
-			if(v_type==="String"){
-				ih+='"';
-			}
-			ih+=variable;
-			if(v_type==="String"){
-				ih+='"';
+			switch(v_type){
+				case "String":
+					ih+="'"+variable+"'";
+				case "Variable":
+					ih+="'"+variable+"',"+variable;
 			}
 			ih+=");\n";
 			break;
@@ -1735,7 +1753,7 @@ $("#add_function").click(function(){
 			ih+=".show();\n";
 			break;
 		case "make_chart":
-			var ih="let "+$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
+			ih+=$(".fc_property_input[data-type=variable]").val()+" = new Chart(document.";
 			var t_type=$(".fc_property_select[data-type=target]").find('option:selected').val();
 			var t_val=$(".fc_property_input[data-type=target]").val();
 			switch(t_type){
@@ -1764,9 +1782,6 @@ $("#add_function").click(function(){
 			ih+="    }\n"+__space;
 			ih+="  },\n"+__space;
 			ih+="})\n";
-			scriptEditor.addString(ih);
-			$('#function_helper_modal').modal('hide');
-			return;
 			break;
 		case "add_chart_data":
 			var type = $(".fc_property_select[data-type=chart_type]").find('option:selected').val();
