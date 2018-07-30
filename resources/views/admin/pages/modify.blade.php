@@ -788,7 +788,6 @@ var document_ready=function(script,on){
 	}else{
 		script=script.replace(/\$\(document\).ready/g,"var simpl_document_temp=");
 	}
-		console.log(script);
 	return script;
 }
 
@@ -797,7 +796,6 @@ var clear_script = function(){
 }
 var save_script = function(){
 	let type=$(".selected_view").data('type');
-	console.log(type);
 	switch(type){
 		case "script":
 			break;
@@ -829,7 +827,6 @@ var open_content = function(type){
 		target=$(".clicked_element");
 		if(target.length !==0){
 			target.removeClass("clicked_element");
-			console.log(target[0]);
 			if(target[0].className===""){
 				target.removeAttr("class");
 			}
@@ -850,7 +847,6 @@ $("#getFromSimPL").click(function(){
 })
 
 $("#SimPLtoContent").click(function(){
-	console.log($("#simpl_repo_id").val());
 	$.ajax({
 		"url":"http://simpl.vfab.org/api/plugin/run",
 		"type":"post",
@@ -869,7 +865,6 @@ $("#SimPLtoContent").click(function(){
 	$("#simpl_modal").modal('hide');
 });
 $(window).keydown(function(e){
-	console.log(e.target);
 	if($(".clicked_element").length===0) return;
 	if(wysiwyg_data.type==="script") return;	
 	if(e.keyCode==17){
@@ -877,7 +872,6 @@ $(window).keydown(function(e){
 	}
 	if(e.keyCode==86){
 		if(wysiwyg_data.ctrl_pressed){
-			console.log(e);
 			copy_element();
 		}
 	}
@@ -908,7 +902,6 @@ $(".style_label").off();
 $(".style_label").click(function(e){
 	$(".style_new_wrapper").hide();
 	let type=$(this).data('type');
-	console.log(type);
 	let target=$("."+type+"_wrapper");
 	target.css("left",e.pageX);
 	target.css("top",e.pageY);
@@ -936,7 +929,6 @@ function add_event() {
 				if(target.hasClass("clicked_element")){
 	  				target.removeClass("clicked_element");
 					if(target[0].className===""){
-						console.log(target[0].className);
 						target.removeAttr("class");
 					}
 				}
@@ -978,7 +970,6 @@ function add_event() {
 				$(".style_dom_element[data-css=margin-right]").val(target.css("margin-right").replace("px",""));
 				$(".style_dom_element[data-css=margin-bottom]").val(target.css("margin-bottom").replace("px",""));
 				$(".style_dom_element[data-css=margin-left]").val(target.css("margin-left").replace("px",""));
-  				console.log(this.tagName);
 				$(".style_new_wrapper").hide();
   				e.stopPropagation();
   				e.preventDefault();
@@ -998,7 +989,6 @@ function add_event() {
   }
 $(".style_dom_element").off();
 $(".style_dom_element").change(function(e){
-	console.log("change");
 	e.stopPropagation();
 	if($(".clicked_element")[0] === undefined) return;
 	switch($(this).data('css')){
@@ -1047,7 +1037,6 @@ function editProperties(){
   	let target = $(".clicked_element");
   	if (target.length===0) return;
 	let tagName=target.prop("tagName");
-	console.log(tagName);
 	let ih="<div class=form-inline>";
 	ih+="<div><label class=modal_prop_label>Class</label><input id=modal_class_input class=form-control value='"+target.prop("class").replace("clicked_element","").trim()+"'></div>";
 	ih+="<div><label class=modal_prop_label>ID</label><input id=modal_id_input class=form-control value='"+target.prop("id")+"'></div>";
@@ -1204,7 +1193,6 @@ function editProperties(){
 				let tr=$(".modal_table_tr_wrapper");
 				for(let i=0 ; i<tr.length ; i++){
 					let td=$(tr[i]).find('.table_data_input');
-console.log(td);
 					$(td[td.length-1]).remove();
 				}
 			});
@@ -1313,7 +1301,6 @@ $("#change_properties").click(function(){
 				target.append("<"+element[i]+"></"+element[i]+">");
 				let new_target=target.find(element[i]);
 				let tr_=$("#modal_table_"+element[i]+"_wrapper").find(".modal_table_tr_wrapper");
-				console.log(tr_);
 				for(let j=0 ; j<tr_.length ; j++){
 					let ih="<tr>";
 					let td_=$(tr_[j]).find(".table_data_input");
@@ -1423,7 +1410,6 @@ $(".simpl_wysiwyg_tooltip").click(function(e){
   	} else {
   		target_tag = $(".clicked_element")[0].tagName;
   	}
-  	console.log(dom_ele, target_tag);
   	let ih = "";
   	switch (dom_ele) {
   		case "br":
@@ -1499,7 +1485,6 @@ $("#add_function").click(function(){
 	for(let i=0 ; i<scriptEditor.getCursor().ch ; i++){
 		__space+=" ";
 	}
-	console.log(func,trigger);
 	ih="";
 
 	switch(trigger){
@@ -2026,7 +2011,6 @@ $(".table_cell_add").click(function(){
 
 $(".vls_func_select").change(function(){
 	let func=$(this).find('option:selected').val();
-	console.log(func);
 	$(".vls_prop_wrapper").hide();
 	switch(func){
 		case "get_str_data":
@@ -2187,12 +2171,10 @@ $("#vls_add_btn").click(function(){
 			ih+=vls+".update.bondsChanged=true;\n";
 			break;
 	}
-	console.log(ih);
 	scriptEditor.addString(ih);
 	$("#visualizer_helper_modal").modal("hide");
 });
 $(".simpl_wysiwyg_input").keypress(function(e){
-	console.log("enter");
 	if(e.keyCode===13){
 		if($(this).hasClass('style_dom_element')){
 			$(this).change();
