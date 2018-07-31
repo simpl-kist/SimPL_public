@@ -222,9 +222,9 @@ $('document').ready(function(){
 					<br>
 					<label>Num :</label> <input class="form-control simpl_wysiwyg_input" id="divide_num" style="width:75px;">
 					<button class="simpl_btn divide_div" type="button">Divide</button>
-					<button class="simpl_btn align_dom_element" value="left" type="button">Left</button>
-					<button class="simpl_btn align_dom_element" value="center" type="button">Center</button>
-					<button class="simpl_btn align_dom_element" value="right" type="button">Right</button>
+					<button class="simpl_btn align_dom_element" value="left" type="button" style="background-color:#ab12ab;color:white;">Left</button>
+					<button class="simpl_btn align_dom_element" value="center" type="button" style="background-color:#ab12ab;color:white;">Center</button>
+					<button class="simpl_btn align_dom_element" value="right" type="button" style="background-color:#ab12ab;color:white;">Right</button>
 					<button class="simpl_btn align_dom_element" value="top" type="button">Top</button>
 					<button class="simpl_btn align_dom_element" value="middle" type="button">Middle</button>
 					<button class="simpl_btn align_dom_element" value="bottom" type="button">Bottom</button>
@@ -560,7 +560,7 @@ $('document').ready(function(){
 						<option value=check_input>Check Input</option>
 						<option value=upload_file>File-Upload</option>
 						<option value=download_file>File-Download</option>
-						<option value=json_parse>Covert-Str to JSON</option>
+						<option value=json_parse>Convert-Str to JSON</option>
 						<option value=json_stringify>Convert-JSON to Str</option>
 						<option value=make_chart>Chart-Make</option>
 						<option value=add_chart_dataset>Chart-Add DataSet</option>
@@ -1821,7 +1821,7 @@ $("#add_function").click(function(){
 					break;
 			}
 			ih+="});\n"+__space;
-			ih+=$(".fc_property_input[data-type=variable]").val()+".update();\n"+__space;
+			ih+=$(".fc_property_input[data-type=variable]").val()+".update();\n";
 			break;
 		case "remove_chart_data":
 			var idx=$(".fc_property_input[data-type=idx]").val();
