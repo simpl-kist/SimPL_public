@@ -1304,7 +1304,15 @@ $("#change_properties").click(function(){
 			target.empty();
 			var options=$("#modal_select_options_wrapper").children();
 			for(let i=0 ; i<options.length-1 ; i++){
-				target.append("<option value='"+$(options[i]).find('.modal_select_options_value').val()+"' "+($(options[i]).find("input[name=modal_select_option_selected]").prop("checked")?"selected":"")+">"+$(options[i]).find('.modal_select_options_text').val()+"</option>");
+				if($(options[i]).find(".modal_select_options_text").val()===""){
+					continue;
+				}
+				var __ih="<option ";
+				if($(options[i]).val()!==""){
+					__ih+="value='"+$(options[i]).find('.modal_select_options_value').val()+"' ";
+				}
+				__ih+=($(options[i]).find("input[name=modal_select_option_selected]").prop("checked")?"selected":"")+">"+$(options[i]).find('.modal_select_options_text').val()+"</option>"
+				target.append(__ih);
 			}
 			break;
 		case "TEXTAREA":
