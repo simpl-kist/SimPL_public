@@ -1040,6 +1040,18 @@ function editProperties(){
 	let ih="<div class=form-inline>";
 	ih+="<div><label class=modal_prop_label>Class</label><input id=modal_class_input class=form-control value='"+target.prop("class").replace("clicked_element","").trim()+"'></div>";
 	ih+="<div><label class=modal_prop_label>ID</label><input id=modal_id_input class=form-control value='"+target.prop("id")+"'></div>";
+	let data=target.data();
+	console.log(data);
+	ih+="<div><label class=modal_prop_label>Data</label><br/>"
+	for(var i in data){
+		ih+="<div class=modal_data_wrapper><label class=modal_prop_label></label><input class='modal_data_key form-control' value='"+i+"'>";
+		ih+="<input class='modal_data_val form-control' value='"+data[i]+"'>";
+		ih+="<i style='cursor:pointer;color:red;' class='glyphicon glyphicon-minus-sign delete_data_prop'></i></div>";
+	}
+	ih+="<div style='text-align:center;'>";
+	ih+="<i style='cursor:pointer;color:green;' class='glyphicon glyphicon-plus-sign add_data_prop'></i>";
+	ih+="</div>";
+	ih+="</div>";
 	switch(tagName){
 		case "INPUT":
 			ih+="<div><label class=modal_prop_label>Name</label><input id=modal_input_name class=form-control value='"+target.prop('name')+"'></div>";
@@ -1129,6 +1141,16 @@ function editProperties(){
 	}
 	ih+="</div>";
 	$("#properties_modal").find(".modal-body").html(ih);
+	$(".delete_data_prop").click(function(){
+		$(this).parent().remove();	
+	});
+	$(".add_data_prop").click(function(){
+		$("<div class=modal_data_wrapper><label class='modal_prop_label'></label><input class='modal_data_key form-control'><input class='modal_data_val form-control'><i style='color:red;' class='glyphicon glyphicon-minus-sign delete_data_prop'></i></div>").insertBefore($(this).parent());
+		$(".delete_data>prop").off();
+		$(".delete_data_prop").click(function(){
+			$(this).parent().remove();	
+		});
+	});
 	switch(tagName){
 		case "INPUT":
 			$("#modal_input_type").off();
@@ -1221,26 +1243,28 @@ $("#change_properties").click(function(){
 	}else{
 		target.removeAttr("id");
 	}
+	let data=$(".modal_data_wrapper");
+	console.log(data);
+	for(var i=0 ; i<data.length ; i++){
+		target.data($(data[i]).find(".modal_data_key").val(),$(data[i]).find(".modal_data_val").val());
+		target.attr("data-"+$(data[i]).find(".modal_data_key").val(),$(data[i]).find(".modal_data_val").val());
+	}
 	let tagName=target.prop("tagName");
 	switch(tagName){
 		case "INPUT":
+			target.attr("value",$("#modal_input_value").val());
 			target.val($("#modal_input_value").val());
 			if($("#modal_input_name").val()!==""){
 				target.prop("name",$("#modal_input_name").val());
 			}else{
-				target.prop("name",undefined);
-			}
-			if($("#modal_input_name").val()!==""){
-				target.prop("name",$("#modal_input_name").val());
-			}else{
-				target.prop("name",undefined);
+				target.removeAttr("name");
 			}
 
 			target.prop("type",$("#modal_input_type").val());
 			if($("#modal_input_placeholder").val()!==""){
 				target.prop("placeholder",$("#modal_input_placeholder").val());
 			}else{
-				target.prop("placeholder",undefined);
+				target.removeAttr("placeholder");
 			}
 
 			target.prop("checked",$("#modal_input_checked").prop("checked"));
@@ -1272,7 +1296,7 @@ $("#change_properties").click(function(){
 			if($("#modal_img_title").val()!==""){
 				target.prop("title",$("#modal_img_title").val());
 			}else{
-				target.prop("title",undefined);
+				target.removeAttr("title");
 			}
 			break;
 		case "SELECT":
