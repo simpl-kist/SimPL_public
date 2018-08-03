@@ -1090,6 +1090,7 @@ function editProperties(){
 		case "SELECT":
 			ih+="<div><label class=modal_prop_label>Size</label><input id=modal_select_size class=form-control value='"+target.prop("size")+"'></div>";
 			var options=target.find('option');
+	console.log(options);
 			ih+="<div><label class=modal_prop_label style='vertical-align:top;'>Options</label><div id=modal_select_options_wrapper style='display:inline-block;'>";
 			for(let i=0 ; i<options.length ; i++){
 				ih+="<div><input class='form-control modal_select_options_value' value='"+$(options[i]).val()+"'><input class='form-control modal_select_options_text' value='"+$(options[i]).text()+"'><input name=modal_select_option_selected type=radio "+($(options[i]).val()===target.val()?"checked":"")+"><i class='glyphicon glyphicon-minus-sign modal_select_delete_option'></i></div>";
@@ -1305,10 +1306,12 @@ $("#change_properties").click(function(){
 			var options=$("#modal_select_options_wrapper").children();
 			for(let i=0 ; i<options.length-1 ; i++){
 				if($(options[i]).find(".modal_select_options_text").val()===""){
+				console.log($(options[i]).find(".modal_select_options_text").val())
+
 					continue;
 				}
 				var __ih="<option ";
-				if($(options[i]).val()!==""){
+				if($(options[i]).find(".modal_select_options_value").val()!==""){
 					__ih+="value='"+$(options[i]).find('.modal_select_options_value').val()+"' ";
 				}
 				__ih+=($(options[i]).find("input[name=modal_select_option_selected]").prop("checked")?"selected":"")+">"+$(options[i]).find('.modal_select_options_text').val()+"</option>"

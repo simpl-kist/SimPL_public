@@ -351,7 +351,7 @@ $descriptorspec = array(
    1 => array("pipe", "w"),  // stdout
    2 => array("pipe", "w"),  // stderr
 );
-$process = proc_open('python '.$pluginFileName, $descriptorspec, $pipes, $jobdir, null);
+$process = proc_open($env['python'].' '.$pluginFileName, $descriptorspec, $pipes, $jobdir, null);
 $output = Array('output'=>stream_get_contents($pipes[1]),
 				'error'=>stream_get_contents($pipes[2]));
 fclose($pipes[1]);
