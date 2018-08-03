@@ -1356,6 +1356,7 @@ $("#change_properties").click(function(){
 	script_change();
 
 	$("#properties_modal").modal('hide');
+	add_event();
 });
 
 $(".edit_properties").off();
