@@ -1247,6 +1247,7 @@ $("#change_properties").click(function(){
 	let data=$(".modal_data_wrapper");
 	console.log(data);
 	for(var i=0 ; i<data.length ; i++){
+		target.removeData();
 		target.data($(data[i]).find(".modal_data_key").val(),$(data[i]).find(".modal_data_val").val());
 		target.attr("data-"+$(data[i]).find(".modal_data_key").val(),$(data[i]).find(".modal_data_val").val());
 	}
