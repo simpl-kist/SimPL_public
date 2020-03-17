@@ -1,6 +1,6 @@
 /* @flow */
 
-import { escape, cachedEscape } from 'web/server/util'
+import { escape, isSSRUnsafeAttr } from 'web/server/util'
 import { isObject, extend } from 'shared/util'
 import { renderAttr } from 'web/server/modules/attrs'
 import { renderClass } from 'web/util/class'
@@ -17,22 +17,29 @@ import {
   isRenderableAttr
 } from 'web/server/util'
 
+const ssrHelpers = {
+  _ssrEscape: escape,
+  _ssrNode: renderStringNode,
+  _ssrList: renderStringList,
+  _ssrAttr: renderAttr,
+  _ssrAttrs: renderAttrs,
+  _ssrDOMProps: renderDOMProps,
+  _ssrClass: renderSSRClass,
+  _ssrStyle: renderSSRStyle
+}
+
 export function installSSRHelpers (vm: Component) {
-  if (vm._ssrNode) return
-  let Ctor = vm.constructor
-  while (Ctor.super) {
-    Ctor = Ctor.super
+  if (vm._ssrNode) {
+    return
   }
-  Object.assign(Ctor.prototype, {
-    _ssrEscape: escape,
-    _ssrNode: renderStringNode,
-    _ssrList: renderStringList,
-    _ssrAttr: renderAttr,
-    _ssrAttrs: renderAttrs,
-    _ssrDOMProps: renderDOMProps,
-    _ssrClass: renderSSRClass,
-    _ssrStyle: renderSSRStyle
-  })
+  let Vue = vm.constructor
+  while (Vue.super) {
+    Vue = Vue.super
+  }
+  extend(Vue.prototype, ssrHelpers)
+  if (Vue.FunctionalRenderContext) {
+    extend(Vue.FunctionalRenderContext.prototype, ssrHelpers)
+  }
 }
 
 class StringNode {
@@ -102,6 +109,9 @@ function renderStringList (
 function renderAttrs (obj: Object): string {
   let res = ''
   for (const key in obj) {
+    if (isSSRUnsafeAttr(key)) {
+      continue
+    }
     res += renderAttr(key, obj[key])
   }
   return res
@@ -123,7 +133,7 @@ function renderSSRClass (
   dynamic: any
 ): string {
   const res = renderClass(staticClass, dynamic)
-  return res === '' ? res : ` class="${cachedEscape(res)}"`
+  return res === '' ? res : ` class="${escape(res)}"`
 }
 
 function renderSSRStyle (
@@ -136,5 +146,5 @@ function renderSSRStyle (
   if (dynamic) extend(style, normalizeStyleBinding(dynamic))
   if (extra) extend(style, extra)
   const res = genStyle(style)
-  return res === '' ? res : ` style=${JSON.stringify(cachedEscape(res))}`
+  return res === '' ? res : ` style=${JSON.stringify(escape(res))}`
 }

@@ -1,116 +1,194 @@
-@extends('admin.master')
-@section('title')
-Jobs
-@stop
+@extends('admin.layout')
 @section('content')
 <style>
-	#job_table>tbody>tr>td{
-		word-break:break-all;
+	.jobFileList{
+		padding:10px;
 	}
-	#job_table{
-		table-layout:fixed;
+	.jobFileContent{
+		padding:10px;
 	}
-	.hide_job_td{	
-		width:17%;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		white-space: nowrap;
-		height: 100px;
+	tbody> tr:hover{
+		background-color:#ececec;
+	}
+	.active-tr{
+		background-color:#ececec;
 	}
 </style>
-<h2>Jobs</h2>
-<div class="form-inline" style="text-align:left;">
-        <select class=form-control id=filter_type>
-                <option value=pluginid {{ $type==="pluginid" ? "selected" : "" }}>PluginID</option>
-                <option value=pluginalias {{ $type==="pluginalias" ? "selected" : "" }}>PluginAlias</option>
-                <option value=name {{ $type==="name" ? "selected" : "" }}>JobName</option>
-        </select>
-        <input class=form-control id=filter_criteria value={{$value}}>
-        <button class="btn btn-default" onclick="search_data();">
-	        <i class="glyphicon glyphicon-search" style="font-size:15px"></i>
-        </button>
-</div>
-<table id=job_table class=table style="width:100%;">
-	<thead>
-		<tr>
-			<th style="width:5%;">ID</th>
-			<th style="width:5%;">Plugin</th>
-			<th style="width:15%;">Jobdir</th>
-			<th style="width:5%;">Name</th>
-			<th style="width:5%;">Status</th>
-			<th style="width:7%;">Queue ID</th>
-			<th style="width:14%;">Time Record</th>
-			<th style="width:17%;">Input</th>
-			<th style="width:17%;">Output</th>
-			<th style="width:5%;"></th>
-		</tr>
-	</thead>
-	<tbody>
+<div class="container">
+	<h3 style="margin:30px 0;">Jobs</h3>
+	<div class="row">
+		<div class="col-12">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Plugin</th>
+						<th>Owner</th>
+						<th>Status</th>
+						<th>Jobdir</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
 @forelse($jobs as $job)
-<?php
-$qstr = "";
-$stat = "";
-if(isset($job->qinfo)){
-	$qinfo = json_decode($job->qinfo);
-	$qstr.=$qinfo->id;
-//	$qstr.="Status : ".$qinfo->status;
-	if(isset($qinfo->status)){
-	$stat=$qinfo->status;
-	}
-}
-?>
-		<tr>
-			<td style="width:5%;">{{ $job->id }}</td>
-			<td style="width:5%;">{{ $job->pluginId}}</td>
-			<td style="width:15%;">{{ $job->jobdir }}</td>
-			<td style="width:5%;">{{ $job->name }}</td>
-			<td style="width:5%;">{!! $stat !!}</td>
-			<td style="width:7%;">{!! $qstr !!}</td>
-			<td style="width:14%;"><label>Created</label><br>{{ $job->created_at }}<br><label>Updated</label><br>{{ $job->updated_at }}</td>
-			<td class=hide_job_td style="width:17%;" onclick="show_all_data($(this));">{{ $job->input }}</td>
-			<td class=hide_job_td style="width:17%;">{{ $job->output }}</td>
-			<td style="width:5%;">
-                        @if(Auth::user()->policy==="admin")
-                                <button class="btn btn-danger" onclick="delete_job({{$job->id}})">Delete</button>
-                        @endif
-			</td>
-		</tr>
+					<tr data-idx='{{$job->id}}' onclick="loadJob('{{$job->id}}', '{{$job->jobdir}}');" style="cursor:pointer;">
+						<td>{{$job->id}}</td>
+						<td>{{$job->name}}</td>
+						<td>{{$job->pluginName}} ({{$job->pluginId}})</td>
+						<td>{{$job->owner}}</td>
+						<td>{{$job->status}}</td>
+						<td>{{$job->jobdir}}</td>
+						<td>
+@can('delete', $job)
+							<i class="fas fa-minus-circle" style="color:red;cursor:pointer;" onclick="deleteJob('{{$job->id}}','{{$job->name}}',event);"></i>
+@endcan
+						</td>
+					</tr>
 @empty
-		<tr>
-			<td colspan=8>There is no job</td>
-		</tr>
+					<tr>
+						<td colspan=7>Empty</td>
+					</tr>
 @endforelse
-	</tbody>
-</table>
-{{$jobs}}
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan=7 style="text-align:center;">{{$jobs}}</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+	<div class="row jobDetail" style="height:600px;">
+		<div class="col-md-3 jobFileList">
+		</div>
+		<div class="col-md-9 jobFileContent">
+			<input class="form-control fileName" style="width:100%;" readonly>
+			<textarea class="form-control fileContent" style="height:100%;"></textarea>
+		</div>
+	</div>
+</div>
 <script>
-var show_all_data=function(td){
-	if(td.hasClass("hide_job_td")){
-		td.removeClass("hide_job_td");
-	}else{
-		td.addClass("hide_job_td");
+	var dirnow = "";
+	var jobnow = -1;
+	var flist = {};
+	function deleteJob(id, name,e){
+		if(confirm('Job "'+name+'" will be deleted. Do you want to continue?')){
+			$.ajax({
+				url:"/admin/jobs/delete",
+				type:"post",
+				data:{
+					"_token":"{{csrf_token()}}",
+					"idx":id
+				},
+				success:function(ret){
+					if(ret.status === "Success"){
+						location.reload();
+					}else{
+						alert(ret.message);
+					}
+				}
+			});
+		}
+		e.stopPropagation();
 	}
-}
 
-var search_data = function(){
-        location.href="{{url('/admin/jobs')}}"+"?type="+$('#filter_type').val().toLowerCase()+"&value="+$('#filter_criteria').val();
-}
-
-
-var delete_job = function(target_id){
-	if(confirm("Job "+target_id+" will be deleted. Continue?")){
+	function loadJob(id, jobdir){
+		$("tr").removeClass("active-tr");
+		$("tr[data-idx="+id+"]").addClass("active-tr");
 		$.ajax({
-			"url":"{{url('/admin/jobs/delete')}}",
-			"type":"post",
-			"data":{
+			url:"/admin/jobs/load",
+			type:"post",
+			data:{
 				"_token":"{{csrf_token()}}",
-				"id":target_id,
+				"idx":id
 			},
-			"success":function(ret){
-				location.reload();
+			success:function(ret){
+				if(ret.status === "Success"){
+					jobnow = id;
+					dirnow = "";
+					flist = ret["message"]["list"];
+					flist["folders"].sort();
+					flist["files"].sort();
+					listJobFile();
+				}else{
+					alert(ret.message);
+				}
 			}
-		})
+		});
 	}
-}
+
+	function listJobFile(){
+		var target = $(".jobFileList");
+		target.empty();
+		var refdir = dirnow;
+		if(refdir!== ""){
+			refdir += "/";
+		}
+		target.append("<div><input class='form-control' style='width:100%;' value='"+refdir+"' readonly></div>");
+		if(dirnow !== ""){
+			target.append("<div class='simpl-jobs-folder' data-folder='.'><i class='fas fa-folder' style='margin-right:5px;'></i>.</div>");
+			target.append("<div class='simpl-jobs-folder' data-folder='..'><i class='fas fa-folder' style='margin-right:5px;'></i>..</div>");
+		}
+		
+		for(var i=0 ; i<flist["folders"].length ; i++){
+			var folder = flist["folders"][i];
+			if(folder.indexOf(refdir)<0){
+				continue;
+			}
+			var folder = folder.replace(refdir, "");
+			if(folder.indexOf("/")<0){
+				target.append("<div class='simpl-jobs-folder' data-folder='"+folder+"'><i class='fas fa-folder' style='margin-right:5px;'></i>"+folder+"</div>");
+			}
+		}
+		for(var i=0 ; i<flist["files"].length ; i++){
+			var file = flist["files"][i]; 
+			if(file.indexOf(refdir)<0){
+				continue;
+			}
+			file = file.replace(refdir, "");
+			if(file.indexOf("/")<0){
+				target.append("<div class='simpl-jobs-file' data-file='"+file+"'><i class='fas fa-file' style='margin-right:5px;'></i>"+file+"</div>");
+			}
+		}
+		target.find(".simpl-jobs-folder").click(function(){
+			var dir = $(this).data('folder');
+			if(dir === "."){
+				var _d = dirnow.split("/");
+				_d.pop();
+				dirnow = _d.join('/');
+			}else if(dir === ".."){
+				dirnow = "";
+			}else{
+				dirnow = refdir + dir;
+			}
+			listJobFile();
+		});
+		target.find(".simpl-jobs-file").click(function(){
+			var file = $(this).data('file');
+			loadFile(refdir + file);
+		});
+	}
+
+	function loadFile(file){
+		$.ajax({
+			url:"/admin/jobs/file",
+			type:"post",
+			data:{
+				"_token":"{{csrf_token()}}",
+				"idx":jobnow,
+				"filename":file
+			},
+			success:function(ret){
+				if(ret.status === "Success"){
+					$(".fileName").val(file);
+					$(".fileContent").val(ret.message);
+				}else{
+					alert(ret.message);
+				}
+			}
+		});
+	
+	}
 </script>
-@stop
+@endsection

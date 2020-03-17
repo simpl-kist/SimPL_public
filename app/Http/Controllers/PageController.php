@@ -2,129 +2,141 @@
 
 namespace App\Http\Controllers;
 
+use Log;
+use Auth;
+use Route;
+use Response;
+use App\CmsEnv;
+use App\Page;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Route;
 
-use App\PageModel;
-use App\CmsEnvModel;
-use App\Repository;
 class PageController extends Controller
 {
-	public function getRepoforWeb($alias){
-		$img = Repository::where('owner',1)->where("alias",$alias)->firstOrFail();
-		$can_read=1;
-		if($img->ispublic*1 !== 0){
-			if(Auth::user() == null){
-				$can_read=0;
+	private $env;
+	public function __construct(){
+		$environment = CmsEnv::get();
+		$this->env = [];
+		foreach($environment as $e){
+			$this->env[$e->var_key] = $e->var_value;
+		}
+	}
+	public function getList(){
+		$pages = Page::get(['id','title','isfront']);
+		return $pages;
+	}
+	public function loadPage(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		$page = Page::where("id",$idx)->select(['id','title','alias','ispublic','isfront','contents','author'])->first();
+		if($page === null){
+			return ["message"=>"Invalid page ID","status"=>"Fail"];
+		}
+		if($user->can('read',$page)){
+			if($user->can('update',$page)){
+				return ["message"=>$page, "status"=>"Success"];
 			}else{
-				$_policy=Auth::user()->policy;
-				$_ispublic=$img->ispublic*1;
-				switch($_policy){
-					case "anonymous":
-						if($_ispublic > 1){
-							$can_read=0;
-						}
-						break;
-					case "user":
-						if($_ispublic > 2){
-							$can_read=0;
-						}				
-						break;
-					case "editor":
-						if($_ispublic > 3){
-							$can_read=0;
-						}				
-						break;
-					case "admin":
-						if($_ispublic > 4){
-							$can_read=0;
-						}			
-						break;
-					default:
-						$can_read=0;
-				}
+				return ["message"=>$page, "status"=>"Unauthorized"];
 			}
-		}
-		if($can_read==1){
-			$path = storage_path('repos/' . $img->filename);
-			if (!File::exists($path)) {
-			    return "empty";
-			}
-        
-			$file = File::get($path);
-			$type = File::mimeType($path);
-        
-			$response = Response::make($file, 200);
-			$response->header("Content-Type", $type);
-        
-			return $response;
 		}else{
-			return redirect('/assets/kcms/img/locked_page.png');
+			$page->script="Unauthroized";
+			return ["message"=>$page, "status"=>"Unauthorized"];
 		}
 	}
-	public function add(Request $request){
-		if($request->input('title') === null || $request->input('alias') === null || $request->input('contents') === null ) return redirect()->back()->withInput($request->all); 
-		$forbid_alias=['login','logout','verification','verifyemail','repo','server','simulation','utils','preset','defaultPic','deleteMe','updateMe','admin','repos','userpic'];
-		if(in_array($request->input('alias'),$forbid_alias)){
-			return redirect()->back()->withInput($request->all);
+	public function savePage(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		$page = Page::where("id",$idx)->first();
+		$title = $request->title;
+		$alias = $request->alias;
+		$is_public = $request->is_public;
+		$contents = $request->contents;
+		if($title === null || $title === ""){
+			return ["message" => "Title is empty.", "status"=>"Fail"];	
 		}
-		$pageM = PageModel::findOrNew($request->input('pageId'));
-		if($pageM->alias !== $request->alias){
-			if(count(PageModel::where('alias',$request->input('alias'))->get())>0){
-				return redirect()->back()->withInput($request->all);
+		if($alias === null || $alias === ""){
+			return ["message" => "Alias is empty.", "status"=>"Fail"];	
+		}
+		if($is_public === null || $is_public === ""){
+			return ["message" => "Required Qualification is empty.", "status"=>"Fail"];	
+		}
+		if($contents === null || $contents === ""){
+			return ["message" => "Contents is empty.", "status"=>"Fail"];	
+		}
+		if($page === null){
+			$page = new Page;
+			if(!$user->can('create', $page)){
+				return ["message" => "No permission", "status"=>"Fail"];
+			}
+			$cnt = Page::where("title",$title)->count();
+			if($cnt > 0){
+				return ["message" => "Name already exists.", "status"=>"Fail"];	
+			}
+			$cnt = Page::where("alias",$alias)->count();
+			if($cnt > 0){
+				return ["message" => "Alias already exists.", "status"=>"Fail"];	
+			}
+		}else{
+			if(!$user->can('update', $page)){
+				return ["message" => "No permission", "status"=>"Fail"];
+			}
+			$cnt = Page::where("title",$title)->count();
+			if($cnt > 1){
+				return ["message" => "Name already exists.", "status"=>"Fail"];	
+			}else if($cnt === 1 && $title !== $page->title){
+				return ["message" => "Name already exists.", "status"=>"Fail"];	
+			}
+
+			$cnt = Page::where("alias",$alias)->count();
+			if($cnt > 1){
+				return ["message" => "Alias already exists.", "status"=>"Fail"];	
+			}else if($cnt === 1 && $alias !== $page->alias){
+				return ["message" => "Alias already exists.", "status"=>"Fail"];	
 			}
 		}
-		if($pageM->id!==null){
-			$this->authorize('update',$pageM);
-		}else{
-			$this->authorize('create',$pageM);
-			$pageM->author = Auth::user()->id;
-			$pageM->created = date('Y-m-d H:i:s'); 
+		
+		$page->title = $title;
+		$page->alias = $alias;
+		$page->ispublic = $is_public;
+		$page->author = $user->id;
+		$page->contents = $contents;
+		$page->created = now();
+		$page->save();
+		return ["message" =>$page->id,"status"=>"Success"];
+	}
+	public function makeFront(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		if($user->policy !== "admin"){
+			return ["message" => "No permission", "status"=>"Fail"];
 		}
-		$pageM->title = $request->input('title');
-		$pageM->contents = $request->input('contents');
-		$pageM->alias = $request->input('alias');
-		$pageM->ispublic = $request->require;
-		$pageM->save();
-		return redirect('/admin/pages/modify/'.$pageM->id);
+		$page = Page::where("id",$idx)->first();
+		if($page === null){
+			return ["message" => "Invalid page ID", "status"=>"Fail"];
+		}
+		$front = $page::where("isfront",1)->get();
+		for($i=0 ; $i<count($front) ; $i++){
+			$front[$i]->isfront =0;
+			$front[$i]->save();
+		}
+		$page->isfront = 1;
+		$page->save();
+		return ["message" => "Success", "status"=>"Success"];
 	}
-	public function setFront($id){
-		PageModel::where("isfront",true)->update(["isfront"=>false]);
-		$m = PageModel::findOrFail($id);
-		$m->isfront = true;
-		$m->save();
-		return redirect(route('admin.pages'));	
-	}
-	public function delete(Request $request){
-//block
-		$id=$request->idx;
-		$page = PageModel::findOrFail($id);
-		$this->authorize('delete',$page);
-		$page->delete();
-		return redirect(route('admin.pages'));	
-	}
-	public function view($pageName=null){
+	public function openPage($pageName=null){
 		if($pageName == null){
-			$frontPage = PageModel::where("isfront",true)->get(["alias"])->first();
+			$frontPage = Page::where("isfront",1)->get(["alias"])->first();
 			if( $frontPage === null ){ // There is no front page
 				abort(404);
 			}else{
 				$pageName = $frontPage->alias;
 			}
-			
 		}
-		$m = CmsEnvModel::get();
+		$m = CmsEnv::get();
 		$env = [];
 		foreach($m as $record){
 			$env[$record->var_key] = $record->var_value;
 		}
-
-		$pageM = new PageModel;
-		$page = $pageM->get()->where('alias',$pageName)->first();
-// 없으면 빈 칸을 띄우게함
+		$page = Page::where('alias',$pageName)->first();
 		if($page===null) return redirect('/');
 // page policy		
 		$can_read=1;
@@ -161,52 +173,50 @@ class PageController extends Controller
 			}
 		}
 // page policy
-
 // Process tags
 		if($can_read==1){
 			$contents = $this->renderPageContent( $page->contents );
 		}else{
 			if(Auth::user()){
 				if(Route::current()->getName()==""){
-					return "UNAUTHORIZED";
+					return "Unauthorized";
 				}
 				return redirect("/");
 			}else{
 				return redirect("/login");
 			}
 		}
+		$title = preg_split("/\/+/", $page->title);
+		$title = $title[count($title)-1];
 		return view('page',[
-			'title'=>$page->title,
+			'title'=>$title,
 			'contents'=>$contents,
 			'env'=>$env
 		]);
 		//$pageM->get()->where("alias",$pageName);
 	}
-	public function list($type=null,$criteria=null){
-		if(($type==="title" || $type === "alias") && isset($criteria)){
-			$pages = PageModel::where($type,"like","%".$criteria."%")->orderBy('id','desc')->paginate(10);
-		}else{
-			$pages = PageModel::orderBy('id','desc')->paginate(10);
+	protected function renderPageContent($content){
+		preg_match_all('/{{kCMS\|(.*?)}}/',$content,$tags);
+
+		$original_tags = $tags[0];
+		$original_tags_clean = $tags[1];
+		foreach($original_tags_clean as $this_tag){
+			$tag = explode("|",$this_tag);
+			$tagType = array_shift($tag);
+			switch($tagType){
+				case "PAGE":
+					$content = $this->parsePage($content,$this_tag,$tag);
+				break;
+				case "VLATOMS":
+					$content = $this->parseVLAtoms($content,$this_tag,$tag);
+				break;
+			}
 		}
-		return view('admin/pages/list',[ 'pages' => $pages]);
+		return $content;
 	}
-
-/*	public function list(){
-		$pages = PageModel::orderBy('id','desc')->paginate(10);
-//		$pages = $pageM->get();
-		return view('admin/pages/list',[ 'pages' => $pages]);
-	}*/
-	public function modify($id){
-		$pageM = new PageModel;
-		$page = $pageM->get()->where('id',$id)->first();
-		$this->authorize('update',$page);
-		return view('admin/pages/modify',[ 'page'=> $page]);
-	}
-
-
 	protected function parsePage($c,$originalTagStr,$tag){
 		$pageAlias = array_shift($tag);
-		$find_page=PageModel::where('alias',$pageAlias)->first();
+		$find_page=Page::where('alias',$pageAlias)->first();
 		if($find_page === null){
 			$page = "Page \"".$pageAlias."\" Does Not Exist.";
 		}else{
@@ -249,185 +259,27 @@ class PageController extends Controller
 			}else{
 				$page = $this->renderPageContent($page);
 			}
-		}
-
-
-		
+		}		
 		return str_replace($this->tagStrToOrg($originalTagStr),$page,$c);
 	}
 	protected function tagStrToOrg($tag){
 		return "{{kCMS|".$tag."}}";
 	}
-	protected function parsePlugin($c,$originalTagStr,$tag){
-			$pluginId = array_shift($tag);
-			$pluginDir = SERVER_ROOT."/contents/plugin/".$pluginId;
-			if(!is_dir($pluginDir)){
-				die("Plugin Directory does not exists(".$pluginDir.")");
-			}
-			if(!is_file($pluginDir."/plugin.def.php")){
-				die("Plugin definition does not exists");
-			}
-			require_once $pluginDir."/plugin.def.php";
-			$pluginArgs = $tag[0];
-			$plugin = new $pluginId($pluginArgs);
-			return str_replace($this->tagStrToOrg($originalTagStr),$plugin->pluginContents,$c);
-		}
-		protected function parseVLAtoms($c,$originalTagStr,$tag){
-			$vlaId = array_shift($tag);
-			$vlaArgs = $tag[0];
-			return str_replace($this->tagStrToOrg($originalTagStr),"<script>var ".$vlaId."=new VLatoms({".$vlaArgs."});</script>",$c);
-		}
-	protected function parseDB($c,$originalTagStr,$tag){
-			$supportedMethods = Array(
-				"getStructure"=>Array("type"=>"read"),
-				"saveStructure"=>Array("type"=>"create"),
-			);
-			$method = array_shift($tag);
-			$qryType = $supportedMethods[$method]['type'];
-			$_option = $tag;
-			$options = explode(",",removeSpace($_option[0]));
-	
-			switch($qryType){
-				case "create":
-					$inputs=Array();
-					foreach($options as $opt){
-						$o = explode(":",$opt);
-						$option = $o[0];
-						$val = $o[1];
-						switch($option){
-							case "source": // Display type
-								$source = $val;
-							break;
-							case "structure": // Display type
-								$structure = $val;
-							break;
-							case "input":
-								$v = explode("=",$val);
-								$inputs[$v[0]]=$v[1];
-							break;
-							case "output":
-								$v = explode("=",$val);
-								$inputs[$v[0]]=$v[1];
-							break;
-							case "name":
-								$name = $val;
-							break;
-	
-							case "type":
-								$type = $val;
-							break;
-						}
-					}
-					switch($method){
-						case "saveStructure":
-	
-						break;
-					}
-	
-					$tmpFunName = "tmp_".rand();
-					$retTxt = "";
-					$retTxt.="<script>";
-					$retTxt.="function ".$tmpFunName."(){";
-					$retTxt.="var args={pid:null,input:{},output:null,description:null,name:null};";
-					$retTxt.="args.type='".$type."';";
-					$retTxt.="args.name=".$name.";";
-					foreach($inputs as $varname=>$value){
-						$retTxt.="args.input['".$varname."']=".$value.";";
-					}
-					foreach($outputs as $varname=>$value){
-						$retTxt.="args.output['".$varname."']=".$value.";";
-					}
-					$retTxt.="post_ajax('/inc/db.exports.php',{method:'".$method."',args:args});";
-					$retTxt.="}";
-					$retTxt.="</script>";
-					$retTxt.="<button onclick=javascript:".$tmpFunName."();>Save Structure</button>";
-					return str_replace($this->tagStrToOrg($originalTagStr),$retTxt,$c);
-	
-				break;
-				case "read":
-					$dbe = new cms_exports();
-	
-					if(!method_exists($dbe,$method)){
-						die("Method does not exists");
-					}
-					$callbackTarget = null;
-					$ret = $dbe->$method();
-					foreach($options as $opt){
-						$o = explode(":",$opt);
-						$option = $o[0];
-						$val = $o[1];
-						switch($option){
-							case "type": // Display type
-								$type = $val;
-							break;
-							case "formid":
-								$formid = $val;
-							break;
-							case "callback":
-								$callbackTarget = $val;
-							break;
-	
-						}
-					}
-					$retTxt = "";
-					$valTitle = "name";
-					switch($type){
-						case "select":
-							$retTxt.="<select id=".$formid.">";
-							foreach($ret as $l){
-								$retTxt.="!";
-								$retTxt.="<option data-id=".$l->id.">";
-								$retTxt.=$l->$valTitle;
-								$retTxt.="</option>";
-							}
-							$retTxt.="</select>";
-						break;
-					}
-					if($method == "getStructure"){
-						if($callbackTarget){
-							$retTxt.="<script>";
-							$retTxt.="$(document).ready(function(){";
-							$retTxt.="$('#".$formid."').change(function(){";
-							$retTxt.="var did = $('#".$formid." option:checked').data('id');";
-							$retTxt.='var ret = JSON.parse(post_ajax("/inc/db.exports.php",{method:"getStructureOne",args:{id:did}}).value.structure);';
-							$retTxt.=$callbackTarget.".Structure = VLatoms.Utils.redefineStructure(ret);";
-							$retTxt.=$callbackTarget.".update.atomsChanged=true;";
-							$retTxt.=$callbackTarget.".update.bondsChanged=true;";
-							$retTxt.=$callbackTarget.".setOptimalCamPosition();";
-							$retTxt.="});";
-							$retTxt.="});";
-							$retTxt.="</script>";
-						}
-	
-					}
-					return str_replace($this->tagStrToOrg($originalTagStr),$retTxt,$c);
-				break;
-			}
-		//	$method = array_shift($tag);
-		}
-	protected function renderPageContent($content){
-		preg_match_all('/{{kCMS\|(.*?)}}/',$content,$tags);
-
-		$original_tags = $tags[0];
-		$original_tags_clean = $tags[1];
-		foreach($original_tags_clean as $this_tag){
-			$tag = explode("|",$this_tag);
-			$tagType = array_shift($tag);
-			switch($tagType){
-				case "PAGE":
-					$content = $this->parsePage($content,$this_tag,$tag);
-				break;
-				case "VLATOMS":
-					$content = $this->parseVLAtoms($content,$this_tag,$tag);
-				break;
-				case "PLUGIN":
-					$content = $this->parsePlugin($content,$this_tag,$tag);
-				break;
-				case "DB":
-					$content = $this->parseDB($content,$this_tag,$tag);
-				break;
-			}
-		}
-		return $content;
+	protected function parseVLAtoms($c,$originalTagStr,$tag){
+		$vlaId = array_shift($tag);
+		$vlaArgs = $tag[0];
+		return str_replace($this->tagStrToOrg($originalTagStr),"<script>var ".$vlaId."=new VLatoms({".$vlaArgs."});</script>",$c);
 	}
+	public function deletePage(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		$plugin = Page::where("id",$idx)->first();
+		if($user->can('delete',$plugin)){
+			$plugin->delete();
+			return ["message" => "Success", "status"=>"Success"];
+		}else{
+			return ["message" => "No permission", "status"=>"Fail"];
+		}
+	}
+
 }

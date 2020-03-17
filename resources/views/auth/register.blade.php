@@ -1,68 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-<form class="form-horizontal" method="POST" action="{{ route('register') }}">
-    {{ csrf_field() }}
+	<form method="POST" action="{{ route('register') }}">
+		@csrf
+		<div class="form-group row">
+			<label for="name" class="col-3 col-form-label text-right">{{ __('Name') }}</label>
 
-    <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-        <label for="name" class="col-md-3 control-label" style="color:black">Name</label>
+			<div class="col-6">
+				<input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
 
-        <div class="col-md-6">
-            <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" required autofocus>
+				@error('name')
+					<span class="invalid-feedback" role="alert">
+						<strong>{{ $message }}</strong>
+					</span>
+				@enderror
+			</div>
+		</div>
 
-            @if ($errors->has('name'))
-                <span class="help-block">
-                    <strong>{{ $errors->first('name') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
+		<div class="form-group row">
+			<label for="email" class="col-3 col-form-label text-right">{{ __('E-Mail Address') }}</label>
 
-    <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-        <label for="email" class="col-md-3 control-label" style="color:black">E-Mail Address</label>
+			<div class="col-6">
+				<input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
 
-        <div class="col-md-6">
-            <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+				@error('email')
+					<span class="invalid-feedback" role="alert">
+						<strong>{{ $message }}</strong>
+					</span>
+				@enderror
+			</div>
+		</div>
 
-            @if ($errors->has('email'))
-                <span class="help-block">
-                    <strong>{{ $errors->first('email') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
+		<div class="form-group row">
+			<label for="password" class="col-3 col-form-label text-right">{{ __('Password') }}</label>
 
-    <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-        <label for="password" class="col-md-3 control-label" style="color:black">Password</label>
+			<div class="col-6">
+				<input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
 
-        <div class="col-md-6">
-            <input id="password" type="password" class="form-control" name="password" required>
+				@error('password')
+					<span class="invalid-feedback" role="alert">
+						<strong>{{ $message }}</strong>
+					</span>
+				@enderror
+			</div>
+		</div>
 
-            @if ($errors->has('password'))
-                <span class="help-block">
-                    <strong>{{ $errors->first('password') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
+		<div class="form-group row">
+			<label for="password-confirm" class="col-3 col-form-label text-right">{{ __('Confirm Password') }}</label>
 
-    <div class="form-group">
-        <label for="password-confirm" class="col-md-3 control-label" style="color:black">Confirm Password</label>
+			<div class="col-6">
+				<input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+			</div>
+		</div>
 
-        <div class="col-md-6">
-            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-md-6 col-md-offset-3">
-            <button type="submit" class="btn btn-primary" style=float:right>
-                <strong style=color:white>
-                Register
-                </strong>
-            </button>
-        </div>
-    </div>
-</form>
-
+		<div class="form-group row mb-0">
+			<div class="col-6 offset-3" style="text-align:right;">
+				<button type="submit" class="btn btn-simpl">
+					{{ __('Register') }}
+				</button>
+			</div>
+		</div>
+	</form>
 @endsection

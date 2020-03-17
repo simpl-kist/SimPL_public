@@ -2,117 +2,148 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-
+use Log;
+use File;
+use Response;
+use Auth;
+use Hash;
+use App\User;
+use App\CmsEnv;
 class UserController extends Controller
 {
-   public function update(Request $request, User $user)
-    {
-        //
-	$user = User::where('id',Auth::user()->id)->first();
-        $inputPassword = $request->password;
-        $pwhash = $user->password;
-
-        if( Hash::check($inputPassword,$pwhash) ){
-            $this->authorize('update',$user);
-			if($request->hasFile('file')){
-				if($user->mypic!==null){
-					Storage::disk('userpic')->delete($user->mypic);
-				}
-				$filename = $request->file('file')->store("/","userpic");
-				$user->mypic = $filename;
-			}
-            $user->name = urldecode($request->name);
-            $user->affiliation = urldecode($request->affiliation);
-            $user->tel = urldecode($request->tel);
-            $user->phone = urldecode($request->phone);
-            if($request->newpassword !=""){
-                if($request->newpassword === $request->newpasswordverify){
-                    $user->password = bcrypt($request->newpassword);
-                }else{
-                    return response()->json("newpassword error");
-                }
-            }
-            $user->save();
-        }else{
-		return redirect()->back()->withErrors(['msg','password error']);
-        }
-	return back();
-    }
-	public function changePolicy(Request $request)
-	{
-		if(Auth::user()->id==$request->Input('index')){
-			return redirect()->route('admin.users.page');	
+	public function deleteUser(Request $request){
+		$idx = $request->idx;
+		$user = Auth::user();
+		$t_user = User::where('id',$idx)->first();
+		if($t_user === null){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
 		}
-		$user = User::where('id',$request->Input('index'))->first();
-		$this->authorize('update',$user);
-
-		$user->policy = $request->Input('policy');
-		$user->save();
-		return redirect()->route('admin.users.page');
-	}
-
-	public function deleteMe(Request $request)
-	{
-		$inputPassword = $request->password;
-		$index = $request->index;
-		$user = User::where('id',$index)->first();
-	        $pwhash = $user->password;
-	        if( Hash::check($inputPassword,$pwhash) ){
-			if(Auth::user()->id==$index){
-				$this->authorize('delete',$user);
-				$user->delete();
-				return "success";
-			}else{
-				return "not same";
-			}
+		if($user->can('delete',$t_user)){
+			$t_user->delete();
+			return ["message"=>"Success", "status"=>"Success"];
 		}else{
-			return "password error";
+			return ["message" => "No permission", "status"=>"Fail"];
 		}
-	}
-	public function userInfo($id)
-	{
-		$user = User::findOrFail($id);
-		$this->authorize('read',$user);
-		return redirect()->back()->with('user',$user);
-	}
-	public function defaultPic(Request $request)
-	{
-		$user = User::findOrFail($request->index);
-		$this->authorize('update',$user);
-		Storage::delete($user->mypic);
-		$user->mypic = null;
-		$user->save();
-		return redirect()->back()->with('user',$user);
 	}
 
-	public function reset_verification_key(Request $request){
-		$user=Auth::user();
-		if($user===null){
-			return;
+	public function changePolicy(Request $request){
+		$idx = $request->idx;
+		$policy = $request->policy;
+		$user = Auth::user();
+		$t_user = User::where("id",$idx)->first();
+		if($t_user === null){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
 		}
-		$inputPassword = $request->password;
-	        $pwhash = $user->password;
-	        if( Hash::check($inputPassword,$pwhash) ){
-			$user->verification_code=$this->make_rand_string(32);
-			$user->save();
-			return "success";
+		if($user->policy === "admin"){
+			if(in_array($policy, ["anonymous", "user", "editor", "admin"])){
+				$t_user->policy = $policy;
+				$t_user->save();
+				return ["message"=>"Success", "status"=>"Success"];
+			}
+			return ["message"=>"Invalid Policy", "status"=>"Fail"];
 		}else{
-			return "password error";
+			return ["message" => "No permission", "status"=>"Fail"];
 		}
 	}
 
-	public function make_rand_string($len){
-		$rand_str="1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz=";
-		$rand_string="";
-		for($i=0 ; $i<$len ; $i++){
-			$randnum=rand(0,62);
-			$rand_string.=$rand_str[$randnum];
+	public function updateAccount(Request $request){
+		if(!$request->has('idx')){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
 		}
-		return $rand_string;
+		$user = User::where("id", $request->idx)->first();
+		if($user->id !== Auth::user()->id){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
+		}
+		if(!$request->has('my_password')){
+			return ["message"=>"No password entered.", "status"=>"Fail"];
+		}
+		if(!Hash::check($request->my_password, $user->password)){
+			return ["message"=>"Invalid password entered.", "status"=>"Fail"];
+		}
+		$account_list = ["name", "affiliation", "tel", "phone"];
+		foreach($account_list as $al){
+			if($request->has($al)){
+				$user->{$al} = $request->input($al);
+			}
+		}
+		if($request->has('my_password_new')){
+			$user->password = Hash::make($request->input('my_password_new'));
+		}
+		$user->save();
+		return ["message"=>"success", "status"=>"Success"];		
+	}
+
+	public function updatePic(Request $request){
+		if(!$request->has('idx')){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
+		}
+		$user = User::where("id", $request->idx)->first();
+		if($user->id !== Auth::user()->id){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
+		}
+		$oldfilename = $user->mypic;
+		$repos_dir = CmsEnv::where("var_key", "storage")->first()->var_value;
+		$userpic_dir = $repos_dir.'/userpic/';
+		$userpic_dir = preg_replace("/\/+/","/",$userpic_dir);
+
+		$file = $request->file("file");
+		$filename = $file->store($userpic_dir, 'root');
+		$filename = "/".$filename;
+		$filename = preg_replace("/\/+/","/",$filename);
+		$filename = str_replace($userpic_dir,"",$filename);
+
+		$user->mypic = $filename;
+		$user->save();
+		if(isset($oldfilename)){
+			unlink($userpic_dir.$oldfilename);
+		}
+		return ["message"=>"success", "status"=>"success"];
+	}
+
+	public function showPic($filename){
+		$path = CmsEnv::where("var_key","storage")->first();
+		if($path !== null){
+			$path = $path->var_value.'/userpic';
+		}else{
+			abort(404);
+		}
+		$path = $path."/".$filename;
+		$path = preg_replace("/\/+/","/",$path);
+Log::debug($path);
+		if (!is_file($path)) {
+			abort(404);
+		}
+		$file = File::get($path);
+		$type = File::mimeType($path);
+		$response = Response::make($file, 200);
+		$response->header("Content-Type", $type);
+		return $response;
+	}
+	public function genKey(Request $request){
+		function make_rand($len){
+			$str="1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			$text="";
+			for($i=0; $i<$len; $i++){
+				$text.=$str[rand(0,61)];
+			}
+			return $text;
+		}
+		if(!$request->has('idx')){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
+		}
+		$user = User::where("id", $request->idx)->first();
+		if($user->id !== Auth::user()->id){
+			return ["message"=>"Invalid User", "status"=>"Fail"];
+		}
+		if(!$request->has('my_password')){
+			return ["message"=>"No password entered.", "status"=>"Fail"];
+		}
+		if(!Hash::check($request->my_password, $user->password)){
+			return ["message"=>"Invalid password entered.", "status"=>"Fail"];
+		}
+		$user->verification_code = make_rand(25);
+		$user->save();
+		return ["message"=>$user->verification_code,"status"=>"Success"];
 	}
 }

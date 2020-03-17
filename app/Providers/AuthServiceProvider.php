@@ -3,37 +3,37 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Plugin;
+use App\Page;
+use App\Repository;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The policy mappings for the application.
-     *
-     * @var array
-     */
-    protected $policies = [
-        'App\Model' => 'App\Policies\ModelPolicy',
-	'App\PageModel' => 'App\Policies\DataPolicy',
-	'App\PluginModel' => 'App\Policies\DataPolicy',
-	'App\SolverModel' => 'App\Policies\SolverPolicy',
-	'App\Repository' => 'App\Policies\RepoPolicy',
-	'App\JobModel' => 'App\Policies\JobPolicy',
-	'App\User' => 'App\Policies\UserPolicy',
-    ];
+	/**
+	 * The policy mappings for the application.
+	 *
+	 * @var array
+	 */
+	protected $policies = [
+		'App\Plugin' => 'App\Policies\PluginPolicy',
+		'App\Solver' => 'App\Policies\SolverPolicy',
+		'App\Repository' => 'App\Policies\RepositoryPolicy',
+		'App\Page' => 'App\Policies\PagePolicy',
+		'App\Job' => 'App\Policies\JobPolicy',
+		'App\User' => 'App\Policies\UserPolicy',
+		// 'App\Model' => 'App\Policies\ModelPolicy',
+	];
 
-    /**
-     * Register any authentication / authorization services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->registerPolicies();
-        //
-	Gate::define('enter-adminpage',function($user){
-		return ($user->policy=="admin" || $user->policy == "editor");
-	});
-    }
+	/**
+	 * Register any authentication / authorization services.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		$this->registerPolicies();
+
+		//
+	}
 }
