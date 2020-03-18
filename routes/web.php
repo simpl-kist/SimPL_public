@@ -86,3 +86,4 @@ Route::group(['prefix'=>'repos'],function(){
 Route::get('/{page?}','PageController@openPage');
 //git reset test
 //git reset test2
+//git reset test3
