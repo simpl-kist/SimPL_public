@@ -2,6 +2,7 @@
 <?php
 use App\CmsEnv;
 use App\Repository;
+$env = CmsEnv::where('var_key', 'logo')->first();
 ?>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -41,7 +42,15 @@ use App\Repository;
 <body>
     <div style="position:absolute; left:0; right:0; top:0; bottom: 0; height:400px; margin:auto; text-align:center;">
 		<a href="{{url('/')}}">
-			<img src="{{asset('/img/simpl_logo.png')}}" style="width:300px;">
+@if(isset($env) && $env->var_value !== "")
+<?php
+$filename = "/img/simpl_logo.png";
+$filename=$env->var_value;
+?>
+			<img src="{{$filename}}" style="width:300px;">
+@else
+			<img src="/img/simpl_logo.png" style="width:300px;">
+@endif
 		</a>
         <main class="py-4">
 			<div class="justify-content-center" style="width:700px; margin:auto;">
