@@ -83,4 +83,5 @@ Route::group(['prefix'=>'repos'],function(){
 });
 */
 
+Route::post('/simulation/txtDownloader','PlatformController@downloadTxt');
 Route::get('/{page?}','PageController@openPage');

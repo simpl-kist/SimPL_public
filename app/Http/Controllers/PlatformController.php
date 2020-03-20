@@ -139,7 +139,7 @@ class PlatformController extends Controller
 	public function backup(Request $request){
 		$env = $this->getEnvironment();
 		$tmpfolder = md5(now());
-		mkdir("/SimPL/".$tmpfolder);
+		mkdir("/data/SimPL/".$tmpfolder);
 		$user=escapeshellcmd(env('DB_USERNAME'));
 		$pass=escapeshellcmd(env('DB_PASSWORD'));
 		$db=escapeshellcmd(env('DB_DATABASE'));
@@ -159,12 +159,17 @@ class PlatformController extends Controller
 				case "user":
 					$target_table="users password_resets";
 					$zip = new ZipArchive;
-					$res = $zip->open("/SimPL/".$tmpfolder."/users.zip", ZipArchive::CREATE);
+					$res = $zip->open("/data/SimPL/".$tmpfolder."/users.zip", ZipArchive::CREATE);
 					if($res === TRUE){
 						$userpic = User::get(['mypic']);
 						for($j=0 ; $j<count($userpic) ; $j++){
 							if(is_file($env["storage"]."/userpic/".$userpic[$j]->mypic)){
-								$zip->addFile($env["storage"]."/userpic/".$userpic[$j]->mypic, $userpic[$j]->mypic);
+								$pic = $userpic[$j]->mypic;
+								$pic = preg_replace("/\/+/", "/", $pic);
+								if($pic[0] === "/"){
+									$pic = substr($pic, 1);
+								}
+								$zip->addFile($env["storage"]."/userpic/".$userpic[$j]->mypic, $pic);
 							}
 						}
 						$zip->close();
@@ -187,11 +192,16 @@ class PlatformController extends Controller
 				case "repository":
 					$target_table="repositories";
 					$zip = new ZipArchive;
-					$res = $zip->open("/SimPL/".$tmpfolder."/repository.zip", ZipArchive::CREATE);
+					$res = $zip->open("/data/SimPL/".$tmpfolder."/repository.zip", ZipArchive::CREATE);
 					if($res === TRUE){
 						$repos = Repository::get();
 						for($j=0 ; $j<count($repos) ; $j++){
-							$zip->addFile($env["storage"]."/".$repos[$j]->filename, $repos[$j]->filename);
+							$fname = $repos[$j]->filename;
+							$fname = preg_replace("/\/+/", "/", $fname);
+							if($fname[0] === "/"){
+								$fname = substr($fname, 1);
+							}
+							$zip->addFile($env["storage"]."/".$repos[$j]->filename, $fname);
 						}
 						$zip->close();
 					}else{
@@ -202,37 +212,37 @@ class PlatformController extends Controller
 			}
 			$tables.=$target_table." ";
 		}
-		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' '.$tables.' > /SimPL/'.$tmpfolder.'/'.$filename);
-		$file_name = "/SimPL/backup-".(now()->format('Y-m-d_H-i-s')).".simplbk";
+		exec('mysqldump --user='.$user.' --password='.$pass." ".$db.' '.$tables.' > /data/SimPL/'.$tmpfolder.'/'.$filename);
+		$file_name = "/data/SimPL/backup-".(now()->format('Y-m-d_H-i-s')).".simplbk";
 		$zip2 = new ZipArchive;
 		$res2 = $zip2->open($file_name, ZipArchive::CREATE);
 		if($res2 === TRUE){
-			if(is_file("/SimPL/".$tmpfolder."/repository.zip")){
-				$zip2->addFile("/SimPL/".$tmpfolder."/repository.zip", "repository.zip");
+			if(is_file("/data/SimPL/".$tmpfolder."/repository.zip")){
+				$zip2->addFile("/data/SimPL/".$tmpfolder."/repository.zip", "repository.zip");
 			}
-			if(is_file("/SimPL/".$tmpfolder."/users.zip")){
-				$zip2->addFile("/SimPL/".$tmpfolder."/users.zip", "users.zip");
+			if(is_file("/data/SimPL/".$tmpfolder."/users.zip")){
+				$zip2->addFile("/data/SimPL/".$tmpfolder."/users.zip", "users.zip");
 			}
 
-			$zip2->addFile("/SimPL/".$tmpfolder."/".$filename, $filename);
+			$zip2->addFile("/data/SimPL/".$tmpfolder."/".$filename, $filename);
 			$zip2->close();
 		}
-		if(is_file("/SimPL/".$tmpfolder."/repository.zip")){
-			unlink("/SimPL/".$tmpfolder."/repository.zip");
+		if(is_file("/data/SimPL/".$tmpfolder."/repository.zip")){
+			unlink("/data/SimPL/".$tmpfolder."/repository.zip");
 		}
-		if(is_file("/SimPL/".$tmpfolder."/users.zip")){
-			unlink("/SimPL/".$tmpfolder."/users.zip");
+		if(is_file("/data/SimPL/".$tmpfolder."/users.zip")){
+			unlink("/data/SimPL/".$tmpfolder."/users.zip");
 		}
 
-		unlink("/SimPL/".$tmpfolder."/".$filename);
-		rmdir("/SimPL/".$tmpfolder);
+		unlink("/data/SimPL/".$tmpfolder."/".$filename);
+		rmdir("/data/SimPL/".$tmpfolder);
 		return response()->download($file_name)->deleteFileAfterSend(true);
 	}
 	public function recover(Request $request){
 		$file = $request->file("file");
-		$tmpfolder = "/SimPL/recover/".md5(now());
+		$tmpfolder = "/data/SimPL/recover/".md5(now());
 		while(is_dir($tmpfolder)){
-			$tmpfolder = "/SimPL/recover/".md5(now());
+			$tmpfolder = "/data/SimPL/recover/".md5(now());
 		}
 		mkdir($tmpfolder);
 		$file->storeAs($tmpfolder, "recover.zip", 'root');
@@ -270,6 +280,29 @@ class PlatformController extends Controller
 		if($res === TRUE){
 			$zip->extractTo($env["storage"]."/".$sub);
 			$zip->close();
+		}
+	}
+	public function downloadTxt(Request $request){
+
+		$filename = "";
+		$content = "";
+		if(isset($request->filename)){
+			$filename = $request->filename;
+		}
+		if(isset($request->content)){
+			$content = $request->content;
+		}
+		if($filename === "" || $content === ""){
+			return;
+		}else{
+			Header("Content-Length: ".strlen($content));
+			Header("content-Disposition: attachment; filename=$filename");
+			Header("Content-type: text/plain");
+
+			Header("Pragma: no-cache");
+			Header("Expires: 0");
+			echo $content;
+			exit();
 		}
 	}
 }

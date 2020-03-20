@@ -69,6 +69,8 @@ def register(username, remocon_url):
   if not os.path.isdir("/data/jobs"):
     subprocess.check_output("mkdir /data/jobs", shell=True)
   subprocess.check_output("chown SimPL.SimPL /data/jobs/ -R", shell=True)
+  if not os.path.isdir("/data/SimPL"):
+    subprocess.check_output("mkdir /data/SimPL", shell=True)
   if not os.path.isdir("/data/repos"):
     subprocess.check_output("mkdir /data/repos", shell=True)
   if not os.path.isdir("/data/repos/web"):
