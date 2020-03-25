@@ -174,8 +174,12 @@ class PluginController extends Controller
 		$s[] = 'NPROCS=`cat $PBS_NODEFILE|wc -l`';
 		$s[] = 'cd $PBS_O_WORKDIR';
 		$s[] = '"""';
+		$s[] = '	if \'pre\' in params:';
+		$s[] = '		pbsscript=pbsscript+"\n"+params[\'pre\']';
 		$s[] = '	if params[\'mpi\']:';
 		$s[] = '		pbsscript=pbsscript+"\n'.$this->env['mpirun'].'"+" -machinefile $PBS_NODEFILE -np $NPROCS "';
+		$s[] = '	else:';
+		$s[] = '		pbsscript=pbsscript+"\n"';
 		$s[] = '	pbsscript = pbsscript+params[\'solverExec\']+" > stdout 2>&1"';
 		$s[] = '	pbsscript = pbsscript+"\ntouch finished"';
 		$s[] = '	f.write(pbsscript)';

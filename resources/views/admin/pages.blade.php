@@ -894,11 +894,13 @@ if($footer!==null){
 		}else if(e.keyCode === 83){
 			if(ctrlpressed){
 				savePage();
+				ctrlpressed = false;
 				e.preventDefault();
 			}
 		}else if(e.keyCode === 69){
 			if(ctrlpressed){
 				openPage();
+				ctrlpressed = false;
 				e.preventDefault();
 			}
 		}

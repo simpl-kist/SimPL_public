@@ -271,11 +271,13 @@
 		}else if(e.keyCode === 83){
 			if(ctrlpressed){
 				savePlugin();
+				ctrlpressed = false;
 				e.preventDefault();
 			}
 		}else if(e.keyCode === 69){
 			if(ctrlpressed){
 				testPlugin();
+				ctrlpressed = false;
 				e.preventDefault();
 			}
 		}
@@ -538,14 +540,14 @@
 		var type = $(".plugin_type").find("option:selected").val();
 		var script = scriptEditor.getValue();
 		var testinput = $(".testinput").val().trim();
-        if(testinput !== ""){
-            try{
-                testinput = JSON.stringify(JSON.parse(testinput.replace(/\n/gi,"\\n"))).replace(/\n/gi,"\\n");
-            }catch(e){
-                alert("Wrong test input");
-                return;
-            }
-        }
+		if(testinput !== ""){
+			try{
+				testinput = JSON.stringify(JSON.parse(testinput.replace(/\n/gi,"\\n"))).replace(/\n/gi,"\\n");
+			}catch(e){
+				alert("Wrong test input");
+				return;
+			}
+		}
 		$.ajax({
 			type:"post",
 			dataType:"json",
