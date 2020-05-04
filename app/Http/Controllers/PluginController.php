@@ -590,5 +590,21 @@ class PluginController extends Controller
 			return "File does not exist.";
 		}
 	}
+	public function changeOwner(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		$plugin = Plugin::where("id",$idx)->first();
+
+		if($plugin === null){
+			return ["message" => "Invalid plugin", "status"=>"Fail"];
+		}
+		if(!$user->can('update', $plugin)){
+			return ["message" => "No permission", "status"=>"Fail"];
+		}
+		$plugin->author = $request->nowner;
+		$plugin->save();
+		return ["message" =>$plugin->id,"status"=>"Success"];
+
+	}
 }
 

@@ -282,4 +282,19 @@ class PageController extends Controller
 		}
 	}
 
+	public function changeOwner(Request $request){
+		$user = Auth::user();
+		$idx = $request->idx;
+		$page = Page::where("id",$idx)->first();
+
+		if($page === null){
+			return ["message" => "Invalid page", "status"=>"Fail"];
+		}
+		if(!$user->can('update', $page)){
+			return ["message" => "No permission", "status"=>"Fail"];
+		}
+		$page->author = $request->nowner;
+		$page->save();
+		return ["message" =>$page->id,"status"=>"Success"];
+	}
 }

@@ -24,6 +24,7 @@ Route::group(['prefix'=>'admin','middleware'=>['auth', 'onlyEditor']], function(
 		Route::post('/save','PluginController@savePlugin');
 		Route::post('/delete','PluginController@deletePlugin');
 		Route::post('/test','PluginController@runPlugin');
+		Route::post('/changeOwner','PluginController@changeOwner');
 	});
 	Route::group(['prefix'=>'pages'], function(){
 		Route::get('/','ViewController@pages');
@@ -32,6 +33,7 @@ Route::group(['prefix'=>'admin','middleware'=>['auth', 'onlyEditor']], function(
 		Route::post('/save','PageController@savePage');
 		Route::post('/delete','PageController@deletePage');
 		Route::post('/front','PageController@makeFront');
+		Route::post('/changeOwner','PageController@changeOwner');
 	});
 	Route::group(['prefix'=>'users', 'middleware'=>['onlyAdmin']], function(){
 		Route::get('/','ViewController@users');
@@ -84,4 +86,5 @@ Route::group(['prefix'=>'repos'],function(){
 */
 
 Route::post('/simulation/txtDownloader','PlatformController@downloadTxt');
+Route::post('/utils/txtDownloader','PlatformController@downloadTxt');
 Route::get('/{page?}','PageController@openPage');

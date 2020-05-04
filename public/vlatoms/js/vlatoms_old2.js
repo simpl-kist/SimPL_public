@@ -2,25 +2,25 @@
 
 var timeCheckArr = [];
 (function() {
-	var method;
-	var noop = function () {};
-	var methods = [
-		'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-		'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-		'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-		'timeStamp', 'trace', 'warn'
-	];
-	var length = methods.length;
-	var console = (window.console = window.console || {});
+    var method;
+    var noop = function () {};
+    var methods = [
+        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+        'timeStamp', 'trace', 'warn'
+    ];
+    var length = methods.length;
+    var console = (window.console = window.console || {});
 
-	while (length--) {
-		method = methods[length];
+    while (length--) {
+        method = methods[length];
 
-		// Only stub undefined methods.
-		if (!console[method]) {
-			console[method] = noop;
-		}
-	}
+        // Only stub undefined methods.
+        if (!console[method]) {
+            console[method] = noop;
+        }
+    }
 }());
 
 //Get Path of this file
@@ -30,7 +30,7 @@ if(document.currentScript){
 	VLATOMS_PATH = document.currentScript.src;
 }else{
 	var scripts = document.getElementsByTagName('script');
-	VLATOMS_PATH = scripts[scripts.length-1].src;
+    VLATOMS_PATH = scripts[scripts.length-1].src;
 }
 if(VLATOMS_PATH=="" || VLATOMS_PATH == undefined){
 	console.warn("Path is not defined");
@@ -136,29 +136,29 @@ var VLatoms = function(option){
 		atomDetailBox.insertAfter(target);
 		target.empty();
 		for(var i in elementsList){
-			target.append("<div class='atom_design_config' data-element="+elementsList[i]+" data-index="+i+" style='display:inline-block; width:33%'><label><input checked type=checkbox class='atom_toggle' data-element="+elementsList[i]+"><span style='margin:0 4px;'>"+elementsList[i]+"</span></label><span class='fas fa-caret-down atom_design_toggle' style='cursor:pointer;color:#999;'></span></div>");
+			target.append("<div class='atom_design_config' data-element="+elementsList[i]+" data-index="+i+" style='display:inline-block; width:33%'><label><input checked type=checkbox class='atom_toggle' data-element="+elementsList[i]+"><span style='margin:0 4px;'>"+elementsList[i]+"</span></label><span class='glyphicon glyphicon-triangle-bottom atom_design_toggle' style='cursor:pointer;color:#999;'></span></div>");
 		}
 //		target.children('div').css('width','33%');
 
 
 		v.ctxMenu.find('.atom_design_toggle').bind('click',function(){
-			if($(this).hasClass('fa-caret-up')){
-				$(this).addClass('fa-caret-down');
-				$(this).removeClass('fa-caret-up');
+			if($(this).hasClass('glyphicon-triangle-top')){
+				$(this).addClass('glyphicon-triangle-bottom');
+				$(this).removeClass('glyphicon-triangle-top');
 				atomDetailBox.hide();
 				return true;
 			} else {
 				let toggleList = v.ctxMenu.find('.atom_design_toggle');	
 				//다른 원소가 먼저 선택되어 있으면 세모 닫기
 				toggleList.each(function(){
-					if($(this).hasClass('fa-caret-up')){
-						$(this).addClass('fa-caret-down');
-						$(this).removeClass('fa-caret-up');
+					if($(this).hasClass('glyphicon-triangle-top')){
+						$(this).addClass('glyphicon-triangle-bottom');
+						$(this).removeClass('glyphicon-triangle-top');
 					}
 				});
 				//세모 열기
-				$(this).addClass('fa-caret-up');
-				$(this).removeClass('fa-caret-down');
+				$(this).addClass('glyphicon-triangle-top');
+				$(this).removeClass('glyphicon-triangle-bottom');
 
 				//detail box 값 입력
 				let thisElement = $(this).parent().data('element');
@@ -210,7 +210,7 @@ var VLatoms = function(option){
 		
 		//apply old detail box status
 		if(detailBoxDisplay != 'none'){
-			target.find('.atom_design_config[data-element="'+detailBoxElement+'"]').find('.fa-caret-down').click();
+			target.find('.atom_design_config[data-element="'+detailBoxElement+'"]').find('.glyphicon-triangle-bottom').click();
 			v.ctxMenu.find('.element_radius').focus();
 		}
 		
@@ -373,7 +373,7 @@ var VLatoms = function(option){
 		$(v.wrapper).append('<div class="VLScreen_selectInfo" style="position: absolute; font-size: 9px; left: 0.5em; top: 0.5em; width: 160px; height: 55px; text-align: left;"></div>');
 	
 
-		$(v.wrapper).append('<div class="VLScreen_listInfo" style="position: absolute; font-size: 9px; right: 0.5em; top: 0.5em; width: 160px; height: 55px; text-align: right;"><i class="fas fa-list-ul structure_list_info" style="font-size:15px;"></i></div>');
+		$(v.wrapper).append('<div class="VLScreen_listInfo" style="position: absolute; font-size: 9px; right: 0.5em; top: 0.5em; width: 160px; height: 55px; text-align: right;"><i class="glyphicon glyphicon-list structure_list_info" style="font-size:15px;"></i></div>');
 		v.strInfoWrapper=$(v.wrapper).find(".VLScreen_listInfo");
 		if(!v.option.strListInfo){
 			v.strInfoWrapper.hide();
@@ -387,7 +387,7 @@ var VLatoms = function(option){
 		v.showStructureList=function(){
 			var p_target=$(v.wrapper).parents(".visualizer_wrapper");
 			if(v.structureListWrapper===undefined){
-				p_target.append("<div class=strlist_wrapper><label>Structure List</label><i style='float:right;cursor:pointer;' class='fas fa-play strlist_slide_start'></i><i style='float:right;cursor:pointer;display:none;' class='fas fa-pause strlist_slide_stop'></i><table class=table><thead><tr><th>Name</th><th>Formula</th><th>a</th><th>b</th><th>c</th><th></th></tr></thead><tbody></tbody></table></div>");
+				p_target.append("<div class=strlist_wrapper><label>Structure List</label><i style='float:right;cursor:pointer;' class='glyphicon glyphicon-play strlist_slide_start'></i><i style='float:right;cursor:pointer;display:none;' class='glyphicon glyphicon-pause strlist_slide_stop'></i><table class=table><thead><tr><th>Name</th><th>Formula</th><th>a</th><th>b</th><th>c</th><th></th></tr></thead><tbody></tbody></table></div>");
 				v.structureListWrapper=p_target.find(".strlist_wrapper");
 				if(v.option.strListDel){
 					v.structureListWrapper.find("tbody").sortable({
@@ -445,7 +445,7 @@ var VLatoms = function(option){
 					str_str.a[j]=str_str.a[j].toFixed(2)*1;
 					str_str.b[j]=str_str.b[j].toFixed(2)*1;
 					str_str.c[j]=str_str.c[j].toFixed(2)*1;
-				}
+                }
 				let str_formula=VLatoms.Utils.Structure.toFormula(str_str);
 				var ih="";
 				ih+="<tr class='strlist_tr "+(v.strNum===i?"selected_strlist":"")+"' data-idx="+i+">";
@@ -455,14 +455,14 @@ var VLatoms = function(option){
 				ih+="<td>"+str_str.b.join("<br>")+"</td>";
 				ih+="<td>"+str_str.c.join("<br>")+"</td>";
 				if(v.option.strListDel){
-					ih+="<td><i style='color:red;cursor:pointer;' class='fas fa-minus-circle delete_str_list'></i></td>";
+					ih+="<td><i style='color:red;cursor:pointer;' class='glyphicon glyphicon-minus-sign delete_str_list'></i></td>";
 				}else{
 					ih+="<td></td>";
 				}
 				ih+="</tr>";
 				v.structureListWrapper.find("table>tbody").append(ih);
 			}
-			v.structureListWrapper.find("table>tbody").append("<tr data-idx=-1><td colspan=6 style='text-align:center;'><i style='color:green;font-size:20px;' class='fas fa-plus-circle add_str_list'></i></td></tr>");
+			v.structureListWrapper.find("table>tbody").append("<tr data-idx=-1><td colspan=6 style='text-align:center;'><i style='color:green;font-size:20px;' class='glyphicon glyphicon-plus-sign add_str_list'></i></td></tr>");
 			v.structureListWrapper.find("table>tbody").find(".delete_str_list").click(function(e){
 				let _idx=$(this).parents("tr").data('idx');
 				v.removeStrlist(_idx);
@@ -848,9 +848,6 @@ v.controls.visualizer=v;
 					case 'element':
 						target.html(_t+"Select mode - Element<br>");
 						break;
-					case 'hex':
-						target.html(_t+"Select mode - Hexagon<br>");
-						break;
 					case 'lasso':
 						target.html(_t+"Select mode - Lasso<br>");
 						break;
@@ -871,7 +868,7 @@ v.controls.visualizer=v;
 				});
 				target.find('.VLatoms_mobile_delete').unbind();
 				target.find('.VLatoms_mobile_delete').bind("click",function(){
-							v.manipulateAtom.removeSelectedAtoms();
+                            v.manipulateAtom.removeSelectedAtoms();
 				});
 
 				var _selected_atoms=[];
@@ -1026,7 +1023,7 @@ v.controls.visualizer=v;
 				args.gofr = false;
 			}
 			var epsinv = 1/4*3.1415926535*0.1;
-			if(!v.option.bonds || v.Structure.atoms.length > 500){
+			if(!v.option.bonds){
 				v.clear.bondsInScene();
 				this.bondsChanged = false;
 				return;
@@ -1193,7 +1190,7 @@ v.controls.visualizer=v;
 					if( myy == bin_ny ) myy--;
 					if( myz == bin_nz ) myz--;
 					var binidx =   myx * bin_ny * bin_nz
-								 + myy * bin_nz
+							     + myy * bin_nz
 								 + myz;
 					v.Structure.bin[binidx].push( i );
 					ca.bin = [ myx, myy, myz ];
@@ -1410,45 +1407,45 @@ v.controls.visualizer=v;
 			v.Axis.push(a0_cone);
 			v.Axis.push(b0_cone);
 			v.Axis.push(c0_cone);
-			if(v.camera.type === "OrthographicCamera"){
-				for(let i=0;i<v.Axis.length;i++){
-					v.scene.add(v.Axis[i]);
-					v.set.toSceneCenter( v.Axis[i] );
-				}
-			}else{
+            if(v.camera.type === "OrthographicCamera"){
+                for(let i=0;i<v.Axis.length;i++){
+                    v.scene.add(v.Axis[i]);
+                    v.set.toSceneCenter( v.Axis[i] );
+                }
+            }else{
 				let vls_ratio=v.wrapper.offsetHeight/600;
-				let __pos_x=(v.wrapper.offsetWidth-120*vls_ratio)/v.wrapper.offsetWidth;
-				let __pos_y=(v.wrapper.offsetHeight-120*vls_ratio)/v.wrapper.offsetHeight;
-				let vector = new THREE.Vector3( -1*__pos_x, -1*__pos_y, 0.5 );
+                let __pos_x=(v.wrapper.offsetWidth-120*vls_ratio)/v.wrapper.offsetWidth;
+                let __pos_y=(v.wrapper.offsetHeight-120*vls_ratio)/v.wrapper.offsetHeight;
+                let vector = new THREE.Vector3( -1*__pos_x, -1*__pos_y, 0.5 );
 //왼쪽하단offset을 vector화
 
-				v.camera.updateMatrixWorld(true);
+                v.camera.updateMatrixWorld(true);
 
-				vector.unproject( v.camera );
-				let raycaster = new THREE.Raycaster( v.camera.position, vector.sub( v.camera.position ).normalize() );
-				var z_shift=-1000/v.camera.fov;
+                vector.unproject( v.camera );
+                let raycaster = new THREE.Raycaster( v.camera.position, vector.sub( v.camera.position ).normalize() );
+                var z_shift=-1000/v.camera.fov;
 
-				var target_pos=new THREE.Vector3(raycaster.ray.origin.x-raycaster.ray.direction.x*z_shift,raycaster.ray.origin.y-raycaster.ray.direction.y*z_shift,raycaster.ray.origin.z-raycaster.ray.direction.z*z_shift);
+                var target_pos=new THREE.Vector3(raycaster.ray.origin.x-raycaster.ray.direction.x*z_shift,raycaster.ray.origin.y-raycaster.ray.direction.y*z_shift,raycaster.ray.origin.z-raycaster.ray.direction.z*z_shift);
 //camera위치에서 목표지점으로 z_shift만큼 이동
-				let _shift_value=target_pos.applyMatrix4(v.camera.matrixWorldInverse);
-				let x_shift=_shift_value.x;
-				let y_shift=_shift_value.y;
-				v.Axis.Box = new THREE.Object3D();
-				v.Axis.Box.position.x=x_shift;
-				v.Axis.Box.position.y=y_shift;
-				v.Axis.Box.position.z=z_shift;
-				for(let i=0;i<v.Axis.length;i++){
-					v.Axis.Box.add(v.Axis[i]);
-				}
+                let _shift_value=target_pos.applyMatrix4(v.camera.matrixWorldInverse);
+                let x_shift=_shift_value.x;
+                let y_shift=_shift_value.y;
+                v.Axis.Box = new THREE.Object3D();
+                v.Axis.Box.position.x=x_shift;
+                v.Axis.Box.position.y=y_shift;
+                v.Axis.Box.position.z=z_shift;
+                for(let i=0;i<v.Axis.length;i++){
+                    v.Axis.Box.add(v.Axis[i]);
+                }
 				var geometry = new THREE.SphereGeometry( 0.25,16,16 );
 				var material = new THREE.MeshPhongMaterial({ reflectivity : 1.00 ,specular : 0x666666, shininess : 100, color : 0xdedede });
 				var sphere = new THREE.Mesh( geometry, material );
 				v.Axis.Box.add(sphere);
-				v.Axis.Box.rotateZ(-1*v.camera.rotation._z);
-				v.Axis.Box.rotateY(-1*v.camera.rotation._y);
-				v.Axis.Box.rotateX(-1*v.camera.rotation._x);
-				v.camera.add(v.Axis.Box);
-			}
+                v.Axis.Box.rotateZ(-1*v.camera.rotation._z);
+                v.Axis.Box.rotateY(-1*v.camera.rotation._y);
+                v.Axis.Box.rotateX(-1*v.camera.rotation._x);
+                v.camera.add(v.Axis.Box);
+            }
 //		return VLatoms.Math.vecdotmat( latvec, VLatoms.Math.random3() );
 
 				
@@ -1838,12 +1835,12 @@ if( navigator.userAgent.match(/Android/i)
 		generateCtxMenu : function(){
 			var randno =(Math.random()*10000000).toFixed(0); 
 			var ctxmenu="";
-				ctxmenu+="<div id=VLAtomsCtx"+randno+" class=VLMessage style='width:280px;'><table class=VLMTable style='height:100%;width:100%;'>";
+				ctxmenu+="<div id=VLAtomsCtx"+randno+" class=VLMessage style='width:285px;'><table class=VLMTable style='height:100%;'>";
 //				ctxmenu+="<thead class=VLMHeader><tr><td>Display Config</td></tr></thead>";
 				ctxmenu+="<tbody class=VLMBody><tr><td>";
 		ctxmenu+="<ul class='nav nav-tabs' role=tablist>";
-		ctxmenu+="<li role=presentation class='nav-item'><a class='nav-link active' href=#VLCtx"+randno+"_display aria-controls=VLCtx"+randno+"_display role=tab data-toggle=tab style='color:black;background-color:inherit;'>Display</a></li>";
-		ctxmenu+="<li role=presentation class='nav-item'><a class='nav-link' href=#VLCtx"+randno+"_measure aria-controls=VLCtx"+randno+"_measure role=tab data-toggle=tab style='color:black;background-color:inherit;'>Measure</a></li>";
+		ctxmenu+="<li role=presentation class=active><a href=#VLCtx"+randno+"_display aria-controls=VLCtx"+randno+"_display role=tab data-toggle=tab>Display</a></li>";
+		ctxmenu+="<li role=presentation><a href=#VLCtx"+randno+"_measure aria-controls=VLCtx"+randno+"_measure role=tab data-toggle=tab>Measure</a></li>";
 		ctxmenu+="</ul>";
 
 		ctxmenu+="<div class=tab-content>";
@@ -1857,39 +1854,39 @@ if( navigator.userAgent.match(/Android/i)
 				ctxmenu+="<input id='backgroundcolor"+randno+"' class='form-control backgroundcolor ' style='width:130px;' type=text value='"+v.option.backgroundcolor.toString(16)+"'>";
 				ctxmenu+="	<div style='display:inline;font-size:27px;margin-left:-30px;margin-top:-2px;'><button id='backgroundcolor_pick"+randno+"' style='width:20px; height:20px; border:#ccc solid 1px;'></button></div>";
 				ctxmenu+="</div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt' data-option='perspective' style='display:inline-block;'><label style='width:95px; display:inline-block;'><a href=javascript:;>Perspective</a></label></div>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt' data-option='perspective' style='display:inline-block;'><label style='width:95px;'><a href=javascript:;>Perspective</a></label></span>";
 				ctxmenu+="<input class='form-control fov' style='width:130px;' type=range min=1 max=90 value="+v.camera.fov+"></div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt ' data-option='atoms' style='display:inline-block;'><label style='width:40px; display:inline-block;'><a href=javascript:;>Atom</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='atom_design_config_wrapper' style='margin-right:41px;'></span>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt ' data-option='atoms' style='display:inline-block;'><label style='width:40px;'><a href=javascript:;>Atom</a></label></span>";
+				ctxmenu+="<span class='glyphicon glyphicon-triangle-bottom sub_option_toggle' data-toggletarget='atom_design_config_wrapper' style='margin-right:41px;'></span>";
 				ctxmenu+="<input class='form-control atom_radius' style='width:130px;' type=range min=0.01 step=0.01 max=2 value="+v.option.radius.atom+"></div>";
 				ctxmenu+="<div style='padding:0 40px; display:none;' class='atom_design_config_wrapper'></div>";
 				ctxmenu+="<div class='atom_design_detail' data-targetelement='' style='margin-top:-10px;display:none;'>";
 				ctxmenu+="	<div style='display:flex;'><span style='width:54px;'>Color</span><input type='text' id='element_color"+randno+"' class='form-control element_color' style='display:inline; width:110px;'><div style='display:inline;font-size:27px;margin-left:-30px;margin-top:-2px;'><button id='element_color_pick"+randno+"' style='width: 20px; height: 20px; border: 1px solid rgb(204, 204, 204);'></button></div></div>";
 				ctxmenu+="	<div style='display:flex;'><span style='width:54px;'>Radius</span><input type='number' step='0.1' min='0' max='5' class='form-control element_radius' style='display:inline; width:110px;'></div>";
 				ctxmenu+="</div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt' data-option='bonds' style='display:inline-block;'><label style='width:40px; display:inline-block;'><a href=javascript:;>Bond</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='bondpairs' style='margin-right:41px;'></span>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt' data-option='bonds' style='display:inline-block;'><label style='width:40px;'><a href=javascript:;>Bond</a></label></span>";
+				ctxmenu+="<span class='glyphicon glyphicon-triangle-bottom sub_option_toggle' data-toggletarget='bondpairs' style='margin-right:41px;'></span>";
 				ctxmenu+="<input class='form-control bond_radius' style='width:130px;' type=range min=0.01 step=0.01 max=1 value="+v.option.radius.bond+"></div>";
 				ctxmenu+="<div style='padding:0 35px; display:none;' class='bondpairs'></div>";
 //Shift
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt ' data-option='shift' style='display:inline-block;'><label style='width:65px;display:inline-block;'><a href=javascript:;>Shift</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='shift' style='margin-right:41px;'></span>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt ' data-option='shift' style='display:inline-block;'><label style='width:65px;'><a href=javascript:;>Shift</a></label></span>";
+				ctxmenu+="<span class='glyphicon glyphicon-triangle-bottom sub_option_toggle' data-toggletarget='shift' style='margin-right:41px;'></span>";
 				ctxmenu+="</div>";
 				ctxmenu+="<div style='display:none;margin-left:16px;' class='shift'>";
 				ctxmenu+="<div class='form-inline'><label style='width:45px;'>Value</label><input class='form-control cell_shift_x' style='width:45px;'><input class='form-control cell_shift_y' style='width:45px;'><input class='form-control cell_shift_z' style='width:45px;'>";
-				ctxmenu+="<button type='button' class='btn manipulator_ok shift_cell btn-success'><span class='fas fa-check' aria-hidden='true'></span></button>";
+				ctxmenu+="<button type='button' class='btn manipulator_ok shift_cell btn-success'><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>";
 				ctxmenu+="</div>";
 				ctxmenu+="<div class='form-inline'><a class='center_to_atom' href='javascript:;'>Pick center atom</a></div>";
 				ctxmenu+="<div class='form-inline'><a class='default_shift' href='javascript:;'>Default</a></div>";
 				ctxmenu+="</div>";
 
-				ctxmenu+="<div class=row><div class=col-6><span class='disp_option_toggle disp_toggle_swt' data-option='cell'><a href=javascript:;>Cell</a></span>";
+				ctxmenu+="<div class=row><div class=col-xs-6><span class='disp_option_toggle disp_toggle_swt' data-option='cell'><a href=javascript:;>Cell</a></span>";
 				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='cellInfo'><a href=javascript:;>Cell Info</a></span>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div class=col-6><span class='disp_option_toggle disp_toggle_swt' data-option='axis'><a href=javascript:;>Axis</a></span>";
+				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='cellInfoSpaceGroup'><a href=javascript:;>Space Group</a></span></div>";
+				ctxmenu+="<div class=col-xs-6><span class='disp_option_toggle disp_toggle_swt' data-option='axis'><a href=javascript:;>Axis</a></span>";
 				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='selectInfo'><a href=javascript:;>Select Info</a></span>";
 				ctxmenu+="</div></div>";
-				ctxmenu+="<div class=row><div class=col-12><span style='display:inline-block;width:115px;' class='disp_option_toggle disp_toggle_swt' data-option='ghosts'><a href=javascript:;>Ghosts</a></span>";
+				ctxmenu+="<div class=row><div class=col-xs-12><span style='display:inline-block;width:115px;' class='disp_option_toggle disp_toggle_swt' data-option='ghosts'><a href=javascript:;>Ghosts</a></span>";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=x>x ";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=y style='margin-left:10px;'>y ";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=z style='margin-left:10px;'>z ";
@@ -1898,35 +1895,35 @@ if( navigator.userAgent.match(/Android/i)
 				/*	schan	*/
 				ctxmenu+='<div class="form-inline">';
 				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="1" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light1</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
+				ctxmenu+='    <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='       <label style="width:42px; margin-left:-8px;">';
+				ctxmenu+='          <a href="javascript:;">Light1</a>';
+				ctxmenu+='       </label>';
+				ctxmenu+='    </span>';
+				ctxmenu+='    <span class="glyphicon glyphicon-triangle-bottom sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
 				ctxmenu+='	</div>';
 				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="2" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light2</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
+				ctxmenu+='    <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='       <label style="width:42px; margin-left:-8px;">';
+				ctxmenu+='          <a href="javascript:;">Light2</a>';
+				ctxmenu+='       </label>';
+				ctxmenu+='    </span>';
+				ctxmenu+='    <span class="glyphicon glyphicon-triangle-bottom sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
 				ctxmenu+='	</div>';
 				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="3" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light3</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
+				ctxmenu+='    <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='       <label style="width:42px; margin-left:-8px;">';
+				ctxmenu+='          <a href="javascript:;">Light3</a>';
+				ctxmenu+='       </label>';
+				ctxmenu+='    </span>';
+				ctxmenu+='    <span class="glyphicon glyphicon-triangle-bottom sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
 				ctxmenu+='	</div>';
 				ctxmenu+='</div>';
 				ctxmenu+='<div class="form-inline light_control_box" data-lightnumber="" style="display:none; padding:0 30px;">';
-				ctxmenu+=' 	<span class="fas fa-arrow-left light" data-arrow="left" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-right light" data-arrow="right" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-up light" data-arrow="top" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-down light" data-arrow="bottom" aria-hidden="true"></span>';
+				ctxmenu+=' 	<span class="glyphicon glyphicon-arrow-left light" data-arrow="left" aria-hidden="true"></span>';
+				ctxmenu+=' 	<span class="glyphicon glyphicon-arrow-right light" data-arrow="right" aria-hidden="true"></span>';
+				ctxmenu+=' 	<span class="glyphicon glyphicon-arrow-up light" data-arrow="top" aria-hidden="true"></span>';
+				ctxmenu+=' 	<span class="glyphicon glyphicon-arrow-down light" data-arrow="bottom" aria-hidden="true"></span>';
 				ctxmenu+='	<input class="form-control light" style="width:72px;" type="range" min="0.01" max="1.5" value="0.3" step="0.01">';
 				ctxmenu+='</div>';
 /*				ctxmenu+="<div style='width:200px;height:200px;margin-left:35px;border:solid 1px gray;position:relative;' class=lightpos_wrapper>";
@@ -1972,7 +1969,7 @@ if( navigator.userAgent.match(/Android/i)
 			v.ctxMenu = $('#VLAtomsCtx'+randno);
 			v.ctxMenu.data('randno',randno);
 			//css
-			v.ctxMenu.find('.light.fas').css('cursor','pointer');
+			v.ctxMenu.find('.light.glyphicon').css('cursor','pointer');
 			v.ctxMenu.find('.light').css('margin','0 5px');
 			v.ctxMenu.find('.shift_cell').click(function(){
 				let ex_shift=[v.option.shift_val[0], v.option.shift_val[1], v.option.shift_val[2]];
@@ -2334,13 +2331,13 @@ if( navigator.userAgent.match(/Android/i)
 console.log('toggle tar', toggleTarget);
 					//set actions
 					function toggle(_this){
-						if($(_this).hasClass('fa-caret-down')){
-							$(_this).addClass('fa-caret-up');
-							$(_this).removeClass('fa-caret-down');
+						if($(_this).hasClass('glyphicon-triangle-bottom')){
+							$(_this).addClass('glyphicon-triangle-top');
+							$(_this).removeClass('glyphicon-triangle-bottom');
 							v.ctxMenu.find('.'+toggleTarget).show();
 						} else {
-							$(_this).addClass('fa-caret-down');
-							$(_this).removeClass('fa-caret-up');
+							$(_this).addClass('glyphicon-triangle-bottom');
+							$(_this).removeClass('glyphicon-triangle-top');
 							v.ctxMenu.find('.'+toggleTarget).hide();
 						}
 					}
@@ -2360,10 +2357,10 @@ console.log('toggle tar', toggleTarget);
 						light_control_box : function(args){
 							let lightNumber = $(args._this).parent().data('lightnumber');
 							v.ctxMenu.find('.'+args.toggleTarget).data('lightnumber', lightNumber);
-							v.ctxMenu.find('.light_button_wrapper>.fas').each(function(){
-								if($(this).hasClass('fa-caret-up')){
-									$(this).addClass('fa-caret-down');
-									$(this).removeClass('fa-caret-up');
+							v.ctxMenu.find('.light_button_wrapper>.glyphicon').each(function(){
+								if($(this).hasClass('glyphicon-triangle-top')){
+									$(this).addClass('glyphicon-triangle-bottom');
+									$(this).removeClass('glyphicon-triangle-top');
 								}
 							});
 							v.ctxMenu.find('.light_control_box>input').val(v.option.light[lightNumber - 1].intensity);
@@ -2447,9 +2444,9 @@ console.log('toggle tar', toggleTarget);
 			},
 			load: function(args){
 				function getCookie(c_name){
-					var i,x,y,ARRcookies=document.cookie.split(";");
-					for (i=0;i<ARRcookies.length;i++)
-					{
+				    var i,x,y,ARRcookies=document.cookie.split(";");
+				    for (i=0;i<ARRcookies.length;i++)
+				    {
 				  	  x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
 				  	  y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
 				  	  x=x.replace(/^\s+|\s+$/g,"");
@@ -2457,7 +2454,7 @@ console.log('toggle tar', toggleTarget);
 				  	  {
 				  		  return unescape(y);
 				  	  }
-					}
+				    }
 				}
 				//쿠키에 저장된 값 불러오기
 				var _ctx_Option = getCookie(v.IO.ctxMenuCfg.storeName);
@@ -2527,7 +2524,7 @@ console.log('toggle tar', toggleTarget);
 //						$(targetLight[i]).removeClass("toggle_off");
 					}else{
 						$(targetLight[i]).addClass("toggle_off");
-						$(targetLight[i]).parent().find('.fas').hide();
+						$(targetLight[i]).parent().find('.glyphicon').hide();
 						$(targetLight[i]).find('label').css('width','59.6px');
 						v.light[i].intensity = 0;
 					}
@@ -2565,8 +2562,8 @@ console.log('toggle tar', toggleTarget);
 					"v.option.ghosts_direction[1]":2,
 					"v.option.ghosts_direction[2]":2,
 					"v.option.light":[{pos:{x:0,y:0}, on:true, intensity: 0.333},
-									  {pos:{x:0,y:0}, on:true, intensity: 0.333},
-									  {pos:{x:0,y:0}, on:true, intensity: 0.333}],
+                                      {pos:{x:0,y:0}, on:true, intensity: 0.333},
+                                      {pos:{x:0,y:0}, on:true, intensity: 0.333}],
 					"_ghostDirection":['x','y','z'],
 					"AtomParam":{},
 			},
@@ -2623,20 +2620,20 @@ console.log('toggle tar', toggleTarget);
 						v.option.atoms=!v.option.atoms;
 						if(v.option.atoms){
 							v.ctxMenu.find(".atom_radius").show();
-							$(this).parent().find('.fas').show();
+							$(this).parent().find('.glyphicon').show();
 						}else{
 							v.ctxMenu.find(".atom_radius").hide();
-							$(this).parent().find('.fas').hide();
+							$(this).parent().find('.glyphicon').hide();
 						}
 					break;
 					case "bonds":
 						v.option.bonds=!v.option.bonds;
 						if(v.option.bonds){
 							v.ctxMenu.find(".bond_radius").show();
-							$(this).parent().find('.fas').show();
+							$(this).parent().find('.glyphicon').show();
 						}else{
 							v.ctxMenu.find(".bond_radius").hide();
-							$(this).parent().find('.fas').hide();
+							$(this).parent().find('.glyphicon').hide();
 						}
 					break;
 					case "cell":
@@ -2703,19 +2700,19 @@ console.log('toggle tar', toggleTarget);
 						let lightNumber;
 						lightNumber = $(this).parent().data('lightnumber') - 1;
 						v.option.light[lightNumber].on = !v.option.light[lightNumber].on;
-						let toggleIcon = $(this).parent().find('.fas'); 
+						let toggleIcon = $(this).parent().find('.glyphicon'); 
 						if (v.option.light[lightNumber].on){
 							v.light[lightNumber].intensity = v.option.light[lightNumber].intensity;
-							if(toggleIcon.hasClass('fa-caret-up')){
-								toggleIcon.addClass('fa-caret-down');
-								toggleIcon.removeClass('fa-caret-up');
+							if(toggleIcon.hasClass('glyphicon-triangle-top')){
+								toggleIcon.addClass('glyphicon-triangle-bottom');
+								toggleIcon.removeClass('glyphicon-triangle-top');
 							}
-							$(this).parent().find('.fas').show();
+							$(this).parent().find('.glyphicon').show();
 							$(this).find('label').css('width','42px');
 						} else {
 							v.light[lightNumber].intensity = 0;
 							v.ctxMenu.find('.light_control_box').hide();
-							$(this).parent().find('.fas').hide();
+							$(this).parent().find('.glyphicon').hide();
 							$(this).find('label').css('width','59.6px');
 						}
 					break;
@@ -2946,9 +2943,9 @@ console.log('toggle tar', toggleTarget);
 					 v.atomMeshes[ca_idx].material.color.setHex('0x0000ff');
 					 v.atomMeshes[ca_idx].material.opacity = 1;
 */
-					 meshIndex = v.atomMeshes.findIndex(function(e){ return e.atomid == ca_idx; });
-					 v.atomMeshes[meshIndex].material.color.setHex('0x0000ff');
-					 v.atomMeshes[meshIndex].material.opacity = 1;
+                     meshIndex = v.atomMeshes.findIndex(function(e){ return e.atomid == ca_idx; });
+                     v.atomMeshes[meshIndex].material.color.setHex('0x0000ff');
+                     v.atomMeshes[meshIndex].material.opacity = 1;
 				 }
 			 }
 			v.animateControl.once();
@@ -3063,10 +3060,10 @@ console.log('toggle tar', toggleTarget);
 		loadFile : function(){
 			var evt_tmp;
 			var title = "Load Structure";
-			var msg= "<div style='padding-left:15px;padding-top:15px;'><div class=form-horizontal><div class='form-group'><label class=col-8>File Type</label><div class=col-16><select class=form-control disabled>";
+			var msg= "<div style='padding-left:15px;padding-top:15px;'><div class=form-horizontal><div class='form-group'><label class=col-xs-8>File Type</label><div class=col-xs-16><select class=form-control disabled>";
 				msg+= "<option value=-1>Auto</option>";
 				msg+= "</select></div></div></div>"
-				msg+= "<div class=form-horizontal><div class=form-group><label class=col-8>File</label><div class=col-16>";
+				msg+= "<div class=form-horizontal><div class=form-group><label class=col-xs-8>File</label><div class=col-xs-16>";
 				msg+= "<input type=file class='form-control VLLoadFile'></div></div></div></div>";
 			var btn = {
 				"OK":function(){
@@ -3114,132 +3111,6 @@ console.log('toggle tar', toggleTarget);
 					_guide.css("top",v.IO.start[1]-radius);
 					_guide.css("width",radius*2);
 					_guide.css("height",radius*2);
-				break;
-				case "pent":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx, starty + gheight/2.618 ]];
-					v.IO.polygon.push([startx + 0.5*gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight / 2.618]);
-					v.IO.polygon.push([startx + 0.80901*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.19098*gwidth, starty + gheight]);
-
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "hex":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx + 0.25*gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.75*gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + 0.5 * gheight]);
-					v.IO.polygon.push([startx + 0.75*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.25*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + 0.5 * gheight]);
-
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "hept":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx + 0.5*gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.900969*gwidth, starty + gheight*0.198062]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight*0.643104]);
-					v.IO.polygon.push([startx + 0.722521*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.277479*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + gheight*0.643104]);
-					v.IO.polygon.push([startx + 0.099031*gwidth, starty + gheight*0.198062]);
-					
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "octa":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-					
-					v.IO.polygon = [[ startx + 0.292893 * gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.707107 * gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight * 0.292893]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight * 0.707107]);
-					v.IO.polygon.push([startx + 0.707107 * gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.292893 * gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + gheight*0.707107]);
-					v.IO.polygon.push([startx, starty + gheight*0.292893]);
-					
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
 				break;
 				case "lasso":
 					v.IO.polygon.push(cPos);
@@ -3347,22 +3218,6 @@ $(document.activeElement).blur();
 				break;
 				case "circ":
 					$(document.body).append("<div id=select_guide style='background-color:rgba(183,126,129,0.3);position:absolute;border:dotted 1px rgba(183,126,129,0.9);border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;'></div>");
-				break;
-				case "pent":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "hex":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "hept":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "octa":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
 				break;
 				case "lasso":
 					v.IO.polygon = [[ e.pageX-2, e.pageY-2 ]];
@@ -3480,12 +3335,12 @@ $(document.activeElement).blur();
 			}
 		},
 		getPosOnCanvas : function( pos ){
-			var mouse={};
+	        var mouse={};
 			var wrapper_offset = $(v.wrapper).offset();
-			mouse.x  =  ( (pos[0] - wrapper_offset.left )/ $(v.wrapper).width() ) * 2 - 1;
-			mouse.y  =  - ( (pos[1] -wrapper_offset.top )/ $(v.wrapper).height() ) * 2 + 1;
+	        mouse.x  =  ( (pos[0] - wrapper_offset.left )/ $(v.wrapper).width() ) * 2 - 1;
+	        mouse.y  =  - ( (pos[1] -wrapper_offset.top )/ $(v.wrapper).height() ) * 2 + 1;
 			console.log(mouse);
-			return mouse;
+	        return mouse;
 		},
 		customSelectCallback:[], // Array of functions();
 		selectCallback : function(){
@@ -3594,15 +3449,15 @@ $(document.activeElement).blur();
 						console.log(screenpos);;
 						var in_range;
 						 if(inv) {in_range=!((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
-							);}
-						else{in_range=((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
-							);}
+                            (screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
+                            );}
+                        else{in_range=((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
+                            );}
 						if(in_range){
 							var this_atomid = atoms[i].atomid
 							var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
@@ -3620,41 +3475,21 @@ $(document.activeElement).blur();
 					v.IO.restoreAtomsColor();
 					v.IO.highlightSelectedAtoms();
 				break;
-				case "pent":
-				case "hex":
-				case "hept":
-				case "octa":
 				case "lasso":
 					for(var i=0;i<atoms.length;i++){
 						var screenpos = v.IO.toScreenXY( v.atomMeshes[i].position );
 						var point = [screenpos.x, screenpos.y];
 						in_range =  VLatoms.Utils.pointInPolygon(point, v.IO.polygon);
-						if(!inv){
-							if(in_range){
-								var this_atomid = atoms[i].atomid
-								var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
-								if(!del){
-									if( cidx < 0 ){
-										v.IO.selectedAtoms.push( this_atomid );
-									}
-								}else{
-									if( cidx>=0 ){
-										v.IO.selectedAtoms.splice(cidx,1);
-									}
+						if(in_range){
+							var this_atomid = atoms[i].atomid
+							var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
+							if(!del){
+								if( cidx < 0 ){
+									v.IO.selectedAtoms.push( this_atomid );
 								}
-							}
-						}else{
-							if(!in_range){
-								var this_atomid = atoms[i].atomid
-								var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
-								if(!del){
-									if( cidx < 0 ){
-										v.IO.selectedAtoms.push( this_atomid );
-									}
-								}else{
-									if( cidx>=0 ){
-										v.IO.selectedAtoms.splice(cidx,1);
-									}
+							}else{
+								if( cidx>=0 ){
+									v.IO.selectedAtoms.splice(cidx,1);
 								}
 							}
 						}
@@ -5512,6 +5347,7 @@ console.log('get data from worker', stat);
 				for( var j=0 ; j<3 ; j++){
 					atom.push(target_point[i][j].toFixed(5));
 				}
+				//todo ???????????/
 				let vectorSize = math.multiply(math.inv(math.transpose(cube)), atom);
 				if (vectorSize[0] > max[0]) max[0] = vectorSize[0];
 				if (vectorSize[1] > max[1]) max[1] = vectorSize[1];
@@ -5532,13 +5368,15 @@ console.log('get data from worker', stat);
 				if (vectorSize2[2] < min2[2]) min2[2] = vectorSize2[2];
 			}
 			var _cube = [];
-			let shift=[0,0,0];
+			let shift=[];
 			let cloneVal=[];
 			for(var i=0 ; i<3 ; i++){
 				if(cloneOpt[i]){
 					cloneVal[i]=Math.ceil(max[i]-min[i]);
+					shift[i]=0;
 				}else{
 					cloneVal[i]=1;
+					shift[i]=cen1[i]-cen2[i];
 				}
 			}
 
@@ -5547,59 +5385,37 @@ console.log('get data from worker', stat);
 					v.Manipulate.execute("clone", {
 						"nx": cloneVal[0],
 						"ny": cloneVal[1],
-						"nz": cloneVal[2]+(cloneOpt[2]?1:0),
+						"nz": 1,
 					});
+					shift[2]=0;
 					_cube[0] = vll.a.slice(0);
 					_cube[1] = vll.b.slice(0);
 					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[2][i]*=(max2[2] - min2[2]);
-					}
 					break;
 				case "XZ":
 					v.Manipulate.execute("clone", {
 						"nx": cloneVal[0],
-						"ny": cloneVal[1]+(cloneOpt[1]?1:0),
+						"ny": 1,
 						"nz": cloneVal[2],
 					});
+					shift[1]=0;
 					_cube[0] = vll.a.slice(0);
 					_cube[1] = vll.b.slice(0);
 					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[1][i]*=(max2[1] - min2[1]);
-					}
 					break;
 				case "YZ":
 					v.Manipulate.execute("clone", {
-						"nx": cloneVal[0]+(cloneOpt[0]?1:0),
+						"nx": 1,
+						"nx": cloneVal[0],
 						"ny": cloneVal[1],
-						"nz": cloneVal[2],
 					});
+					shift[0]=0;
 					_cube[0] = vll.a.slice(0);
 					_cube[1] = vll.b.slice(0);
 					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[0][i]*=(max2[0] - min2[0]);
-					}
 					break;
 			}
-
-			cen1 = [
-				(_cube[0][0]+_cube[1][0]+_cube[2][0])/2,
-				(_cube[0][1]+_cube[1][1]+_cube[2][1])/2,
-				(_cube[0][2]+_cube[1][2]+_cube[2][2])/2,
-			];
-
-			for(var i=0 ; i<3 ; i++){
-				if(cloneOpt[i]){
-					shift[i]=0;
-				}else{
-					shift[i]=cen1[i]-cen2[i];
-				}
-			}
-
 			let tooSmall=0;
-
 			for (var i = 0; i < v.Structure.atoms.length; i++) {
 				let atom = v.Structure.atoms[i];
 				if(shift[0]===0){
@@ -5620,13 +5436,9 @@ console.log('get data from worker', stat);
 				let atom_pos = [atom.x, atom.y, atom.z];
 				let vectorSize = math.multiply(math.inv(math.transpose(_cube)), atom_pos);
 				if (
-/*					(target_plane !== "YZ" & ( vectorSize[0] < 0 || vectorSize[0] > 1)) ||
- *										(target_plane !== "XZ" & ( vectorSize[1] < 0 || vectorSize[1] > 1)) ||
- *															(target_plane !== "XY" & ( vectorSize[2] < 0 || vectorSize[2] > 1))
- *															*/
-					( vectorSize[0] < 0 || vectorSize[0] > 1) ||
-					( vectorSize[1] < 0 || vectorSize[1] > 1) ||
-					( vectorSize[2] < 0 || vectorSize[2] > 1)
+					(target_plane !== "YZ" & ( vectorSize[0] < 0 || vectorSize[0] > 1)) ||
+					(target_plane !== "XZ" & ( vectorSize[1] < 0 || vectorSize[1] > 1)) ||
+					(target_plane !== "XY" & ( vectorSize[2] < 0 || vectorSize[2] > 1))
 				){	
 					if(shift[0] !== 0 || shift[1] !== 0 || shift[2] !== 0){
 						tooSmall++;
@@ -5643,14 +5455,11 @@ console.log('get data from worker', stat);
 				v.Structure.atoms.push($.extend(true, {}, vll.atoms[i]));
 			}
 			var offset = [0, 0, 0];
-			if (Number.isNaN(space) || space < 0){
-				console.log("a");
-				space = 0;
-			}
+			if (!Number.isInteger(space) || space < 0) space = 0;
 			switch (target_plane) {
 				case "XY":
 					for (var i = 0; i < 3; i++) {
-						v.Structure.c[i] += _cube[2][i];
+						v.Structure.c[i] = _cube[2][i] * (1 + max2[2] - min2[2]);
 					}
 					let length_m_c = VLatoms.Math.len(v.Structure.c);
 					if(order==="or-fixed-added"){
@@ -5660,17 +5469,17 @@ console.log('get data from worker', stat);
 							offset[j] *= (1 + space / VLatoms.Math.len(vll.c));
 						}
 					}else if(order==="or-added-fixed"){
-						offset = _cube[2].slice(0);
+						offset = vlr.c.slice(0);
 						for (let j = 0; j < 3; j++) {
 							v.Structure.c[j] *= (1 + space / length_m_c);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
+							offset[j] *= (1 + space / VLatoms.Math.len(vlr.c));
 						}
 					}
 
 					break;
 				case "XZ":
 					for (var i = 0; i < 3; i++) {
-						v.Structure.b[i] += _cube[1][i];
+						v.Structure.b[i] = _cube[1][i] * (1 + max2[1] - min2[1]);
 					}
 					let length_m_b = VLatoms.Math.len(v.Structure.b);
 					if(order==="or-fixed-added"){
@@ -5680,16 +5489,16 @@ console.log('get data from worker', stat);
 							offset[j] *= (1 + space / VLatoms.Math.len(vll.b));
 						}
 					}else if(order==="or-added-fixed"){
-						offset = _cube[1].slice(0);
+						offset = vlr.c.slice(0);
 						for (let j = 0; j < 3; j++) {
-							v.Structure.b[j] *= (1 + space / length_m_b);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
+							v.Structure.c[j] *= (1 + space / length_m_c);
+							offset[j] *= (1 + space / VLatoms.Math.len(vlr.c));
 						}					
 					}
 					break;
 				case "YZ":
 					for (var i = 0; i < 3; i++) {
-						v.Structure.a[i] += _cube[0][i];
+						v.Structure.a[i] = _cube[0][i] * (1 + max2[0] - min2[0]);
 					}
 					let length_m_a = VLatoms.Math.len(v.Structure.a);
 					if(order==="or-fixed-added"){
@@ -5699,10 +5508,10 @@ console.log('get data from worker', stat);
 							offset[j] *= (1 + space / VLatoms.Math.len(vll.a));
 						}
 					}else if(order==="or-added-fixed"){
-						offset = _cube[0].slice(0);
+						offset = vlr.c.slice(0);
 						for (let j = 0; j < 3; j++) {
-							v.Structure.a[j] *= (1 + space / length_m_a);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
+							v.Structure.c[j] *= (1 + space / length_m_c);
+							offset[j] *= (1 + space / VLatoms.Math.len(vlr.c));
 						}
 					}
 					break;
@@ -5742,7 +5551,7 @@ console.log('get data from worker', stat);
 				"args":{},
 				"Structure":objClone(v.Structure)
 			})
-			if(tooSmall>0 && !cloneOpt[0] && !cloneOpt[1] && !cloneOpt[2]){
+			if(tooSmall>0){
 				alert("Some of the atoms in the Attached Structure were deleted because the based structure was small.");
 			}
 		},
@@ -6015,7 +5824,7 @@ VLatoms.Math = {
 		var ret = 0;
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret+= v1[i]*v2[i];
+		    ret+= v1[i]*v2[i];
 		}
 		return ret;
 	},
@@ -6023,7 +5832,7 @@ VLatoms.Math = {
 		var ret = [];
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret.push( v1[i] + v2[i] );
+		    ret.push( v1[i] + v2[i] );
 		}
 		return ret;
 
@@ -6032,7 +5841,7 @@ VLatoms.Math = {
 		var ret = [];
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret.push( v1[i] - v2[i] );
+		    ret.push( v1[i] - v2[i] );
 		}
 		return ret;
 
@@ -6100,43 +5909,43 @@ VLatoms.Math = {
 		return ret;
 	},
 	rotate : function(dir,pos,angle){
-		var cos=Math.cos(angle/180*Math.PI);
-		var sin=Math.sin(angle/180*Math.PI);
-		var mat=Array(3);
-		switch(dir){
-			case "x":
-				mat[0]=[1,0,0];
-				mat[1]=[0,cos,-1*sin];
-				mat[2]=[0,sin,cos];
-			break;
-			case "y":
-				mat[0]=[cos,0,sin];
-				mat[1]=[0,1,0];
-				mat[2]=[-1*sin,0,cos];
-			break;
-			case "z":
-				mat[0]=[cos,-1*sin,0];
-				mat[1]=[sin,cos,0];
-				mat[2]=[0,0,1];
-			break;
-		}
-		return VLatoms.Math.matdotvec(mat,pos);
+        var cos=Math.cos(angle/180*Math.PI);
+        var sin=Math.sin(angle/180*Math.PI);
+        var mat=Array(3);
+        switch(dir){
+            case "x":
+                mat[0]=[1,0,0];
+                mat[1]=[0,cos,-1*sin];
+                mat[2]=[0,sin,cos];
+            break;
+            case "y":
+                mat[0]=[cos,0,sin];
+                mat[1]=[0,1,0];
+                mat[2]=[-1*sin,0,cos];
+            break;
+            case "z":
+                mat[0]=[cos,-1*sin,0];
+                mat[1]=[sin,cos,0];
+                mat[2]=[0,0,1];
+            break;
+        }
+        return VLatoms.Math.matdotvec(mat,pos);
 	},
 	   rotateA : function(ref,pos,angle){
-			// ref : reference vector;
-			var u = VLatoms.Math.norm(ref);
-			var ux = u[0],uy=u[1],uz=u[2];
-			var cos=Math.cos(angle/180*Math.PI);
-			var sin=Math.sin(angle/180*Math.PI);
-			var mat = [];
-			mat[0] = [ cos + ux*ux*(1-cos), ux*uy*(1-cos)-uz*sin, ux*uz*(1-cos)+uy*sin ];
-			mat[1] = [ uy*ux*(1-cos) + uz*sin, cos+uy*uy*(1-cos), uy*uz*(1-cos)-ux*sin ];
-			mat[2] = [ uz*ux*(1-cos) - uy*sin, uz*uy*(1-cos)+ux*sin, cos+uz*uz*(1-cos) ];
-			return VLatoms.Math.matdotvec(mat,pos);
-		},
-	angle : function(v1,v2){
-	  var v1len = VLatoms.Math.len(v1);
-	  var v2len = VLatoms.Math.len(v2);
+	        // ref : reference vector;
+	        var u = VLatoms.Math.norm(ref);
+	        var ux = u[0],uy=u[1],uz=u[2];
+	        var cos=Math.cos(angle/180*Math.PI);
+	        var sin=Math.sin(angle/180*Math.PI);
+	        var mat = [];
+	        mat[0] = [ cos + ux*ux*(1-cos), ux*uy*(1-cos)-uz*sin, ux*uz*(1-cos)+uy*sin ];
+	        mat[1] = [ uy*ux*(1-cos) + uz*sin, cos+uy*uy*(1-cos), uy*uz*(1-cos)-ux*sin ];
+	        mat[2] = [ uz*ux*(1-cos) - uy*sin, uz*uy*(1-cos)+ux*sin, cos+uz*uz*(1-cos) ];
+	        return VLatoms.Math.matdotvec(mat,pos);
+	    },
+    angle : function(v1,v2){
+      var v1len = VLatoms.Math.len(v1);
+      var v2len = VLatoms.Math.len(v2);
 		var _angle=VLatoms.Math.dot(v1,v2) / v1len / v2len;
 		if(_angle>1){
 			console.log(_angle);
@@ -6145,11 +5954,11 @@ VLatoms.Math = {
 			console.log(_angle);
 			_angle=-1;
 		}
-	  return Math.acos(_angle);
-	},
-	rad2deg : function(rad){
-	  return rad*180/Math.PI;
-	},
+      return Math.acos(_angle);
+    },
+    rad2deg : function(rad){
+      return rad*180/Math.PI;
+    },
 	checkPlaneAngle : function(v){
 		let sa=v.IO.selectedAtoms;
 		if(sa.length !== 4 ){
@@ -6194,40 +6003,22 @@ VLatoms.Math = {
 }
 VLatoms.Utils = {
 	pointInPolygon : function(point,vs){
-		// ray-casting algorithm based on
-		// http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+	    // ray-casting algorithm based on
+	    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 	
-		var x = point[0], y = point[1];
+	    var x = point[0], y = point[1];
 	
-		var inside = false;
-		for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-			var xi = vs[i][0], yi = vs[i][1];
-			var xj = vs[j][0], yj = vs[j][1];
+	    var inside = false;
+	    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+	        var xi = vs[i][0], yi = vs[i][1];
+	        var xj = vs[j][0], yj = vs[j][1];
 	
-			var intersect = ((yi > y) != (yj > y))
-				&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-			if (intersect) inside = !inside;
-		}
+	        var intersect = ((yi > y) != (yj > y))
+	            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+	        if (intersect) inside = !inside;
+	    }
 	
-		return inside;
-	},
-	minimizeStructure : function(_s){
-		var s = {};
-		s.a = [ +_s.a[0],+_s.a[1],+_s.a[2]];
-		s.b = [ +_s.b[0],+_s.b[1],+_s.b[2]];
-		s.c = [ +_s.c[0],+_s.c[1],+_s.c[2]];
-		var natoms=_s.atoms.length;
-		s.atoms = [];
-		for(var i=0;i<natoms;i++){
-			var ca = _s.atoms[i];
-			var _x = +ca.x;
-			var _y = +ca.y;
-			var _z = +ca.z;
-			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
-			s.atoms.push({"element":_el, "x":_x, "y":_y, "z":_z});
-		}
-		
-		return s;
+	    return inside;
 	},
 	redefineStructure : function(_s,_v={}){
 		if(_v.option===undefined){
@@ -6272,10 +6063,10 @@ VLatoms.Utils = {
 	},
 	download : function( filename, contents){
 		var tmphtml="<form class=downloader target=_blank method=post action=/utils/txtDownloader>";
-			tmphtml+="<input type=hidden name=_token value="+$('meta[name="csrf-token"]').attr('content')+">";
-			tmphtml+="<input type=hidden name=filename class=downloader_filename>";
-			tmphtml+="<input type=hidden name=content class=downloader_content>";
-			tmphtml+="</form>";
+		    tmphtml+="<input type=hidden name=_token value="+$('meta[name="csrf-token"]').attr('content')+">";
+		    tmphtml+="<input type=hidden name=filename class=downloader_filename>";
+		    tmphtml+="<input type=hidden name=content class=downloader_content>";
+		    tmphtml+="</form>";
 		var tmphtml_=$(document.body).append(tmphtml);
 		$('.downloader_filename').val(filename);
 		$('.downloader_content').val(contents);
@@ -6997,10 +6788,10 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 			if(lv[1][1]>0)
 			{
 			   lv[2][1]=(   b*c*Math.cos(alpha)
-						   -b*Math.cos(gamma)*c*Math.cos(beta)
-						)/lv[1][1];
+			               -b*Math.cos(gamma)*c*Math.cos(beta)
+			            )/lv[1][1];
 			}else{
-				lv[2][1]=0;
+			    lv[2][1]=0;
 			}
 			var c2sq = c*c-lv[2][0]*lv[2][0]-lv[2][1]*lv[2][1];
 			if(c2sq<0){
@@ -7169,7 +6960,7 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 //
 var supportedElements = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es'];
 
-// Reference :	 TODO
+// Reference :     TODO
 var AtomParam={};
 AtomParam['H']={'no':1,'radius':0.79,'color':'0xFFD3D3','mass':1.00794,'group':1,'period':1,'block':'s','ie':13.598434005136,'oxi_n':[-1,1]};
 AtomParam['He']={'no':2,'radius':0.49,'color':'0xFE1E00','mass':4.002602,'group':18,'period':1,'block':'s','ie':24.587387936,'oxi_n':[]};

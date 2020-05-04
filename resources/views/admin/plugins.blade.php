@@ -3,7 +3,7 @@
 <style>
 	.simpl-listbar{
 		width:250px;
-		height:100%;
+		height:calc(100vh - 114px);
 		float:left;
 		overflow-y:auto;
 		position:relative;
@@ -64,9 +64,9 @@
 		vertical-align:middle;
 	}
 	.built-in-functions-wrapper{
-		position:absolute;
+		position:fixed;
 		bottom:4px;
-		width:100%;
+		width:inherit;
 		z-index:1;
 		transition:0.5s;
 		height:40px;
@@ -109,7 +109,7 @@
 		margin:auto;
 	}
 	.built-in-functions-wrapper.active{
-		height:calc(100% - 4px);
+		height:calc(100vh - 74px);
 	}
 	.built-in-functions-wrapper.active .fa-caret-up{
 		display:none;		
@@ -212,6 +212,26 @@
 							<option value=3>Editor</option>
 							<option value=4>Admin</option>
 						</select>
+					</td>
+				</tr>
+<?php
+$user = Auth::user();
+?>
+@if($user->policy==="admin")
+<?php
+$users = App\User::get(['id','name']);
+?>
+				<tr>
+					<td colspan=2></td>
+					<th>Change owner</th>
+					<td>
+						<select onchange="changeOwner()" class="plugin-owner form-control">
+@foreach($users as $_u)
+							
+							<option value="{{$_u->id}}" {{$_u->id == Auth::id() ? "selected" : ""}}>{{$_u->name}}</option>
+@endforeach
+						</select>						
+					@endif
 					</td>
 				</tr>
 			</tbody>
@@ -443,7 +463,8 @@
 					"includes":ret["message"]["includes"],
 					"required":ret["message"]["ispublic"],
 					"script":ret["message"]["script"],
-					"status":ret["status"]
+					"status":ret["status"],
+					"author":ret["message"]["author"]
 				});
 			}
 		});
@@ -462,6 +483,11 @@
 				case "required":
 					target.find("option[value="+data[prop]+"]").prop("selected",true);
 					break;
+@if($user->policy==="admin")
+				case "author":
+					$(".plugin-owner").find("option[value='"+data[prop]+"']").prop("selected", true);
+					break;
+@endif
 			}
 			if(prop === "script"){
 				scriptEditor.setValue(data[prop]);
@@ -512,25 +538,51 @@
 			}
 		});
 	}
-	function deletePlugin(){
+
+@if($user->policy==="admin")
+	function changeOwner(){
 		var idx=$(".simpl-plugin-list.active").data('idx');
+		var nowner=$(".plugin-owner").find("option:selected").val();
 		$.ajax({
-			url:"/admin/plugins/delete",
+			url:"/admin/plugins/changeOwner",
 			type:"post",
 			data:{
 				"_token":"{{csrf_token()}}",
 				"idx":idx,
+				"nowner":nowner
 			},
 			success:function(ret){
 				if(ret.status === "Success"){
 					alert("Success");
-					$(".simpl-plugin-list[data-idx=-1]").click();
-					getPluginList();
+					getPageList();
 				}else{
 					alert(ret.message);
 				}
 			}
 		});
+	}
+@endif
+	function deletePlugin(){
+		if(confirm($(".simpl-plugin-list.active").text())){
+			var idx=$(".simpl-plugin-list.active").data('idx');
+			$.ajax({
+				url:"/admin/plugins/delete",
+				type:"post",
+				data:{
+					"_token":"{{csrf_token()}}",
+					"idx":idx,
+				},
+				success:function(ret){
+					if(ret.status === "Success"){
+						alert("Success");
+						$(".simpl-plugin-list[data-idx=-1]").click();
+						getPluginList();
+					}else{
+						alert(ret.message);
+					}
+				}
+			});
+		}
 	}
 	function testPlugin(){
 		$(".modal").modal('show');

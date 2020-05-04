@@ -297,7 +297,17 @@
 $user = Auth::user();
 ?>
 @if($user->policy==="admin")
+<?php
+$users = App\User::get(['id','name']);
+?>
 						<button class="btn btn-outline-danger" style="float:right;" onclick="make_it_front();">Make it front</button>
+						<select onchange="changeOwner()" class="page-owner" style="border-radius:5px;height:28px;vertical-align:bottom;float:right;">
+@foreach($users as $_u)
+							
+							<option value="{{$_u->id}}" {{$_u->id == Auth::id() ? "selected" : ""}}>{{$_u->name}}</option>
+@endforeach
+						</select>
+						
 @endif
 					</td>
 				</tr>
@@ -1064,6 +1074,7 @@ if($footer!==null){
 				fillPage({
 					"title":ret["message"]["title"],
 					"alias":ret["message"]["alias"],
+					"author":ret["message"]["author"],
 					"required":ret["message"]["ispublic"],
 					"contents":ret["message"]["contents"],
 					"isfront":ret["message"]["isfront"],
@@ -1087,6 +1098,11 @@ if($footer!==null){
 				case "isfront":
 
 					break;
+@if($user->policy==="admin")
+				case "author":
+					$(".page-owner").find("option[value='"+data[prop]+"']").prop("selected", true);
+					break;
+@endif
 			}
 			if(prop === "contents"){
 				scriptEditor.setValue(data[prop]);
@@ -1136,23 +1152,25 @@ if($footer!==null){
 	}
 	function deletePage(){
 		var idx=$(".simpl-page-list.active").data('idx');
-		$.ajax({
-			url:"/admin/pages/delete",
-			type:"post",
-			data:{
-				"_token":"{{csrf_token()}}",
-				"idx":idx,
-			},
-			success:function(ret){
-				if(ret.status === "Success"){
-					alert("Success");
-					$(".simpl-page-list[data-idx=-1]").click();
-					getPageList();
-				}else{
-					alert(ret.message);
+		if(confirm($(".simpl-page-list.active").text()+" will be deleted")){
+			$.ajax({
+				url:"/admin/pages/delete",
+				type:"post",
+				data:{
+					"_token":"{{csrf_token()}}",
+					"idx":idx,
+				},
+				success:function(ret){
+					if(ret.status === "Success"){
+						alert("Success");
+						$(".simpl-page-list[data-idx=-1]").click();
+						getPageList();
+						}else{
+						alert(ret.message);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	function openPage(){
 		var alias = $(".page_alias").val();
@@ -1177,6 +1195,28 @@ if($footer!==null){
 				}
 			}
 		});
+	}
+	function changeOwner(){
+		var idx=$(".simpl-page-list.active").data('idx');
+		var nowner=$(".page-owner").find("option:selected").val();
+		$.ajax({
+			url:"/admin/pages/changeOwner",
+			type:"post",
+			data:{
+				"_token":"{{csrf_token()}}",
+				"idx":idx,
+				"nowner":nowner
+			},
+			success:function(ret){
+				if(ret.status === "Success"){
+					alert("Success");
+					getPageList();
+				}else{
+					alert(ret.message);
+				}
+			}
+		});
+
 	}
 @endif
 function dom_move(direction){

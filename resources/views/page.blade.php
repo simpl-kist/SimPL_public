@@ -6,11 +6,13 @@
 <link rel=stylesheet href="/vlatoms/css/jquery-ui.min.css">
 <link rel=stylesheet href="/vlatoms/css/vlatoms.css">
 <script src="/vlatoms/js/three.js"></script>
+<script src="/vlatoms/js/jscolor.js"></script>
 <script src="/vlatoms/js/TrackballControls.js"></script>
 <script src="/vlatoms/js/vlatoms.js"></script>
 <script src="/vlatoms/js/cif.js"></script>
 <script src="/vlatoms/js/math.min.js"></script>
-<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js></script>
+<script src="/js/Chart.min.js"></script>
+<script src="/js/chartjs-plugin-zoom.min.js"></script>
 @stop
 @section('body')
 {!! $env['header'] ?? "" !!}

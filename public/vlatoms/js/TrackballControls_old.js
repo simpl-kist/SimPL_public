@@ -17,8 +17,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	this.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-	this.visualizer={};
-
 	this.rotateSpeed = 1.0;
 	this.zoomSpeed = 1.2;
 	this.panSpeed = 0.3;
@@ -396,7 +394,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		window.addEventListener( 'keydown', keydown, false );
 
-		_this.visualizer.draw.Axis();
 	}
 
 	function mousedown( event ) {
@@ -433,7 +430,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 		document.addEventListener( 'mouseup', mouseup, false );
 		_this.dispatchEvent( startEvent );
 
-		_this.visualizer.draw.Axis();
 
 	}
 
@@ -457,7 +453,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		}
 
-		_this.visualizer.draw.Axis();
 	}
 
 	function mouseup( event ) {
@@ -473,13 +468,12 @@ THREE.TrackballControls = function ( object, domElement ) {
 		document.removeEventListener( 'mouseup', mouseup );
 		_this.dispatchEvent( endEvent );
 
-		_this.visualizer.draw.Axis();
 	}
 
 	function mousewheel( event ) {
 
 		if ( _this.enabled === false ) return;
-	console.log("Q");
+
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -498,10 +492,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 		_zoomStart.y += delta * 0.01;
 		_this.dispatchEvent( startEvent );
 		_this.dispatchEvent( endEvent );
-		if(_this.wheelEvent != undefined){
-			_this.wheelEvent();
-		}
-		_this.visualizer.draw.Axis();
+
 	}
 
 	function touchstart( event ) {
@@ -594,9 +585,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 
 	this.domElement.addEventListener( 'mousedown', mousedown, false );
+
 	this.domElement.addEventListener( 'mousewheel', mousewheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', mousewheel, false ); // firefox
-	this.domElement.addEventListener('MozMousePixelScroll',mousewheel,false); // FF
 
 	this.domElement.addEventListener( 'touchstart', touchstart, false );
 	this.domElement.addEventListener( 'touchend', touchend, false );

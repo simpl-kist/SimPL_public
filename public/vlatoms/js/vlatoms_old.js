@@ -1,26 +1,26 @@
 // Avoid `console` errors in browsers that lack a console.
 
-var timeCheckArr = [];
+
 (function() {
-	var method;
-	var noop = function () {};
-	var methods = [
-		'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-		'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-		'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-		'timeStamp', 'trace', 'warn'
-	];
-	var length = methods.length;
-	var console = (window.console = window.console || {});
+    var method;
+    var noop = function () {};
+    var methods = [
+        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+        'timeStamp', 'trace', 'warn'
+    ];
+    var length = methods.length;
+    var console = (window.console = window.console || {});
 
-	while (length--) {
-		method = methods[length];
+    while (length--) {
+        method = methods[length];
 
-		// Only stub undefined methods.
-		if (!console[method]) {
-			console[method] = noop;
-		}
-	}
+        // Only stub undefined methods.
+        if (!console[method]) {
+            console[method] = noop;
+        }
+    }
 }());
 
 //Get Path of this file
@@ -30,7 +30,7 @@ if(document.currentScript){
 	VLATOMS_PATH = document.currentScript.src;
 }else{
 	var scripts = document.getElementsByTagName('script');
-	VLATOMS_PATH = scripts[scripts.length-1].src;
+    VLATOMS_PATH = scripts[scripts.length-1].src;
 }
 if(VLATOMS_PATH=="" || VLATOMS_PATH == undefined){
 	console.warn("Path is not defined");
@@ -66,10 +66,8 @@ String.prototype.removeSpace = function()
 }
 /*
 */
-if(NVLScreens === undefined){
-	var NVLScreens = 0; // Number of VL Screens
-}
-console.log('VL Screen #', NVLScreens);
+
+var NVLScreens = 0; // Number of VL Screens
 
 
 
@@ -82,140 +80,13 @@ var VLatoms = function(option){
 	//if(v.option.onEscape===undefined) v.option.onEscape="expand";
 	if(v.option.step === undefined) v.option.step = { rotate:15, move:1 };
 	v.option.camera = v.option.camera || { fov : 3, aspect : 1, near : 1, far : 1<<30 };
-	v.option.onUpdate = option.onUpdate || [];
-	v.option.placeholder = option.placeholder || "Click here to upload structure file <br>or<br>Drop your structure file here!";
-	v.option.atomDisplay = [];
-	v.option.customAtomParam = {};
-	v.option.area = option.area || null;
+	v.option.onUpdate = [];
 	v.bondpairs = [];
 	v.bondpairs_display = [];
 
 	v.option.onUpdate.push(function(){
 		v.Structure.formula = VLatoms.Utils.Structure.toFormula(v.Structure);
 	});
-	v.option.onUpdate.push(function(){
-		var tmp = v.Structure.spacegroup;
-		v.Structure.spacegroup = VLatoms.Utils.Structure.getSpaceGroup(v);
-		if(tmp != v.Structure.spacegroup ){
-			v.update.cellInfo();
-		}
-	});
-	v.option.onUpdate.push(function(){
-
-		//check diff
-		var elementsList =  Object.keys( v.Structure.formula.formulaArr );
-		var atomDisplayKeys = Object.keys(v.option.atomDisplay);
-		if (elementsList.length == atomDisplayKeys.length){
-			var _diff = false;
-			for(var i in elementsList){
-				if(atomDisplayKeys.indexOf(i) == -1 ) _diff = true; 
-			}
-			if(!_diff) return false;
-		}
-
-		//init
-		var target = v.ctxMenu.find(".atom_design_config_wrapper");
-		v.option.atomDisplay = {};
-
-		//get old check status
-		var _checkboxDOM = target.find('input');
-		var _checkValue = {};
-		_checkboxDOM.each(function(){
-			var _element = $(this).data().element;
-			var _checked = this.checked;
-			_checkValue[_element] = _checked;
-		});
-
-		//refresh DOM of elements
-		let atomDetailBox = v.ctxMenu.find('.atom_design_detail');
-		//이전 상태 저장
-		let detailBoxElement = atomDetailBox.data('targetelement');
-		let detailBoxDisplay = atomDetailBox.css('display');
-		//초기화
-		atomDetailBox.hide();
-		atomDetailBox.insertAfter(target);
-		target.empty();
-		for(var i in elementsList){
-			target.append("<div class='atom_design_config' data-element="+elementsList[i]+" data-index="+i+" style='display:inline-block; width:33%'><label><input checked type=checkbox class='atom_toggle' data-element="+elementsList[i]+"><span style='margin:0 4px;'>"+elementsList[i]+"</span></label><span class='fas fa-caret-down atom_design_toggle' style='cursor:pointer;color:#999;'></span></div>");
-		}
-//		target.children('div').css('width','33%');
-
-
-		v.ctxMenu.find('.atom_design_toggle').bind('click',function(){
-			if($(this).hasClass('fa-caret-up')){
-				$(this).addClass('fa-caret-down');
-				$(this).removeClass('fa-caret-up');
-				atomDetailBox.hide();
-				return true;
-			} else {
-				let toggleList = v.ctxMenu.find('.atom_design_toggle');	
-				//다른 원소가 먼저 선택되어 있으면 세모 닫기
-				toggleList.each(function(){
-					if($(this).hasClass('fa-caret-up')){
-						$(this).addClass('fa-caret-down');
-						$(this).removeClass('fa-caret-up');
-					}
-				});
-				//세모 열기
-				$(this).addClass('fa-caret-up');
-				$(this).removeClass('fa-caret-down');
-
-				//detail box 값 입력
-				let thisElement = $(this).parent().data('element');
-				let thisColor = AtomParam[thisElement].color.split('x')[1];
-				let thisRadius = AtomParam[thisElement].radius;
-				atomDetailBox.data('targetelement', thisElement);
-				atomDetailBox.find('.element_color').val(thisColor);
-				atomDetailBox.find('.element_radius').val(thisRadius);
-				v.IO.ctxMenuCfg.jscolor.atom.fromString(thisColor);
-
-				//detail box 이동
-				let thisIndex = $(this).parent().data('index');
-				let atomDetailBoxPosition = (Math.ceil( (thisIndex+1) / 3) ) * 3 - 1;
-				atomDetailBox.insertAfter(toggleList.eq(atomDetailBoxPosition).parent()[0] != undefined ? toggleList.eq(atomDetailBoxPosition).parent() : toggleList.eq(toggleList.length - 1).parent());
-				if(atomDetailBox.css('display') == 'none') atomDetailBox.show();
-			}
-			
-		});
-
-		//apply old check status
-		for(var i in _checkValue){
-			if(!_checkValue[i]){
-				target.find('input[data-element="'+i+'"]').prop('checked',false);
-			}
-		}
-
-		//Reflect current status
-		let checkboxDOM = target.find('input');
-		checkboxDOM.each(function(){
-			let element = $(this).data().element;
-			let checked = this.checked;
-			v.option.atomDisplay[element] = checked; 
-		});
-		
-		//bind click event
-		v.ctxMenu.find(".atom_toggle").change(function(){
-			//Reflect current status
-			let checkboxDOM = target.find('input');
-			checkboxDOM.each(function(){
-				let element = $(this).data().element;
-				let checked = this.checked;
-				v.option.atomDisplay[element] = checked; 
-			});
-
-			v.update.atomsChanged=true;
-			v.update.bondsChanged=true;
-			v.animateControl.once();
-		});
-		
-		//apply old detail box status
-		if(detailBoxDisplay != 'none'){
-			target.find('.atom_design_config[data-element="'+detailBoxElement+'"]').find('.fa-caret-down').click();
-			v.ctxMenu.find('.element_radius').focus();
-		}
-		
-	});
-	
 	v.option.onUpdate.push(function(){
 		var target = v.ctxMenu.find(".bondpairs");
 		var elements =  Object.keys( v.Structure.formula.formulaArr );
@@ -247,7 +118,7 @@ var VLatoms = function(option){
 			cp = v.bondpairs[i];
 //			target.append("<input checked type=checkbox class='bondpair' data-idx="+i+" data-ij="+cp.pair[0]+""+cp.pair[1]+" data-ji="+cp.pair[1]+""+cp.pair[0]+" data-i="+cp.pair[0]+" data-j="+cp.pair[1]+"> "+cp.pair[0]+"-"+cp.pair[1]+"<br>");
 //	schan
-			target.append("<div style='display:inline-block; width:33%;'><label><input checked type=checkbox class='bondpair' data-idx="+i+" data-ij="+cp.pair[0]+""+cp.pair[1]+" data-ji="+cp.pair[1]+""+cp.pair[0]+" data-i="+cp.pair[0]+" data-j="+cp.pair[1]+">"+cp.pair[0]+"-"+cp.pair[1]+"</label></div>");
+			target.append("<label><input checked type=checkbox class='bondpair' data-idx="+i+" data-ij="+cp.pair[0]+""+cp.pair[1]+" data-ji="+cp.pair[1]+""+cp.pair[0]+" data-i="+cp.pair[0]+" data-j="+cp.pair[1]+"> "+cp.pair[0]+"-"+cp.pair[1]+"</label>");
 		}
 		//apply old check status
 		for(var i in bondpairs_checked){
@@ -280,7 +151,6 @@ var VLatoms = function(option){
 				}
 			});
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 		});
 		
 	});
@@ -296,28 +166,17 @@ var VLatoms = function(option){
 		var myParentNode = this_script.parentNode, myParentStyle = myParentNode.style;
 
 	}else{
-		// if jquery element
-		if( v.option.wrapper.get !== undefined){
-			console.warn("JQ");
-			var myParentNode =  v.option.wrapper.get(0);
-		}else if( v.option.wrapper.insertBefore !== undefined){
-			console.warn("Native JS");
-			var myParentNode = v.option.wrapper;
-		}else{
-			console.error("Could not detect the type of wrapper");
-		}
+		var myParentNode =  v.option.wrapper;
 
 	}
 
 
+	v.option.lightpos=[{x:0,y:0},{x:0,y:0},{x:0,y:0}];
 	if(v.option.history === undefined) v.option.history=false;
 
-//	console.log(myParentNode);
 	v.wrapper = myParentNode.insertBefore(div, this_script);
 	v.wrapper.id = "VLScreen" + NVLScreens;
-	if(v.option.area === null ) v.option.area = "#"+v.wrapper.id;
 	v.option.backgroundcolor = v.option.backgroundcolor || 0xffffff;
-	$(v.wrapper).addClass("vlv_wrapper");
 
 
 
@@ -334,24 +193,11 @@ var VLatoms = function(option){
 	if(v.option.cell===undefined) v.option.cell = true;
 	if(v.option.perspective===undefined) v.option.perspective = true;
 	if(v.option.cellInfo===undefined) v.option.cellInfo = true;
-	if(v.option.cellInfoSpaceGroup===undefined) v.option.cellInfoSpaceGroup = false;
 	if(v.option.ghosts ===undefined) v.option.ghosts=false;
 	if(v.option.ghosts_direction ===undefined) v.option.ghosts_direction=[2,2,2];
 	if(v.option.calculate_gofr ===undefined) v.option.calculate_gofr=false;
-	if(v.option.gofr_resolution ===undefined) v.option.gofr_resolution = 0.05;
-
-	if(v.option.shift===undefined) v.option.shift = false;
-
-	if(v.option.strList===undefined) v.option.strList = false;
-	if(v.option.strListInfo===undefined) v.option.strListInfo = false;
-	if(v.option.strListSlide===undefined) v.option.strListSlide = false;
-	if(v.option.strListDel===undefined) v.option.strListDel = true;
-
-	if(v.option.shift_val === undefined) v.option.shift_val = [0,0,0];
 //	if(v.option.light ===undefined) v.option.light=[false, false, false];
-	if(v.option.light ===undefined) v.option.light=[{pos:{x:0,y:0}, on:true, intensity: 0.333},
-													{pos:{x:0,y:0}, on:true, intensity: 0.333},
-													{pos:{x:0,y:0}, on:true, intensity: 0.333}];
+	if(v.option.light ===undefined) v.option.light=[true, true, true];
 
 
 
@@ -367,213 +213,11 @@ var VLatoms = function(option){
 			position:"absolute",
 			"font-size":"9px"
 		});
+		$(v.wrapper).append('<div id="VLScreen_selectInfo" style="position: absolute; font-size: 9px; right: 0.5em; top: 0.5em; width: 160px; height: 40px; text-align: right;"></div>');
 	if(!v.option.cellInfo){
 		v.cellInfoWrapper.hide();
 	}
-		$(v.wrapper).append('<div class="VLScreen_selectInfo" style="position: absolute; font-size: 9px; left: 0.5em; top: 0.5em; width: 160px; height: 55px; text-align: left;"></div>');
-	
 
-		$(v.wrapper).append('<div class="VLScreen_listInfo" style="position: absolute; font-size: 9px; right: 0.5em; top: 0.5em; width: 160px; height: 55px; text-align: right;"><i class="fas fa-list-ul structure_list_info" style="font-size:15px;"></i></div>');
-		v.strInfoWrapper=$(v.wrapper).find(".VLScreen_listInfo");
-		if(!v.option.strListInfo){
-			v.strInfoWrapper.hide();
-		}
-		v.strInfoWrapper.find(".structure_list_info").click(function(e){
-			v.showStructureList();
-			e.stopPropagation();
-			e.preventDefault();
-		});
-
-		v.showStructureList=function(){
-			var p_target=$(v.wrapper).parents(".visualizer_wrapper");
-			if(v.structureListWrapper===undefined){
-				p_target.append("<div class=strlist_wrapper><label>Structure List</label><i style='float:right;cursor:pointer;' class='fas fa-play strlist_slide_start'></i><i style='float:right;cursor:pointer;display:none;' class='fas fa-pause strlist_slide_stop'></i><table class=table><thead><tr><th>Name</th><th>Formula</th><th>a</th><th>b</th><th>c</th><th></th></tr></thead><tbody></tbody></table></div>");
-				v.structureListWrapper=p_target.find(".strlist_wrapper");
-				if(v.option.strListDel){
-					v.structureListWrapper.find("tbody").sortable({
-						update:function(event,ui){
-							var __newlist = $(event.target).find(".strlist_tr");
-							var __nlist=[];
-							for(let i=0 ; i<__newlist.length ; i++){
-								__nlist.push($(__newlist[i]).data('idx'));
-							}
-							var new_strlist=objClone(v.strlist);
-							v.strlist.length=0;
-							for(let i=0 ; i<__nlist.length ; i++){
-								if(__nlist[i]===v.strNum){
-									v.strNum=i;
-									break;
-								}
-							}
-							for(let i=0 ; i<__nlist.length ; i++){
-								v.strlist.push(new_strlist[__nlist[i]]);
-							}
-							v.drawStructureList();
-						}
-					});
-				}
-				v.structureListWrapper.find(".strlist_slide_start").click(function(){
-					$(this).hide();
-					$(this).parent().find(".strlist_slide_stop").show();
-					v.option.strListSlide=true;
-					v.strListSlide();
-				});
-				v.structureListWrapper.find(".strlist_slide_stop").click(function(){
-					$(this).hide();
-					$(this).parent().find(".strlist_slide_start").show();
-					v.option.strListSlide=false;
-				});
-			}
-			v.drawStructureList();
-			if(v.option.strList){
-				v.structureListWrapper.hide();
-			}else{
-				v.structureListWrapper.show();				
-			}
-			v.option.strList=!v.option.strList;
-			console.log(p_target);
-			console.log("clicked");
-		};
-		v.drawStructureList=function(){
-			v.structureListWrapper.find('table>tbody').empty();
-			for(var i=0 ; i<v.strlist.length ; i++){
-				if(v.strlist[i]["history"].length === 0){
-					continue;
-				}
-				let str_str=objClone(v.strlist[i]["history"][v.strlist[i]["Structure"]].Structure);
-				for(var j=0 ; j<3 ; j++){
-					str_str.a[j]=str_str.a[j].toFixed(2)*1;
-					str_str.b[j]=str_str.b[j].toFixed(2)*1;
-					str_str.c[j]=str_str.c[j].toFixed(2)*1;
-				}
-				let str_formula=VLatoms.Utils.Structure.toFormula(str_str);
-				var ih="";
-				ih+="<tr class='strlist_tr "+(v.strNum===i?"selected_strlist":"")+"' data-idx="+i+">";
-				ih+="<td><span class=str_name_span data-idx="+i+">"+v.strlist[i]["name"]+"</span><input class=str_name_input data-idx="+i+" style='display:none;width:75px;'></td>";
-				ih+="<td>"+str_formula.formulaStr+"</td>";
-				ih+="<td>"+str_str.a.join("<br>")+"</td>";
-				ih+="<td>"+str_str.b.join("<br>")+"</td>";
-				ih+="<td>"+str_str.c.join("<br>")+"</td>";
-				if(v.option.strListDel){
-					ih+="<td><i style='color:red;cursor:pointer;' class='fas fa-minus-circle delete_str_list'></i></td>";
-				}else{
-					ih+="<td></td>";
-				}
-				ih+="</tr>";
-				v.structureListWrapper.find("table>tbody").append(ih);
-			}
-			v.structureListWrapper.find("table>tbody").append("<tr data-idx=-1><td colspan=6 style='text-align:center;'><i style='color:green;font-size:20px;' class='fas fa-plus-circle add_str_list'></i></td></tr>");
-			v.structureListWrapper.find("table>tbody").find(".delete_str_list").click(function(e){
-				let _idx=$(this).parents("tr").data('idx');
-				v.removeStrlist(_idx);
-				v.drawStructureList();
-				e.stopPropagation();
-			});
-
-			v.structureListWrapper.find("table>tbody>tr").find(".str_name_span").click(function(e){
-				let _idx=$(this).data('idx');
-				$(this).hide();
-				$(this).parent().find("input").val($(this).text());
-				$(this).parent().find("input").show();
-				$(this).parent().find("input").focus();
-				e.stopPropagation();
-			});
-
-			v.structureListWrapper.find("table>tbody>tr").find(".str_name_input").focusout(function(){
-				console.log("focusout")
-				let _idx=$(this).data('idx');
-				let n_name=$(this).val();
-				$(this).hide();
-				$(this).parent().find("span").text(n_name);
-				$(this).parent().find("span").show();
-				v.strlist[_idx].name=n_name;
-			});
-			v.structureListWrapper.find("table>tbody>tr").find(".str_name_input").mousedown(function(e){
-				e.stopPropagation();
-			});
-			v.structureListWrapper.find("table>tbody>tr").find(".str_name_input").click(function(e){
-				e.stopPropagation();
-			});
-
-			v.structureListWrapper.find("table>tbody>tr").click(function(){
-				let _idx=$(this).data('idx');
-				if(_idx===-1) return;
-				if(_idx===v.strNum){
-					return;
-				}
-				v.loadStrlist(_idx);
-				v.structureListWrapper.find("table>tbody").find(".selected_strlist").removeClass("selected_strlist");
-				$(this).addClass("selected_strlist");
-			});
-			v.structureListWrapper.find("table>tbody>tr").find(".add_str_list").click(function(){
-				v.addStrlist();
-				v.drawStructureList();
-			});
-
-		}
-		v.addStrlist = function(){
-			v.strlist.push({"name":"Structure-"+v.strlist.length,"Structure":0,"history":[]});
-			v.loadStrlist(v.strlist.length -1);
-		}
-		v.loadStrlist = function(idx){
-			if(idx>=v.strlist.length){
-				console.log("returned");
-				return false;
-			}
-			if(v.strNum>=v.strlist.length){
-				v.strNum=0;
-			}
-			if(v.strNum !== idx){
-				v.strlist[v.strNum]["history"]=JSON.parse(JSON.stringify(v.Manipulate.history));
-				v.strNum=idx;
-			}
-			v.Manipulate.history=v.strlist[v.strNum]['history'];
-			if(v.Manipulate.history.length===0 && idx!== 0){
-				v.Manipulate.addHistory({
-					mode:"New Structure",
-					args:{},
-					Structure:objClone(v.Structure),
-				});	
-			}
-			if(v.strlist[v.strNum]["history"].length>0){
-				v.Structure=VLatoms.Utils.redefineStructure(v.strlist[v.strNum]["history"][v.strlist[v.strNum]["Structure"]]["Structure"]);
-			}
-			v.Manipulate.updateHistoryTbl();
-			v.update.atomsChanged=true;
-			v.update.bondsChanged=true;
-			v.animateControl.once();
-		}
-		v.strListSlide=function(){
-			if(v.option.strListSlide){
-				let next=v.strNum*1+1;
-				if(next>=v.strlist.length){
-					next=0;
-				}
-				v.loadStrlist(next);
-				v.drawStructureList();
-				setTimeout(function(){
-					v.strListSlide();
-				},500);
-			}
-		}
-		v.removeStrlist = function(idx){
-			if(!v.option.strListDel){
-				return;
-			}
-			if(v.strlist.length===1){
-				return false;
-			}
-			v.strlist.splice(idx,1);
-			v.drawStructureList();
-			if(idx<v.strNum){
-				v.strNum=v.strNum-1;
-			}else if(idx===v.strNum){
-				v.strNum=0;
-			}
-			v.loadStrlist(v.strNum);
-		}
-
-/* Structure List */
 	NVLScreens++;
 // -------------------------------------------------------------------------------- //
 
@@ -587,7 +231,7 @@ var VLatoms = function(option){
 		v.renderer  =  new THREE.WebGLRenderer(render_option);
 	}else{
 		alert("Canvas Renderer!");
-		v.renderer  =  new THREE.CanvasRenderer(render_option);
+		v.renderer  =  new THREE.CangasRenderer(render_option);
 	}
 	v.renderer.setClearColor( v.option.backgroundcolor ,1);
 	v.renderer.sortObjects=false;
@@ -629,20 +273,20 @@ var VLatoms = function(option){
 			"right":"0.5em",
 			"bottom":"0.5em",
 			"width":160,
-			"height":55,
+			"height":40,
 			"text-align":"right"
 		});
 		// Message window
 		
 		if(v.messageWrapper ===undefined){
 			$(v.wrapper).append("<div id=VLScreen_message"+NVLScreens+" class=VLScreen_message><div class='messagebox'></div></div>");
-			v.messageWrapper = $("#VLScreen_message"+NVLScreens);
 		}
+		v.messageWrapper = $("#VLScreen_message"+NVLScreens);
 		v.messageWrapper.css({
 			width:v.wrapperStyle.width,
 			height:v.wrapperStyle.height,
 		});
-		v.messageWrapper.find(".messagebox").html(v.option.placeholder);
+		v.messageWrapper.find(".messagebox").html("Click here to upload structure file <br>or<br>Drop your structure file here!");
 		v.messageWrapper.find(".messagebox").unbind();
 		v.messageWrapper.find(".messagebox").click(function(){
 			var tmp_input_file = $(document.createElement("input"));
@@ -695,8 +339,7 @@ console.log('orgdis',orgdist);
 	//v.camera = new THREE.CombinedCamera( v.wrapperStyle.width, v.wrapperStyle.height, v.option.camera.fov, v.option.camera.near, v.option.camera.far, 0.001, 100000);
 	//v.setOrthographicCamera();
 
-//jh
-	v.scene.add(v.camera);
+
 	v.light=[];
 	v.light.push(new THREE.DirectionalLight(0xffffff,1/3));
 	v.light.push(new THREE.DirectionalLight(0xffffff,1/3));
@@ -704,8 +347,6 @@ console.log('orgdis',orgdist);
 	//v.light = new THREE.PointLight( 0xffffff, 1 );
 
 	v.controls = new THREE.TrackballControls( v.camera, v.renderer.domElement );
-//js
-v.controls.visualizer=v;
 	v.controls.rotateSpeed  =  1.2;
 	v.controls.zoomSpeed  =  1.2;
 	v.controls.panSpeed  =  1;
@@ -713,7 +354,6 @@ v.controls.visualizer=v;
 	v.controls.noPan  =  false;
 	v.controls.staticMoving  =  true;
 	v.controls.dynamicDampingFactor  =  0.3;
-	v.controls.wheelEvent = function(){ v.animateControl.once(); };
 	for(var i=0;i<3;i++){
 	v.light[i].castShadow=true;
 	v.light[i].shadow.bias = 0.0001;
@@ -735,9 +375,6 @@ v.controls.visualizer=v;
 		v.camera.updateProjectionMatrix();
 	
 		v.onWindowResizeAction.forEach(function(e){e();});	
-
-		v.animateControl.once();
-		v.draw.Axis();
 	}
 
 
@@ -765,42 +402,23 @@ v.controls.visualizer=v;
 			var _t = v.cellInfoWrapper;
 			if(!v.option.cellInfo){
 				_t.html("");
-				_t.hide();
 				return;
 			}
-			_t.show();
 			var la = VLatoms.Math.len(v.Structure.a);
 			var lb = VLatoms.Math.len(v.Structure.b);
 			var lc = VLatoms.Math.len(v.Structure.c);
 			var al = Math.acos( VLatoms.Math.dot(v.Structure.b, v.Structure.c) / lb / lc)*180/Math.PI;
 			var be = Math.acos( VLatoms.Math.dot(v.Structure.c, v.Structure.a) / lc / la)*180/Math.PI;
 			var gam= Math.acos( VLatoms.Math.dot(v.Structure.a, v.Structure.b) / la / lb)*180/Math.PI;
-
-			//for density
-			let elementInfo = {};
-			v.Structure.atoms.forEach((v,i,a)=>{
-				if(elementInfo[v.element] === undefined){
-					elementInfo[v.element] = {mass:v.mass, n:1};
-				}else{
-					elementInfo[v.element].n++;
-				}
-			});
-
-
-			let mass = 0;
-			for(let i in elementInfo){
-				mass += elementInfo[i].mass * elementInfo[i].n;
-			}
-			let volume = Math.abs(math.dot(math.cross(v.Structure.a, v.Structure.b), v.Structure.c));
-			let Navogadro = 6.022140857 // *10^23
-			let density = Math.round(mass / volume / Navogadro *10 * 10000)/10000;
-/*			
 			var _s = v.IO.selectedAtoms;
-
+			
 			var selTxt="";
 			if(_s.length>0) selTxt+="Selected : ";
 			var selArr={};
 			for(var i in _s){
+/*console.log('test',i);
+console.log('test1',_s);
+console.log('test2',v.Structure.atoms);*/
 				var element = v.Structure.atoms[_s[i]].element;
 				if(selArr[element]===undefined){ selArr[element]=1;}
 				else{ selArr[element]++;}
@@ -808,92 +426,61 @@ v.controls.visualizer=v;
 			for(i in selArr){
 				selTxt+=i+""+selArr[i]+" ";
 			}
-*/
 			var innerhtml="";
-			innerhtml += v.Structure.spacegroup == false || v.Structure.spacegroup == undefined ? "" : "Space group : "+SpaceGroups[v.Structure.spacegroup*1-1]+"("+v.Structure.spacegroup+")<br>";
-			//		innerhtml+="Atoms : "+v.Structure.atoms.length+"<br>";
-			innerhtml += v.Structure.formula ? JSON.stringify(v.Structure.formula.formulaArr).replace(/"/g,'').replace(/[{}]/g,"").replace(/:/g," : ").replace(/,/g,", ") + "<br>" : "<br>";
-			innerhtml += "a,b,c (&#8491;) : <span style='color:rgb(200,0,0)'>"+la.toFixed(2)+"</span>, <span style='color:rgb(0,155,0)'>";
-			innerhtml += lb.toFixed(2)+"</span>, <span style='color:rgb(0,0,155)'>";
-			innerhtml += lc.toFixed(2)+"</span><br>";
-			innerhtml += "&alpha;,&beta;,&gamma; (&deg;) : "+al.toFixed(2)+", ";
-			innerhtml += be.toFixed(2)+", ";
-			innerhtml += gam.toFixed(2)+"<br>";
-			innerhtml += "Density : " + density + " g/cm<sup>3</sup>";
-			//				innerhtml+=selTxt;
+				innerhtml+="Atoms : "+v.Structure.atoms.length+"<br>";
+				innerhtml+="a,b,c (&#8491;) : "+la.toFixed(2)+", ";
+				innerhtml+=lb.toFixed(2)+", ";
+				innerhtml+=lc.toFixed(2)+"<br>";
+				innerhtml+="&alpha;,&beta;,&gamma; (&deg;) : "+al.toFixed(2)+", ";
+				innerhtml+=be.toFixed(2)+", ";
+				innerhtml+=gam.toFixed(2)+"<br>";
+				innerhtml+=selTxt;
 			_t.html(innerhtml);
 
 		},
 		selectInfo : function(){
 //			v.option.selectInfo = !v.option.selectInfo;
-			var target = $(v.wrapper).find(".VLScreen_selectInfo");
-			target.empty();   
-			if(!v.option.selectInfo){
-				target.hide();   
-				return;
-			}
-			target.show();
-			if(v.IO.selectMode!="none"){
-				var _t = "<font style='weight:bold;color:red;"+(v.IO.isMobile?"font-size:14px;":"")+"'>Press ESC key or touch <span class=VLatoms_mobile_esc>THIS</span><br> to exit select mode<br>"+(v.IO.isMobile?"<span class=VLatoms_mobile_delete>Delete selected atoms</span>":"")+"</font><br>";
-				switch(v.IO.selectMode){
-					case 'atom':
-						target.html(_t+"Select mode - Single<br>");
-						break;
-					case 'rect':
-						target.html(_t+"Select mode - Rectangular<br>");
-						break;
-					case 'circ':
-						target.html(_t+"Select mode - Circle<br>");
-						break;
-					case 'element':
-						target.html(_t+"Select mode - Element<br>");
-						break;
-					case 'hex':
-						target.html(_t+"Select mode - Hexagon<br>");
-						break;
-					case 'lasso':
-						target.html(_t+"Select mode - Lasso<br>");
-						break;
-					case 'sphere':
-						target.html(_t+"Select mode - Sphere (Distance:"+v.IO.distance.toFixed(2)+"<br>");
-						break;
-					case 'pos':
-						target.html(_t+"Select mode - Center Atom<br>");
-						break;
-				}
-				if(v.ctlPressed===true){
-					target.append('Reverse<br>');
-				}
-				target.find('.VLatoms_mobile_esc').unbind();
-				target.find('.VLatoms_mobile_esc').bind("click",function(){
-							v.ctxMenu.hide();
-							v.IO.exitSelectMode();
-				});
-				target.find('.VLatoms_mobile_delete').unbind();
-				target.find('.VLatoms_mobile_delete').bind("click",function(){
-							v.manipulateAtom.removeSelectedAtoms();
-				});
-
-				var _selected_atoms=[];
-				v.IO.selectedAtoms.forEach(function(_atom){ 
-					for(var i=0;i<_selected_atoms.length;i++){
-						if(_selected_atoms[i].element == v.Structure.atoms[_atom].element){
-							_selected_atoms[i].count+=1;
-							return;
-						}
-					}
-					_selected_atoms.push({"element":v.Structure.atoms[_atom].element,"count":1});
-				});
-				var ih="";
-				for(var i=0;i<_selected_atoms.length;i++){
-					ih+=_selected_atoms[i].element +"="+ _selected_atoms[i].count+", ";
-				}
-
-				_ih=ih.substr(0,ih.length-2);
-				if(_ih!=""){
-					target.append(_ih);
-				}
-			}
+		   $("#VLScreen_selectInfo").empty();   
+		   if(!v.option.selectInfo){
+			  return;
+		   }
+		   if(v.IO.selectMode!="none"){
+			  switch(v.IO.selectMode){
+				 case 'atom':
+					$("#VLScreen_selectInfo").html("Select mode - Single<br>");
+					break;
+				 case 'rect':
+					$("#VLScreen_selectInfo").html("Select mode - Rectangular<br>");
+					break;
+				 case 'circ':
+					$("#VLScreen_selectInfo").html("Select mode - Circle<br>");
+					break;
+				 case 'element':
+					$("#VLScreen_selectInfo").html("Select mode - Element<br>");
+					break;
+			  }
+			  if(v.ctlPressed===true){
+				 $("#VLScreen_selectInfo").append('Reverse<br>');
+			  }
+			  var _selected_atoms=[];
+			  v.IO.selectedAtoms.forEach(function(_atom){ 
+				 for(var i=0;i<_selected_atoms.length;i++){
+					if(_selected_atoms[i].element == v.Structure.atoms[_atom].element){
+					   _selected_atoms[i].count+=1;
+					   return;
+					  }
+				  }
+				 _selected_atoms.push({"element":v.Structure.atoms[_atom].element,"count":1});
+			  })
+			  var ih="";
+			  for(var i=0;i<_selected_atoms.length;i++){
+				 ih+=_selected_atoms[i].element +"="+ _selected_atoms[i].count+", ";
+			  }
+			  _ih=ih.substr(0,ih.length-2);
+			  if(_ih!=""){
+				 $("#VLScreen_selectInfo").append(_ih);
+			  }
+		   }
 		},
 		applyStructure : function(structure){
 			v.clear.atomsInStructure();//
@@ -907,39 +494,24 @@ v.controls.visualizer=v;
 			}
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 		},
 		atomPosition : function(newStructure){
 			var ns = newStructure;
 				for(var i=0;i<ns.atoms.length;i++){
 					var ca = ns.atoms[i];
-					if(v.option.shift){
-						v.Structure.atoms[i].x = ca.x - v.option.shift_val[0];
-						v.Structure.atoms[i].y = ca.y - v.option.shift_val[1];
-						v.Structure.atoms[i].z = ca.z - v.option.shift_val[2];
-					}else{
-						v.Structure.atoms[i].x = ca.x;
-						v.Structure.atoms[i].y = ca.y;
-						v.Structure.atoms[i].z = ca.z;
-					}
-
-				}
-//			v.update.atomsChanged=true;		//이걸 키면 원자 mesh를 다 새로 그리기 때문에 매우 느려지고, 이 함수는 원자가 바뀌지 않은 상황에서 위치만 바꾸기 위해 사용하는 함수기 때문에 킬 이유가 없음.
-			v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-				for(var i=0;i<ns.atoms.length;i++){
+					v.Structure.atoms[i].x = ca.x;
+					v.Structure.atoms[i].y = ca.y;
+					v.Structure.atoms[i].z = ca.z;
 					if(v.option.atoms){
-						v.atomMeshes[i].position.set( v.Structure.atoms[i].x, v.Structure.atoms[i].y, v.Structure.atoms[i].z );
+						v.atomMeshes[i].position.set( ca.x*1, ca.y*1, ca.z*1 );
 						v.set.toSceneCenter(v.atomMeshes[i]);
 					}
 				}
 			v.update.bondsChanged=true;
-			v.animateControl.once();
-
 			for(var i=0;i<v.option.onUpdate.length;i++){
 				v.option.onUpdate[i]();
 			}
-		//	console.log("QQQ");
-		//console.log(v.Structure.atoms[0]);
+
 		},
 		atom : function(){
 				v.draw.Cell();
@@ -947,15 +519,13 @@ v.controls.visualizer=v;
 // 예전의 drawatom
 				v.clear.atomsInScene();
 				v.update.atomsChanged = false;
-				if(!v.option.atoms) {  return false;}
+				if(!v.option.atoms) return;
 				var material = new THREE.MeshPhongMaterial({ reflectivity : 1.00 ,specular : 0x666666, shininess : 100, color : 0xff0000 });
 				//var material = new THREE.MeshPhongMaterial({ reflectivity : 1.00 ,specular : 0xffffff, shininess : 10, color : 0xff0000 });
 				//var material = new THREE.MeshLambertMaterial({ reflectivity : 1.00 ,specular : 0x000000, shininess : 10, color : 0xff0000 });
 				var ca, tmpmesh;
-				let Natom = v.natoms();
-				for( var i = 0 ; i < Natom ; i++ ){
+				for( var i = 0 ; i < v.natoms() ; i++ ){
 					ca = v.Structure.atoms[i];
-					if(v.option.atomDisplay[ca.element] == false) continue;
 					tmpmesh = new THREE.Mesh( v.Sphere, material.clone() );
 					tmpmesh.material.color.setHex( ca.color );
 
@@ -969,15 +539,15 @@ v.controls.visualizer=v;
 					v.set.toSceneCenter(tmpmesh);
 					v.scene.add( tmpmesh );
 				}
-				if(v.natoms() == 0 ){
-					v.messageWrapper.show();
+				if(v.natoms() == 0 )
+				{
+				v.messageWrapper.show();
 				}else{
-					v.messageWrapper.hide();
+				v.messageWrapper.hide();
 				}
 				if(v.option.ghosts) v.update.ghosts();
 				v.update.cellInfo();
 				v.update.selectInfo();
-				v.IO.highlightSelectedAtoms();
 				for(var i=0;i<v.option.onUpdate.length;i++){
 					v.option.onUpdate[i]();
 				}
@@ -1022,11 +592,9 @@ v.controls.visualizer=v;
 			if(args===undefined){
 				args = {gofr:false};
 			}
-			if(args.gofr === undefined){ 
-				args.gofr = false;
-			}
+			if(args.gofr === undefined) args.gofr = false;
 			var epsinv = 1/4*3.1415926535*0.1;
-			if(!v.option.bonds || v.Structure.atoms.length > 500){
+			if(!v.option.bonds){
 				v.clear.bondsInScene();
 				this.bondsChanged = false;
 				return;
@@ -1043,11 +611,9 @@ v.controls.visualizer=v;
 				}
 			}
 
-			if(v.update.bin()==="bin false"){
-				return;
-			}; // Update bin indicies
-//			console.log(v.Structure.atoms.length+"!!");
-//			console.log(v.bondpairs_display);
+			v.update.bin(); // Update bin indicies
+			console.log(v.Structure.atoms.length+"!!");
+			console.log(v.bondpairs_display);
 			for( var i = 0 ; i < v.Structure.atoms.length ; i++ ){
 				ca = v.Structure.atoms[i];
 				atomi_r = ca.radius;
@@ -1061,9 +627,9 @@ v.controls.visualizer=v;
 					if(( v.bondpairs_display.indexOf(cb.element+""+ca.element) < 0 ) && !args.gofr) continue;
 					atomj_r = cb.radius;
 
-					cutoff = ( atomi_r + atomj_r ) * 1.08;
+					cutoff = ( atomi_r + atomj_r ) * 1.1;//1.005;
 					if(v.option.calculate_gofr || args.gofr){
-						var resol = v.option.gofr_resolution;
+						var resol = 0.05;
 						dx = ca.x - cb.x ;
 						dy = ca.y - cb.y ;
 						dz = ca.z - cb.z ;
@@ -1133,8 +699,6 @@ v.controls.visualizer=v;
 			var bin_nx, bin_ny, bin_nz;
 			
 			var latMat = [ v.Structure.a, v.Structure.b, v.Structure.c ];
-//	console.log("@");
-//	console.log(v.Structure.bin);
 
 			
 			//var _atomPos_tmp = VLatoms.Math.vecdotmat(  [1,1,1], latMat );
@@ -1150,7 +714,6 @@ v.controls.visualizer=v;
 			for(var i=0;i<8;i++){
 				var tmpPos=refPos[i];
 				var atomPos_tmp = VLatoms.Math.vecdotmat(  tmpPos, latMat );
-//	console.log(atomPos_tmp);
 				if(xmax===undefined){
 					xmax=atomPos_tmp[0];
 					xmin=atomPos_tmp[0];
@@ -1169,7 +732,6 @@ v.controls.visualizer=v;
 				if(atomPos_tmp[1]>ymax) ymax=atomPos_tmp[1];
 				if(atomPos_tmp[2]>zmax) zmax=atomPos_tmp[2];
 			}
-//console.log(xmax,xmin,ymax,ymin,zmax,zmin);	
 			bin_nx = Math.floor((xmax - xmin)/bs);
 			bin_ny = Math.floor((ymax - ymin)/bs);
 			bin_nz = Math.floor((zmax - zmin)/bs);
@@ -1181,26 +743,21 @@ v.controls.visualizer=v;
 			if( bin_nz == 0 ) bin_nz = 1;
 			for( var i = 0 ; i < bin_nx * bin_ny * bin_nz ; i++) v.Structure.bin[i] = [] ;
 			for( var i = 0 ; i < v.Structure.atoms.length ; i++ ){
-				try{
-					var ca = v.Structure.atoms[i] ;
-					var myx = Math.floor( (ca.x-xmin) / bs );
-					var myy = Math.floor( (ca.y-ymin) / bs );
-					var myz = Math.floor( (ca.z-zmin) / bs );
-					if( myx < 0 ) myx = bin_nx + myx;
-					if( myy < 0 ) myy = bin_ny + myy;
-					if( myz < 0 ) myz = bin_nz + myz;
-					if( myx == bin_nx ) myx--;
-					if( myy == bin_ny ) myy--;
-					if( myz == bin_nz ) myz--;
-					var binidx =   myx * bin_ny * bin_nz
-								 + myy * bin_nz
-								 + myz;
-					v.Structure.bin[binidx].push( i );
-					ca.bin = [ myx, myy, myz ];
-				}catch(e){
-					v.Structure.bin=[];
-					return "bin false";
-				}
+				var ca = v.Structure.atoms[i] ;
+				var myx = Math.floor( (ca.x-xmin) / bs );
+				var myy = Math.floor( (ca.y-ymin) / bs );
+				var myz = Math.floor( (ca.z-zmin) / bs );
+				if( myx < 0 ) myx = bin_nx + myx;
+				if( myy < 0 ) myy = bin_ny + myy;
+				if( myz < 0 ) myz = bin_nz + myz;
+				if( myx == bin_nx ) myx--;
+				if( myy == bin_ny ) myy--;
+				if( myz == bin_nz ) myz--;
+				var binidx =   myx * bin_ny * bin_nz
+						     + myy * bin_nz
+							 + myz;
+				v.Structure.bin[binidx].push( i );
+				ca.bin = [ myx, myy, myz ];
 			}
 			v.Structure.bindim = [ bin_nx, bin_ny, bin_nz ];
 		}
@@ -1221,7 +778,7 @@ v.controls.visualizer=v;
 		}
 	}
 	v.get = {
-		NeighsChildren : function( binarr, cutoff = 3 ){
+		NeighsChildren : function( binarr ){
 // return neighboring bin's children atoms
 			var pj = v.Structure;
 			var nbin_x = pj.bindim[0];
@@ -1366,7 +923,6 @@ v.controls.visualizer=v;
 		},
 		Axis : function(){
 			if(v.Axis.length>0){
-				v.camera.children=[];
 				for(var i=v.Axis.length-1;i>=0;i--){
 					v.scene.remove(v.Axis[i]);
 				}
@@ -1393,7 +949,6 @@ v.controls.visualizer=v;
 			var a0_cyl = v.draw.Cylinder({x:0,y:0,z:0},{x:a0[0],y:a0[1],z:a0[2]},0.15);
 			var b0_cyl = v.draw.Cylinder({x:0,y:0,z:0},{x:b0[0],y:b0[1],z:b0[2]},0.15);
 			var c0_cyl = v.draw.Cylinder({x:0,y:0,z:0},{x:c0[0],y:c0[1],z:c0[2]},0.15);
-
 			var a0_cone = v.draw.Cylinder({x:a0[0],y:a0[1],z:a0[2]},{x:a0[0]*1.6,y:a0[1]*1.6,z:a0[2]*1.6},0.3,v.Cone);
 			var b0_cone = v.draw.Cylinder({x:b0[0],y:b0[1],z:b0[2]},{x:b0[0]*1.6,y:b0[1]*1.6,z:b0[2]*1.6},0.3,v.Cone);
 			var c0_cone = v.draw.Cylinder({x:c0[0],y:c0[1],z:c0[2]},{x:c0[0]*1.6,y:c0[1]*1.6,z:c0[2]*1.6},0.3,v.Cone);
@@ -1410,44 +965,10 @@ v.controls.visualizer=v;
 			v.Axis.push(a0_cone);
 			v.Axis.push(b0_cone);
 			v.Axis.push(c0_cone);
-			if(v.camera.type === "OrthographicCamera"){
-				for(let i=0;i<v.Axis.length;i++){
-					v.scene.add(v.Axis[i]);
-					v.set.toSceneCenter( v.Axis[i] );
-				}
-			}else{
-				let vls_ratio=v.wrapper.offsetHeight/600;
-				let __pos_x=(v.wrapper.offsetWidth-120*vls_ratio)/v.wrapper.offsetWidth;
-				let __pos_y=(v.wrapper.offsetHeight-120*vls_ratio)/v.wrapper.offsetHeight;
-				let vector = new THREE.Vector3( -1*__pos_x, -1*__pos_y, 0.5 );
-//왼쪽하단offset을 vector화
+			for(var i=0;i<v.Axis.length;i++){
+				v.scene.add(v.Axis[i]);
 
-				v.camera.updateMatrixWorld(true);
-
-				vector.unproject( v.camera );
-				let raycaster = new THREE.Raycaster( v.camera.position, vector.sub( v.camera.position ).normalize() );
-				var z_shift=-1000/v.camera.fov;
-
-				var target_pos=new THREE.Vector3(raycaster.ray.origin.x-raycaster.ray.direction.x*z_shift,raycaster.ray.origin.y-raycaster.ray.direction.y*z_shift,raycaster.ray.origin.z-raycaster.ray.direction.z*z_shift);
-//camera위치에서 목표지점으로 z_shift만큼 이동
-				let _shift_value=target_pos.applyMatrix4(v.camera.matrixWorldInverse);
-				let x_shift=_shift_value.x;
-				let y_shift=_shift_value.y;
-				v.Axis.Box = new THREE.Object3D();
-				v.Axis.Box.position.x=x_shift;
-				v.Axis.Box.position.y=y_shift;
-				v.Axis.Box.position.z=z_shift;
-				for(let i=0;i<v.Axis.length;i++){
-					v.Axis.Box.add(v.Axis[i]);
-				}
-				var geometry = new THREE.SphereGeometry( 0.25,16,16 );
-				var material = new THREE.MeshPhongMaterial({ reflectivity : 1.00 ,specular : 0x666666, shininess : 100, color : 0xdedede });
-				var sphere = new THREE.Mesh( geometry, material );
-				v.Axis.Box.add(sphere);
-				v.Axis.Box.rotateZ(-1*v.camera.rotation._z);
-				v.Axis.Box.rotateY(-1*v.camera.rotation._y);
-				v.Axis.Box.rotateX(-1*v.camera.rotation._x);
-				v.camera.add(v.Axis.Box);
+				v.set.toSceneCenter( v.Axis[i] );
 			}
 //		return VLatoms.Math.vecdotmat( latvec, VLatoms.Math.random3() );
 
@@ -1476,61 +997,21 @@ v.controls.visualizer=v;
 			return Cylinder;
 		}
 	}
-	v.animateId = undefined;
-	v.onAnimate = false;
-	v.animateControl = {
-/*
- * once는 start 상태에서는 안먹힘(이미 그려지고 있는 상황이므로) -> 중복실행돌 방지
- * start 되어있는 상태에서 또 start 안됨-> 중복실행 방지
- * start를 유지해야 하면 playStack에 추가 
- * 
- */
-		playStack : [],
-		once : function(){
-			if(!v.onAnimate){
-				v.animateId = requestAnimationFrame(v.animate);
-			} 
-		},
-		
-		start : function(addStack){
-			if(addStack != undefined){
-				v.animateControl.playStack.push(addStack);
-			}
-			if(!v.onAnimate){
-				v.onAnimate = true;
-				v.animateId = requestAnimationFrame(v.animate); 
-			}
-		},
-		stop : function(removeStack){
-			if(removeStack != undefined){
-				let removeIdx = v.animateControl.playStack.indexOf(removeStack);
-				if(~removeIdx){
-					v.animateControl.playStack.splice(removeIdx, 1);
-				}
-			}
-		   if(v.animateControl.playStack.length < 1){
-			   v.onAnimate = false;
-		   }
-		},
-
-	}
 	v.animate = function(){
+
 		/* if Something changed on Scene (new atom, delete atom, move...) */
 		if( v.update.atomsChanged ){
 			v.update.atom();
-/*	v.update.atom()에 있음
 			for(var i=0;i<v.option.onUpdate.length;i++){
 				v.option.onUpdate[i]();
 			}
-*/
 		}
 		if( v.update.bondsChanged ){
 			v.update.bond();
 		}
-/*			var _v = new THREE.Vector3(0,0,-1).unproject(v.camera);
-	console.log(_v);*/
 
-		//requestAnimationFrame(v.animate);
+
+		requestAnimationFrame(v.animate);
 
 		var cx,cy,cz;
 		var carr = [];
@@ -1539,36 +1020,29 @@ v.controls.visualizer=v;
 		var _c;
 		var __c=[];
 		if( v.controls !== undefined ){ v.controls.update(); }
-		//v.light.position.set( v.camera.position.x, v.camera.position.y, v.camera.position.z );
-		uparr = [ v.camera.up.x, v.camera.up.y, v.camera.up.z ]; // ^
-		_c = new THREE.Vector3(v.camera.position.x, v.camera.position.y, v.camera.position.z);
-		_c.normalize();
-		__c = [_c.x, _c.y, _c.z];
-		refarr = VLatoms.Math.cross(uparr,__c); // ->
+			//v.light.position.set( v.camera.position.x, v.camera.position.y, v.camera.position.z );
+			uparr = [ v.camera.up.x, v.camera.up.y, v.camera.up.z ]; // ^
+			_c = new THREE.Vector3(v.camera.position.x, v.camera.position.y, v.camera.position.z);
+			_c.normalize();
+			__c = [_c.x, _c.y, _c.z];
+			refarr = VLatoms.Math.cross(uparr,__c); // ->
 
-		for(var i=0;i<3;i++){			
+			for(var i=0;i<3;i++){			
 			carr = [v.camera.position.x, v.camera.position.y, v.camera.position.z];
-			carr = VLatoms.Math.rotateA(refarr,carr,v.option.light[i].pos.x);
-			carr = VLatoms.Math.rotateA(uparr,carr,v.option.light[i].pos.y);
-
+			carr = VLatoms.Math.rotateA(refarr,carr,v.option.lightpos[i].x);
+			carr = VLatoms.Math.rotateA(uparr,carr,v.option.lightpos[i].y);
+		
 
 			//v.light.position.set( v.camera.up.x, v.camera.up.y, v.camera.up.z );
 			v.light[i].position.set( carr[0]*CX, carr[1]*CX, carr[2]*CX);
-		}
+			}
 
 
 		v.renderer.render( v.scene, v.camera );
-		if(v.onAnimate){
-//			console.log('animateId : '+v.animateId);
-			v.animateId = requestAnimationFrame(v.animate); 
-		} else {
-	//		cancelAnimationFrame(v.animateId);
-		}
 	}
 	v.axisView = function(direction){
 		var camRange = v.camera.position.length();
 		var _sAxis=[[1,0,0],[0,1,0],[0,0,1]];
-		let _sAxisUnit=[[1,0,0],[0,1,0],[0,0,1]];
 		if(v.Structure !== undefined){
 			if(v.Structure.a!==undefined){
 				_sAxis[0] = VLatoms.Math.norm(v.Structure.a);
@@ -1576,79 +1050,29 @@ v.controls.visualizer=v;
 				_sAxis[2] = VLatoms.Math.norm(v.Structure.c);
 			}
 		}
+
 		var camPos, camUp, nowUp, checkUp;
 		nowUp = [v.camera.up.x, v.camera.up.y, v.camera.up.z];
 		switch(direction){
 			case "x":
-				camPos = [1, 0, 0];
-				camUp = [0, 0, 1];
-			break;
-			case "-x":
-				camPos = [1, 0, 0];
-				camUp = [0, 0, 1];
+				camPos = _sAxis[0];
+				checkUp = math.equal(nowUp, _sAxis[2]);
+				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
+					camUp = math.cross(_sAxis[0], _sAxis[1]);
+				} else {
+					camUp = _sAxis[2];
+				}
 			break;
 			case "y":
-				camPos = [0, 1, 0];
-				camUp = [1, 0, 0];
-			break;
-			case "-y":
-				camPos = [0, 1, 0];
-				camUp = [1, 0, 0];
+				camPos = _sAxis[1];
+				checkUp = math.equal(nowUp, _sAxis[0]);
+				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
+					camUp = math.cross(_sAxis[1], _sAxis[2]);
+				} else {
+					camUp = _sAxis[0];
+				}
 			break;
 			case "z":
-				camPos = [0, 0, 1];
-				camUp = [0, 1, 0];
-			break;
-			case "-z":
-				camPos = [0, 0, 1];
-				camUp = [0, 1, 0];
-			break;
-			case "a":
-				camPos = _sAxis[0];
-				checkUp = math.equal(nowUp, _sAxis[2]);
-				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
-					camUp = math.cross(_sAxis[0], _sAxis[1]);
-				} else {
-					camUp = _sAxis[2];
-				}
-			break;
-			case "-a":
-				camPos = _sAxis[0];
-				checkUp = math.equal(nowUp, _sAxis[2]);
-				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
-					camUp = math.cross(_sAxis[0], _sAxis[1]);
-				} else {
-					camUp = _sAxis[2];
-				}
-			break;
-			case "b":
-				camPos = _sAxis[1];
-				checkUp = math.equal(nowUp, _sAxis[0]);
-				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
-					camUp = math.cross(_sAxis[1], _sAxis[2]);
-				} else {
-					camUp = _sAxis[0];
-				}
-			break;
-			case "-b":
-				camPos = _sAxis[1];
-				checkUp = math.equal(nowUp, _sAxis[0]);
-				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
-					camUp = math.cross(_sAxis[1], _sAxis[2]);
-				} else {
-					camUp = _sAxis[0];
-				}
-			break;
-			case "c":
-				camPos = _sAxis[2];
-				checkUp = math.equal(nowUp, _sAxis[1]);
-				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
-					camUp = math.cross(_sAxis[2], _sAxis[0]);
-				} else {
-					camUp = _sAxis[1];
-				}
-			break;
-			case "-c":
 				camPos = _sAxis[2];
 				checkUp = math.equal(nowUp, _sAxis[1]);
 				if(checkUp[0]&&checkUp[1]&&checkUp[2]){
@@ -1661,25 +1085,7 @@ v.controls.visualizer=v;
 //console.log('cam',camPos,camUp,camRange);
 		v.camera.position.set(camPos[0], camPos[1], camPos[2]);
 		v.camera.up.set(camUp[0], camUp[1], camUp[2]);
-/*
-		switch(direction){
-			case "x":
-				v.camera.position.set(_sAxis[0][0],_sAxis[0][1],_sAxis[0][2]);
-				v.camera.up.set(_sAxis[2][0],_sAxis[2][1],_sAxis[2][2]);
-			break;
-			case "y":
-				v.camera.position.set(_sAxis[1][0],_sAxis[1][1],_sAxis[1][2]);
-				v.camera.up.set(_sAxis[2][0],_sAxis[2][1],_sAxis[2][2]);
-			break;
-			case "z":
-				v.camera.position.set(_sAxis[2][0],_sAxis[2][1],_sAxis[2][2]);
-				v.camera.up.set(_sAxis[1][0],_sAxis[1][1],_sAxis[1][2]);
-			break;
-		}
-*/
 		v.camera.position.multiplyScalar(camRange);
-		v.controls.update();
-		v.animateControl.once();
 	}
 
 
@@ -1730,9 +1136,7 @@ v.controls.visualizer=v;
 		atoms : Array(),
 		ghosts : Array()
 	};
-	v.strlist=[{"name":"Structure-0","Structure":-1,"history":[]}];
-	v.strNum=0;
-
+	
 	v.isStructureSame = function (sA,sB){
 		/*return : true - same
 		 		   false - different */
@@ -1755,9 +1159,8 @@ v.controls.visualizer=v;
 		add : function( x, y, z, element){
 			v.Structure.atoms.push(new VLatoms.Atom( x, y, z, element));
 			v.update.atomsChanged = true;
-			v.animateControl.once();
 			return v.Structure.atoms.length;
-		}
+		},
 	}
 // -------------------------------------------------------------------------------- //
 /* File (Import and export) */
@@ -1775,32 +1178,16 @@ v.controls.visualizer=v;
 		selecting : false,
 		wasdrag : false,
 		start : [ -1, -1 ],
-		sphereCenter : new THREE.Vector3(0,0,0),
-		distance : 0,
-		rdfMode : false,
 		end : [ -1, -1],
-		focus : false,
-		isMobile : false,
 		init : function(){
-			//			console.log(VLATOMS_PATH);
+			console.log(VLATOMS_PATH);
 			// Drag and Drop
 			v.wrapper.addEventListener('dragover', v.IO.dragOver ,false);
 			v.wrapper.addEventListener('drop', v.IO.drop ,false);
 			v.wrapper.addEventListener('contextmenu', v.IO.contextMenu ,false);
-
-
-
-
-			
 			document.addEventListener('mousedown', v.IO.mouseDown ,false);
-			document.addEventListener('touchstart', v.IO.mouseDown ,false);
-
 			document.addEventListener('mouseup', v.IO.mouseUp ,false);
-			document.addEventListener('touchend', v.IO.mouseUp ,false);
-			document.addEventListener('touchleave', v.IO.mouseUp ,false);
-
 			document.addEventListener('mousemove', v.IO.mouseMove ,false);
-			document.addEventListener('touchmove', v.IO.mouseMove ,false);
 			//v.wrapper.addEventListener('mouseup', v.IO.mouseUp ,false);
 			//v.wrapper.addEventListener('mousemove', v.IO.mouseMove ,false);
 			v.shiftPressed=false;
@@ -1810,22 +1197,6 @@ v.controls.visualizer=v;
 
 			v.IO.initKey();
 			v.IO.generateCtxMenu();
-if( navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/BlackBerry/i)
- || navigator.userAgent.match(/Windows Phone/i)) v.IO.isMobile = true;
-			window.addEventListener("keydown", function(e) {
-				//arrow keys
-				if([37, 38, 39, 40].indexOf(e.keyCode) > -1 && v.IO.focus) {
-					if($(document.activeElement).prop('tagName') != "INPUT"){
-						e.preventDefault();
-					}
-				}
-			}, false);
-
 		},
 		toggleSelection : function(mode){
 			v.shiftPressed=false;
@@ -1838,12 +1209,12 @@ if( navigator.userAgent.match(/Android/i)
 		generateCtxMenu : function(){
 			var randno =(Math.random()*10000000).toFixed(0); 
 			var ctxmenu="";
-				ctxmenu+="<div id=VLAtomsCtx"+randno+" class=VLMessage style='width:280px;'><table class=VLMTable style='height:100%;width:100%;'>";
+				ctxmenu+="<div id=VLAtomsCtx"+randno+" class=VLMessage style='width:350px;'><table class=VLMTable style='height:100%;'>";
 //				ctxmenu+="<thead class=VLMHeader><tr><td>Display Config</td></tr></thead>";
 				ctxmenu+="<tbody class=VLMBody><tr><td>";
 		ctxmenu+="<ul class='nav nav-tabs' role=tablist>";
-		ctxmenu+="<li role=presentation class='nav-item'><a class='nav-link active' href=#VLCtx"+randno+"_display aria-controls=VLCtx"+randno+"_display role=tab data-toggle=tab style='color:black;background-color:inherit;'>Display</a></li>";
-		ctxmenu+="<li role=presentation class='nav-item'><a class='nav-link' href=#VLCtx"+randno+"_measure aria-controls=VLCtx"+randno+"_measure role=tab data-toggle=tab style='color:black;background-color:inherit;'>Measure</a></li>";
+		ctxmenu+="<li role=presentation class=active><a href=#VLCtx"+randno+"_display aria-controls=VLCtx"+randno+"_display role=tab data-toggle=tab>Display</a></li>";
+		ctxmenu+="<li role=presentation><a href=#VLCtx"+randno+"_measure aria-controls=VLCtx"+randno+"_measure role=tab data-toggle=tab>Measure</a></li>";
 		ctxmenu+="</ul>";
 
 		ctxmenu+="<div class=tab-content>";
@@ -1853,80 +1224,73 @@ if( navigator.userAgent.match(/Android/i)
 				ctxmenu+="<a class='disp_download' href=javascript:; data-type='cif' style='display:inline-block; margin:0 5px;'>CIF</a>";
 				ctxmenu+="<a class='disp_download' href=javascript:; data-type='vasp' style='display:inline-block; margin:0 5px;'>VASP</a>";
 				ctxmenu+="</div>";
-				ctxmenu+="<div class=form-inline style='display:flex;'><span data-option='backgroundcolor' style='margin-left:16px;display:inline-block;'><label style='width:95px;'><a href=javascript:;>Background </a></label></span>";
-				ctxmenu+="<input id='backgroundcolor"+randno+"' class='form-control backgroundcolor ' style='width:130px;' type=text value='"+v.option.backgroundcolor.toString(16)+"'>";
-				ctxmenu+="	<div style='display:inline;font-size:27px;margin-left:-30px;margin-top:-2px;'><button id='backgroundcolor_pick"+randno+"' style='width:20px; height:20px; border:#ccc solid 1px;'></button></div>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt' data-option='perspective' style='display:inline-block;'><label style='width:95px; display:inline-block;'><a href=javascript:;>Perspective</a></label></div>";
+				ctxmenu+="<div class=form-inline><span data-option='backgroundcolor' style='margin-left:16px;display:inline-block;'><label style='width:95px;'><a href=javascript:;>Background </a></label></span>";
+				ctxmenu+="<input class='form-control jscolor backgroundcolor' style='width:130px;' type=text value='"+v.option.backgroundcolor.toString(16)+"'></div>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt' data-option='perspective' style='display:inline-block;'><label style='width:95px;'><a href=javascript:;>Perspective</a></label></span>";
 				ctxmenu+="<input class='form-control fov' style='width:130px;' type=range min=1 max=90 value="+v.camera.fov+"></div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt ' data-option='atoms' style='display:inline-block;'><label style='width:40px; display:inline-block;'><a href=javascript:;>Atom</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='atom_design_config_wrapper' style='margin-right:41px;'></span>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt ' data-option='atoms' style='display:inline-block;'><label style='width:95px;'><a href=javascript:;>Atom</a></label></span>";
 				ctxmenu+="<input class='form-control atom_radius' style='width:130px;' type=range min=0.01 step=0.01 max=2 value="+v.option.radius.atom+"></div>";
-				ctxmenu+="<div style='padding:0 40px; display:none;' class='atom_design_config_wrapper'></div>";
-				ctxmenu+="<div class='atom_design_detail' data-targetelement='' style='margin-top:-10px;display:none;'>";
-				ctxmenu+="	<div style='display:flex;'><span style='width:54px;'>Color</span><input type='text' id='element_color"+randno+"' class='form-control element_color' style='display:inline; width:110px;'><div style='display:inline;font-size:27px;margin-left:-30px;margin-top:-2px;'><button id='element_color_pick"+randno+"' style='width: 20px; height: 20px; border: 1px solid rgb(204, 204, 204);'></button></div></div>";
-				ctxmenu+="	<div style='display:flex;'><span style='width:54px;'>Radius</span><input type='number' step='0.1' min='0' max='5' class='form-control element_radius' style='display:inline; width:110px;'></div>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt' data-option='bonds' style='display:inline-block;'><label style='width:40px; display:inline-block;'><a href=javascript:;>Bond</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='bondpairs' style='margin-right:41px;'></span>";
+				ctxmenu+="<div class=form-inline><span class='disp_option_toggle disp_toggle_swt' data-option='bonds' style='display:inline-block;'><label style='width:95px;'><a href=javascript:;>Bond</a></label></span>";
 				ctxmenu+="<input class='form-control bond_radius' style='width:130px;' type=range min=0.01 step=0.01 max=1 value="+v.option.radius.bond+"></div>";
-				ctxmenu+="<div style='padding:0 35px; display:none;' class='bondpairs'></div>";
-//Shift
-				ctxmenu+="<div class=form-inline><div class='disp_option_toggle disp_toggle_swt ' data-option='shift' style='display:inline-block;'><label style='width:65px;display:inline-block;'><a href=javascript:;>Shift</a></label></div>";
-				ctxmenu+="<span class='fas fa-caret-down sub_option_toggle' data-toggletarget='shift' style='margin-right:41px;'></span>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div style='display:none;margin-left:16px;' class='shift'>";
-				ctxmenu+="<div class='form-inline'><label style='width:45px;'>Value</label><input class='form-control cell_shift_x' style='width:45px;'><input class='form-control cell_shift_y' style='width:45px;'><input class='form-control cell_shift_z' style='width:45px;'>";
-				ctxmenu+="<button type='button' class='btn manipulator_ok shift_cell btn-success'><span class='fas fa-check' aria-hidden='true'></span></button>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div class='form-inline'><a class='center_to_atom' href='javascript:;'>Pick center atom</a></div>";
-				ctxmenu+="<div class='form-inline'><a class='default_shift' href='javascript:;'>Default</a></div>";
-				ctxmenu+="</div>";
-
-				ctxmenu+="<div class=row><div class=col-6><span class='disp_option_toggle disp_toggle_swt' data-option='cell'><a href=javascript:;>Cell</a></span>";
-				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='cellInfo'><a href=javascript:;>Cell Info</a></span>";
-				ctxmenu+="</div>";
-				ctxmenu+="<div class=col-6><span class='disp_option_toggle disp_toggle_swt' data-option='axis'><a href=javascript:;>Axis</a></span>";
+				ctxmenu+="<div style='padding-left:95px;' class='bondpairs'></div>";
+				ctxmenu+="<div class=row><div class=col-xs-6><span class='disp_option_toggle disp_toggle_swt' data-option='cell'><a href=javascript:;>Cell</a></span>";
+				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='cellInfo'><a href=javascript:;>Cell Info</a></span></div>";
+				ctxmenu+="<div class=col-xs-6><span class='disp_option_toggle disp_toggle_swt' data-option='axis'><a href=javascript:;>Axis</a></span>";
 				ctxmenu+="<span class='disp_option_toggle disp_toggle_swt' data-option='selectInfo'><a href=javascript:;>Select Info</a></span>";
 				ctxmenu+="</div></div>";
-				ctxmenu+="<div class=row><div class=col-12><span style='display:inline-block;width:115px;' class='disp_option_toggle disp_toggle_swt' data-option='ghosts'><a href=javascript:;>Ghosts</a></span>";
+				ctxmenu+="<div class=row><div class=col-xs-12><span style='display:inline-block;width:115px;' class='disp_option_toggle disp_toggle_swt' data-option='ghosts'><a href=javascript:;>Ghosts</a></span>";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=x>x ";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=y style='margin-left:10px;'>y ";
 				ctxmenu+="<input type=checkbox data-option='ghosts_direction' class='disp_toggle_swt ghosts_direction' checked value=z style='margin-left:10px;'>z ";
 				ctxmenu+="</div></div>";
 //				ctxmenu+="<span class='disp_option' style='margin-left:16px;' data-option=''><a href=javascript:;>Lights</a></span>";
 				/*	schan	*/
-				ctxmenu+='<div class="form-inline">';
-				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="1" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light1</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="2" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light2</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<div class="light_button_wrapper" data-lightnumber="3" style="display:inline; margin-right:5px;">';
-				ctxmenu+='	<div class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
-				ctxmenu+='	   <label style="width:42px; margin-left:-8px; display:inline-block;">';
-				ctxmenu+='		  <a href="javascript:;">Light3</a>';
-				ctxmenu+='	   </label>';
-				ctxmenu+='	</div>';
-				ctxmenu+='	<span class="fas fa-caret-down sub_option_toggle" data-toggletarget="light_control_box" style="cursor:pointer; color: #999;"></span>';
-				ctxmenu+='	</div>';
+				ctxmenu+='<div class="form-inline" data-lightnumber="1">';
+				ctxmenu+='  <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='     <label style="width:67px;">';
+				ctxmenu+='        <a href="javascript:;">Light1</a>';
+				ctxmenu+='     </label>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-left light" data-arrow="left" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-right light" data-arrow="right" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-top light" data-arrow="top" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-bottom light" data-arrow="bottom" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
+				ctxmenu+='	<input class="form-control light" style="width:72px;" type="range" min="0.01" max="1.5" value="0.3" step="0.01">';
 				ctxmenu+='</div>';
-				ctxmenu+='<div class="form-inline light_control_box" data-lightnumber="" style="display:none; padding:0 30px;">';
-				ctxmenu+=' 	<span class="fas fa-arrow-left light" data-arrow="left" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-right light" data-arrow="right" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-up light" data-arrow="top" aria-hidden="true"></span>';
-				ctxmenu+=' 	<span class="fas fa-arrow-down light" data-arrow="bottom" aria-hidden="true"></span>';
+				ctxmenu+='<div class="form-inline" data-lightnumber="2">';
+				ctxmenu+='  <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='     <label style="width:67px;">';
+				ctxmenu+='        <a href="javascript:;">Light2</a>';
+				ctxmenu+='     </label>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-left light" data-arrow="left" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-right light" data-arrow="right" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-top light" data-arrow="top" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-bottom light" data-arrow="bottom" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
+				ctxmenu+='	<input class="form-control light" style="width:72px;" type="range" min="0.01" max="1.5" value="0.3" step="0.01">';
+				ctxmenu+='</div>';
+				ctxmenu+='<div class="form-inline" data-lightnumber="3">';
+				ctxmenu+='  <span class="disp_option_toggle disp_toggle_swt" data-option="light" style="display:inline-block;">';
+				ctxmenu+='     <label style="width:67px;">';
+				ctxmenu+='        <a href="javascript:;">Light3</a>';
+				ctxmenu+='     </label>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-left light" data-arrow="left" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-right light" data-arrow="right" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
+				ctxmenu+='  <span style="margin-right:0.5em">';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-top light" data-arrow="top" aria-hidden="true"></span>';
+				ctxmenu+='  <span class="glyphicon glyphicon-triangle-bottom light" data-arrow="bottom" aria-hidden="true"></span>';
+				ctxmenu+='  </span>';
 				ctxmenu+='	<input class="form-control light" style="width:72px;" type="range" min="0.01" max="1.5" value="0.3" step="0.01">';
 				ctxmenu+='</div>';
 /*				ctxmenu+="<div style='width:200px;height:200px;margin-left:35px;border:solid 1px gray;position:relative;' class=lightpos_wrapper>";
@@ -1939,25 +1303,18 @@ if( navigator.userAgent.match(/Android/i)
 //Measure
 			ctxmenu+="<div role=tabpanel class=tab-pane id=VLCtx"+randno+"_measure style='padding:5px 0;'>";
 				ctxmenu+="<div class=form-inline>";
-					ctxmenu+="<div class=form-group style='margin-bottom:10px;'>";
-						ctxmenu+="<label style='width:110px;text-align:right;margin-right:3px;'>";
+					ctxmenu+="<div class=form-group>";
+						ctxmenu+="<label style='width:72px;text-align:right;margin-right:3px;'>";
 						ctxmenu+="Distance : ";
 						ctxmenu+="</label>";
-						ctxmenu+="<input type=text class='form-control VLCtx_distance' placeholder='Click here' style='width:140px;'>";
+						ctxmenu+="<input type=text class='form-control VLCtx_distance' placeholder='Click here to pick atoms' style='width:180px;'>";
 					ctxmenu+="</div>";
-					ctxmenu+="<div class=form-group style='margin-bottom:10px;'>";
-						ctxmenu+="<label style='width:110px;text-align:right;margin-right:3px;'>";
-						ctxmenu+="Angle(Vectors) : ";
+					ctxmenu+="<div class=form-group>";
+						ctxmenu+="<label style='width:72px;text-align:right;margin-right:3px;'>";
+						ctxmenu+="Angle : ";
 						ctxmenu+="</label>";
-						ctxmenu+="<input type=text class='form-control VLCtx_angle' placeholder='Click here' style='width:140px;'>";
+						ctxmenu+="<input type=text class='form-control VLCtx_angle' placeholder='Click here to pick atoms'>";
 					ctxmenu+="</div>";
-					ctxmenu+="<div class=form-group style='margin-bottom:10px;'>";
-						ctxmenu+="<label style='width:110px;text-align:right;margin-right:3px;'>";
-						ctxmenu+="Angle(Planes) : ";
-						ctxmenu+="</label>";
-						ctxmenu+="<input type=text class='form-control VLCtx_planeAngle' placeholder='Click here' style='width:140px;'>";
-					ctxmenu+="</div>";
-
 				ctxmenu+="</div>";
 			ctxmenu+="</div>";
 //Display-End
@@ -1969,124 +1326,24 @@ if( navigator.userAgent.match(/Android/i)
 				ctxmenu+="</td></tr></tfoot></table>";
 				ctxmenu+="</div>";
 			$(document.body).append(ctxmenu);
+
+
+			$('#VLAtomsCtxDefaultBtn'+randno).click(function(){  v.IO.ctxMenuCfg.load({cfgList:v.IO.ctxMenuCfg.defaultCtxOption}); });
+
+			$('#VLAtomsCtxCloseBtn'+randno).click(function(){  v.ctxMenu.hide(); });
 			v.ctxMenu = $('#VLAtomsCtx'+randno);
-			v.ctxMenu.data('randno',randno);
-			//css
-			v.ctxMenu.find('.light.fas').css('cursor','pointer');
-			v.ctxMenu.find('.light').css('margin','0 5px');
-			v.ctxMenu.find('.shift_cell').click(function(){
-				let ex_shift=[v.option.shift_val[0], v.option.shift_val[1], v.option.shift_val[2]];
-				v.option.shift_val=[
-					ex_shift[0] + v.ctxMenu.find(".cell_shift_x").val()*1,
-					ex_shift[1] + v.ctxMenu.find(".cell_shift_y").val()*1,
-					ex_shift[2] + v.ctxMenu.find(".cell_shift_z").val()*1
-				];
-				for(let i=0 ; i<3 ; i++){
-					if(Number.isNaN(v.option.shift_val[i])){
-						v.option.shift_val[0,0,0];
-						v.ctxMenu.find(".cell_shift_x").val(v.option.shift_val[0])
-						v.ctxMenu.find(".cell_shift_y").val(v.option.shift_val[1]);
-						v.ctxMenu.find(".cell_shift_z").val(v.option.shift_val[2]);
-						return false;
-					}
-				}
-				v.ctxMenu.find(".cell_shift_x").val(0);
-				v.ctxMenu.find(".cell_shift_y").val(0);
-				v.ctxMenu.find(".cell_shift_z").val(0);
-				if(v.option.shift){
-					for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-						v.Structure.atoms[i].x = v.Structure.atoms[i].x - v.option.shift_val[0] + ex_shift[0];
-						v.Structure.atoms[i].y = v.Structure.atoms[i].y - v.option.shift_val[1] + ex_shift[1];
-						v.Structure.atoms[i].z = v.Structure.atoms[i].z - v.option.shift_val[2] + ex_shift[2];
-					}
-					v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-					v.update.atomsChanged = true;
-					v.update.bondsChanged = true;
-					v.animateControl.once();
-				}
-			});
-			v.ctxMenu.find('.default_shift').click(function(){
-				let ex_shift=[v.option.shift_val[0],v.option.shift_val[1],v.option.shift_val[2]];
-				if(v.option.shift){
-					for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-						v.Structure.atoms[i].x+=ex_shift[0];
-						v.Structure.atoms[i].y+=ex_shift[1];
-						v.Structure.atoms[i].z+=ex_shift[2];			
-					}
-				}
-				v.ctxMenu.find(".cell_shift_x").val(0);
-				v.ctxMenu.find(".cell_shift_y").val(0);
-				v.ctxMenu.find(".cell_shift_z").val(0);
-				v.option.shift_val=[0,0,0];
-				v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-				v.update.atomsChanged = true;
-				v.update.bondsChanged = true;
-				v.animateControl.once();
-			});
-			v.ctxMenu.find('.center_to_atom').click(function(){
-				let center=[];
-				center[0]=(v.Structure.a[0]+v.Structure.b[0]+v.Structure.c[0])/2;
-				center[1]=(v.Structure.a[1]+v.Structure.b[1]+v.Structure.c[1])/2;
-				center[2]=(v.Structure.a[2]+v.Structure.b[2]+v.Structure.c[2])/2;
-				let ex_shift=[v.option.shift_val[0],v.option.shift_val[1],v.option.shift_val[2]];
-				console.log(center);
-				v.IO.selectedAtoms=[];
-				v.IO.toggleSelection("atom");
-				v.IO.customSelectCallback.push(function(v){
-					if(v.IO.selectedAtoms.length===0) return;
-					let shift_atoms=v.Structure.atoms[v.IO.selectedAtoms];
-					v.option.shift_val=[
-						shift_atoms.x + ex_shift[0] - center[0],
-						shift_atoms.y + ex_shift[1] - center[1],
-						shift_atoms.z + ex_shift[2] - center[2]
-					];
-					v.ctxMenu.find(".cell_shift_x").val(0);
-					v.ctxMenu.find(".cell_shift_y").val(0);
-					v.ctxMenu.find(".cell_shift_z").val(0);
-					for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-						v.Structure.atoms[i].x+=ex_shift[0];
-						v.Structure.atoms[i].y+=ex_shift[1];
-						v.Structure.atoms[i].z+=ex_shift[2];			
-					}
-					if(v.option.shift){
-						for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-							v.Structure.atoms[i].x-=v.option.shift_val[0];
-							v.Structure.atoms[i].y-=v.option.shift_val[1];
-							v.Structure.atoms[i].z-=v.option.shift_val[2];
-						}
-						v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-						v.update.atomsChanged = true;
-						v.update.bondsChanged = true;
-						v.animateControl.once();
-					}
-					v.IO.customSelectCallback=[];
-					v.IO.exitSelectMode();
-				});
-			});
-
-			$('#VLAtomsCtxDefaultBtn'+randno).click(function(){ 
-				if(confirm("All settings will be changed to default values.")){
-					v.IO.ctxMenuCfg.load({cfgList:v.IO.ctxMenuCfg.defaultCtxOption}); 
-					AtomParam = JSON.parse(JSON.stringify(_AtomParam));
-					v.Structure.atoms.forEach(function(v,i,a){
-							a[i].color = AtomParam[v.element].color;
-					});
-				}
-			});
-			$('#VLAtomsCtxCloseBtn'+randno).click(function(){ v.ctxMenu.hide(); });
-
-			var dispOptions = ['perspective', 'atoms', 'bonds', 'cell', 'cellInfo', 'axis', 'ghosts', 'cellInfoSpaceGroup','shift'];
+			var dispOptions = ['perspective', 'atoms', 'bonds', 'cell', 'cellInfo', 'axis', 'ghosts'];
 			for(var i in dispOptions){
 				var key=dispOptions[i]; 
 				if(!v.option[key]){
 					v.ctxMenu.find('.disp_option_toggle[data-option="'+key+'"]').addClass("toggle_off");
 				}
 			}
-/*			v.ctxMenu.draggable({
+			v.ctxMenu.draggable({
 				drag:function(){
 					$(this).css("height","auto");
 				}
-			});*/
+			});
 			v.ctxMenu.css({
 				"position":"absolute",
 				"background-color":"white",
@@ -2094,7 +1351,7 @@ if( navigator.userAgent.match(/Android/i)
 				"top":0,
 			});
 			//Bind Download btns
-			v.ctxMenu.find(".disp_download").click(function(){
+			$(v.ctxMenu).find(".disp_download").click(function(){
 				var type = $(this).data("type");
 				var elArr = VLatoms.Utils.Structure.getElArr(v.Structure);
 				var formula = "";
@@ -2112,22 +1369,21 @@ if( navigator.userAgent.match(/Android/i)
 				}
 			});
 			//Bind measure 
-			v.ctxMenu.find(".VLCtx_distance").click(function(){
+			$(v.ctxMenu).find(".VLCtx_distance").click(function(){
 				var _t = $(this);
-				v.IO.customSelectCallback=[];
-				v.IO.customSelectCallback.push(function(){
+				function distCallback(){
 					switch(v.IO.selectedAtoms.length){
 						case 2:
 							var a1 = v.Structure.atoms[v.IO.selectedAtoms[0]];
 							var a2 = v.Structure.atoms[v.IO.selectedAtoms[1]];
 							var dist = VLatoms.Math.dist([a1.x, a1.y, a1.z],[a2.x, a2.y, a2.z]);
 							_t.val(dist.toFixed(3)+" Å");
-							v.IO.selectedAtoms = [];
+//							v.IO.selectedAtoms = [];
 							v.IO.selectMode="none";
-							v.IO.customSelectCallback=[];
+							v.IO.customSelectCallback.remove("distCallback");
 						break;
 						case 1:
-							_t.val("Select 1 more atom");
+							_t.val("Please select 1 more atom");
 						break;
 						case 0:
 							_t.val("");
@@ -2135,15 +1391,15 @@ if( navigator.userAgent.match(/Android/i)
 							v.IO.highlightSelectedAtoms();
 						break;
 					}
-				});
+				}
+				if(!v.IO.customSelectCallback.exist("distCallback")) v.IO.customSelectCallback.list.push(distCallback);
 				v.IO.exitSelectMode();
-				_t.val("Select two atoms");
+				_t.val("Please select two atoms");
 				v.IO.selectMode="atom";
 			});
-			v.ctxMenu.find(".VLCtx_angle").click(function(){
+			$(v.ctxMenu).find(".VLCtx_angle").click(function(){
 				var _t = $(this);
-				v.IO.customSelectCallback=[];
-				v.IO.customSelectCallback.push(function(){
+				function angleCallback(){
 					switch(v.IO.selectedAtoms.length){
 						case 3:
 							var a1 = v.Structure.atoms[v.IO.selectedAtoms[0]];
@@ -2157,95 +1413,35 @@ if( navigator.userAgent.match(/Android/i)
 							var _theta = VLatoms.Math.dot(vec1,vec2) / dist1 / dist2;
 							var theta = Math.acos( _theta )*180/Math.PI;
 							_t.val(theta.toFixed(3)+" °");
-							v.IO.selectedAtoms = [];
+//							v.IO.selectedAtoms = [];
 							v.IO.selectMode="none";
-							v.IO.customSelectCallback=[];
+							v.IO.customSelectCallback.remove("angleCallback");
 						break;
 						case 2:
-							_t.val("Select 1 more atom");
+							_t.val("Please select 1 more atom");
 						break;
 						case 1:
-							_t.val("Select 2 more atoms");
+							_t.val("Please select 2 more atoms");
 							v.IO.restoreAtomsColor();
 							v.IO.highlightSelectedAtoms();
 						break;
 					}
-				});
+				}
+				if(!v.IO.customSelectCallback.exist("angleCallback")) v.IO.customSelectCallback.list.push(angleCallback);
 				v.IO.exitSelectMode();
-				_t.val("Select three atoms");
+				_t.val("Please select three atoms");
 				v.IO.selectMode="atom";
 			});
-			v.ctxMenu.find(".VLCtx_planeAngle").click(function(){
-				var _t = $(this);
-				v.IO.customSelectCallback=[];
-				v.IO.customSelectCallback.push(function(){
-					switch(v.IO.selectedAtoms.length){
-						case 4:
-							let pangle=VLatoms.Math.checkPlaneAngle(v);
-							_t.val(pangle.toFixed(3)+" °");
-							v.IO.selectedAtoms = [];
-							v.IO.selectMode="none";
-							v.IO.customSelectCallback=[];
-						break;
-						case 3:
-							_t.val("Select 1 more atom");
-						break;
-						case 2:
-							_t.val("Select 2 more atoms");
-						break;
-						case 1:
-							_t.val("Select 3 more atoms");
-							v.IO.restoreAtomsColor();
-							v.IO.highlightSelectedAtoms();					
-						break;
-					}
-				});
-				v.IO.exitSelectMode();
-				_t.val("Select 4 more atoms");
-				v.IO.selectMode="atom";
-			});
-
 			v.ctxMenu.hide();
 //			v.IO.initializeLightPos();	//LightPos was deprecated. - schan
 			v.IO.bindLightPos();
 			v.ctxMenu.find(".backgroundcolor").change(function(){
 				v.renderer.setClearColor(parseInt("0x"+$(this).val()));
-				v.animateControl.once();
-			});
-			v.ctxMenu.find(".element_color").change(function(){
-				let changedValue = "0x" + $(this).val().toUpperCase();
-				let targetElement = $(this).parent().parent().data('targetelement');
-				AtomParam[targetElement].color = changedValue;
-				v.option.customAtomParam[targetElement] = v.option.customAtomParam[targetElement] || {};
-				v.option.customAtomParam[targetElement].color = changedValue;
-				v.Structure.atoms.forEach(function(v,i,a){
-					if(v.element == targetElement){
-						a[i].color = changedValue;
-					}
-				});
-				v.IO.restoreAtomsColor();
-			});
-			v.ctxMenu.find(".element_radius").change(function(){
-//맞는 값인지 조건 넣기
-				let changedValue = $(this).val()*1;
-				let targetElement = $(this).parent().parent().data('targetelement');
-				AtomParam[targetElement].radius = changedValue;
-				v.option.customAtomParam[targetElement] = v.option.customAtomParam[targetElement] || {};
-				v.option.customAtomParam[targetElement].radius = changedValue;
-				v.Structure.atoms.forEach(function(v,i,a){
-					if(v.element == targetElement){
-						a[i].radius = changedValue;
-					}
-				});
-				v.update.atomsChanged = true;
-				v.update.bondsChanged = true;
-				v.animateControl.once();
 			});
 			v.ctxMenu.find(".fov").on("input change",function(){
 				v.camera.fov=$(this).val()*1;
 				v.camera.updateProjectionMatrix();
 				v.setOptimalCamPosition();
-				v.animateControl.once();
 /*				if(v.camera.fov == 0 && (v.camera instanceof THREE.PerspectiveCamera)){
 					v.setOrthographicCamera();
 				}else if(v.camera.fov !=0 && (v.camera instanceof THREE.OrthographicCamera)){
@@ -2265,7 +1461,6 @@ if( navigator.userAgent.match(/Android/i)
 				}*/
 				v.update.atomsChanged=true;
 				v.update.bondsChanged=true;
-				v.animateControl.once();
 			});
 			v.ctxMenu.find(".bond_radius").on("input change",function(){
 				
@@ -2273,133 +1468,67 @@ if( navigator.userAgent.match(/Android/i)
 //				console.log(v.option.radius.bond,$(this).val()*1);
 /*				if(v.option.radius.bond==0){
 					v.option.bonds=false;
-				{
+				}else{
 					v.option.bonds=true;
 				}*/
 				v.update.atomsChanged=true;
 				v.update.bondsChanged=true;
 				v.update.bondsScaleChanged=true;
-				v.animateControl.once();
 			});
 			v.ctxMenu.find(".light").click(function(){
 				var position_step = 10;
 				
-				var lightNumber = v.ctxMenu.find('.light_control_box').data('lightnumber') - 1;
-				if (lightNumber == -1) return false;
+				var lightNumber = $(this).closest('div').data('lightnumber') - 1;
 				var arrow = $(this).data('arrow');	//find('.gliphicon-triangle-left').length);
 				switch(arrow){
 					case "left":
-							v.option.light[lightNumber].pos.y = v.option.light[lightNumber].pos.y - position_step < -90
-									? -90
-									: v.option.light[lightNumber].pos.y - position_step;
+							if(v.option.lightpos[lightNumber].y - position_step < -90){
+									v.option.lightpos[lightNumber].y = -90;
+							} else {
+									v.option.lightpos[lightNumber].y -= position_step;
+							}
 					break;
 					case "right":
-							v.option.light[lightNumber].pos.y = v.option.light[lightNumber].pos.y + position_step > 90
-									? 90 
-									: v.option.light[lightNumber].pos.y + position_step;  
+							if(v.option.lightpos[lightNumber].y + position_step > 90){
+									v.option.lightpos[lightNumber].y = 90;
+							} else {
+									v.option.lightpos[lightNumber].y += position_step;
+							}
 					break;
 					case "top":
-							v.option.light[lightNumber].pos.x = v.option.light[lightNumber].pos.x - position_step < -90
-									? -90 
-									: v.option.light[lightNumber].pos.x -= position_step; 
+							if(v.option.lightpos[lightNumber].x - position_step < -90){
+									v.option.lightpos[lightNumber].x = -90;
+							} else {
+									v.option.lightpos[lightNumber].x -= position_step;
+							}
 					break;
 					case "bottom":
-							v.option.light[lightNumber].pos.x = v.option.light[lightNumber].pos.x + position_step > 90
-									? 90 
-									: v.option.light[lightNumber].pos.x += position_step; 
+							if(v.option.lightpos[lightNumber].x + position_step > 90){
+									v.option.lightpos[lightNumber].x = 90;
+							} else {
+									v.option.lightpos[lightNumber].x += position_step;
+							}
 					break;
-/*	???
 					case "selectInfo":
 							v.option.selectInfo=!v.option.selectInfo;
 					break;
-*/
 				}
-				v.animateControl.once();
 			});
 			v.ctxMenu.find(".light.form-control").on("input change",function(){
-				let changedValue = $(this).val()*1;
-				var lightNumber = v.ctxMenu.find('.light_control_box').data('lightnumber') - 1;
-				if (lightNumber == -1) return false;
-				v.option.light[lightNumber].intensity = changedValue;
-				v.light[lightNumber].intensity = changedValue;
-				v.animateControl.once();
+				var lightNumber = $(this).closest('div').data('lightnumber') - 1;
+				v.light[lightNumber].intensity = $(this).val()*1;
 			});
-			
-			v.ctxMenu.find(".sub_option_toggle")
-				.css('cursor','pointer')
-				.css('color','#999')
-				.click(function(){
-					let toggleTarget = $(this).data('toggletarget');
-					if(toggleTarget == "") return false;
-console.log('toggle tar', toggleTarget);
-					//set actions
-					function toggle(_this){
-						if($(_this).hasClass('fa-caret-down')){
-							$(_this).addClass('fa-caret-up');
-							$(_this).removeClass('fa-caret-down');
-							v.ctxMenu.find('.'+toggleTarget).show();
-						} else {
-							$(_this).addClass('fa-caret-down');
-							$(_this).removeClass('fa-caret-up');
-							v.ctxMenu.find('.'+toggleTarget).hide();
-						}
-					}
-					let argsBefore = {
-						light_control_box : {
-							_this : this,
-							toggleTarget : toggleTarget,
-						},
-					};
-					let argsAfter = {
-						light_control_box : {
-							_this : this,
-							toggleTarget : toggleTarget,
-						},
-					};
-					let actionBefore = {
-						light_control_box : function(args){
-							let lightNumber = $(args._this).parent().data('lightnumber');
-							v.ctxMenu.find('.'+args.toggleTarget).data('lightnumber', lightNumber);
-							v.ctxMenu.find('.light_button_wrapper>.fas').each(function(){
-								if($(this).hasClass('fa-caret-up')){
-									$(this).addClass('fa-caret-down');
-									$(this).removeClass('fa-caret-up');
-								}
-							});
-							v.ctxMenu.find('.light_control_box>input').val(v.option.light[lightNumber - 1].intensity);
-						},
-					};
-					let actionAfter = {
-					};
-
-					//action
-					if(actionBefore[toggleTarget] != undefined) actionBefore[toggleTarget](argsBefore[toggleTarget]);
-					toggle(this);
-					if(actionAfter[toggleTarget] != undefined) actionAfter[toggleTarget](argsAfter[toggleTarget]);
-				});
-
-			//변화가 생기면 우클릭메뉴 현 상태 저장
-			v.ctxMenu.unbind();
-			v.ctxMenu.draggable({
-				drag:function(){
-					$(this).css("height","auto");
-				}
-			});
-			v.ctxMenu.bind("click",function(){
+			$(v.ctxMenu).unbind();
+			$(v.ctxMenu).bind("click",function(){
 				v.IO.ctxMenuCfg.save();
 			});
-			v.ctxMenu.bind("change",function(){
+			$(v.ctxMenu).bind("change",function(){
 				v.IO.ctxMenuCfg.save();
 			});
-		
 
-			//color palet. need jscolor.js
-			v.IO.ctxMenuCfg.jscolor.background = new jscolor("backgroundcolor_pick"+randno,{valueElement:"backgroundcolor"+randno, styleElement:"backgroundcolor_pick"+randno, zIndex:100000002});
-			v.IO.ctxMenuCfg.jscolor.atom = new jscolor("element_color_pick"+randno,{valueElement:"element_color"+randno, styleElement:"element_color_pick"+randno, zIndex:100000002});
-//, value:v.IO.ctxMenuCfg.option["v.ctxMenu.find('.backgroundcolor').val()"]
+
 		},
 		ctxMenuCfg : {
-			jscolor : {},
 			storeName : "",
 			storeCfg: false,	//Before changing to true, storeName must be set.
 			save: function (){
@@ -2423,33 +1552,39 @@ console.log('toggle tar', toggleTarget);
 				var ctxOption={
 					"v.ctxMenu.find('.backgroundcolor').val()":v.ctxMenu.find(".backgroundcolor").val(),
 					"v.option.perspective":v.option.perspective,
-					"v.option.atoms":true,//v.option.atoms,
+					"v.option.atoms":v.option.atoms,
 					"v.option.bonds":v.option.bonds,
-					"v.ctxMenu.find('.atom_radius').val()":v.ctxMenu.find('.atom_radius').val(),
-					"v.ctxMenu.find('.bond_radius').val()":v.ctxMenu.find('.bond_radius').val(),
-					"v.ctxMenu.find('.fov').val()":v.ctxMenu.find('.fov').val(),
+					"$('.atom_radius').val()":$('.atom_radius').val(),
+					"$('.bond_radius').val()":$('.bond_radius').val(),
+					"$('.fov').val()":$('.fov').val(),
 					"v.option.cell":v.option.cell,
 					"v.option.cellInfo":v.option.cellInfo,
-					"v.option.cellInfoSpaceGroup":v.option.cellInfoSpaceGroup,
 					"v.option.selectInfo":v.option.selectInfo,
 					"v.option.axis":v.option.axis,
 					"v.option.ghosts":v.option.ghosts,
 					"v.option.ghosts_direction[0]":v.option.ghosts_direction[0],
 					"v.option.ghosts_direction[1]":v.option.ghosts_direction[1],
 					"v.option.ghosts_direction[2]":v.option.ghosts_direction[2],
-					"v.option.light":v.option.light,
+					"v.option.light[0]":v.option.light[0],
+					"v.option.light[1]":v.option.light[1],
+					"v.option.light[2]":v.option.light[2],
+					"v.light[0].intensity":$('.disp_option_toggle[data-option="light"]').parent('[data-lightnumber="1"]').find('input').val(),
+					"v.light[1].intensity":$('.disp_option_toggle[data-option="light"]').parent('[data-lightnumber="2"]').find('input').val(),
+					"v.light[2].intensity":$('.disp_option_toggle[data-option="light"]').parent('[data-lightnumber="3"]').find('input').val(),
+					"v.option.lightpos[0]":v.option.lightpos[0],
+					"v.option.lightpos[1]":v.option.lightpos[1],
+					"v.option.lightpos[2]":v.option.lightpos[2],
 					"_ghostDirection":ghostDirection,
-					"v.option.customAtomParam":v.option.customAtomParam,
 				}
 
-				setCookie(v.IO.ctxMenuCfg.storeName,JSON.stringify(ctxOption));
+				setCookie(v.IO.ctxMenuCfg.storeName,JSON.stringify(ctxOption))
 
 			},
 			load: function(args){
 				function getCookie(c_name){
-					var i,x,y,ARRcookies=document.cookie.split(";");
-					for (i=0;i<ARRcookies.length;i++)
-					{
+				    var i,x,y,ARRcookies=document.cookie.split(";");
+				    for (i=0;i<ARRcookies.length;i++)
+				    {
 				  	  x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
 				  	  y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
 				  	  x=x.replace(/^\s+|\s+$/g,"");
@@ -2457,7 +1592,7 @@ console.log('toggle tar', toggleTarget);
 				  	  {
 				  		  return unescape(y);
 				  	  }
-					}
+				    }
 				}
 				//쿠키에 저장된 값 불러오기
 				var _ctx_Option = getCookie(v.IO.ctxMenuCfg.storeName);
@@ -2469,19 +1604,17 @@ console.log('toggle tar', toggleTarget);
 						ctx_Option = args.cfgList;
 					}
 				}
-				v.IO.ctxMenuCfg.option = ctx_Option;
 				//값 불러오기 끝
 
 				//값 배분
 				v.ctxMenu.find(".backgroundcolor").val(ctx_Option["v.ctxMenu.find('.backgroundcolor').val()"]);
-				v.IO.ctxMenuCfg.jscolor.background.fromString(ctx_Option["v.ctxMenu.find('.backgroundcolor').val()"]);
 //				v.option.perspective=ctx_Option['v.option.perspective'];
-				v.ctxMenu.find('.fov').val(ctx_Option["v.ctxMenu.find('.fov').val()"]);
+				$('.fov').val(ctx_Option["$('.fov').val()"]);
 //				v.option.atoms=ctx_Option['v.option.atoms'];
-				v.ctxMenu.find('.atom_radius').val(ctx_Option["v.ctxMenu.find('.atom_radius').val()"]);
+				$('.atom_radius').val(ctx_Option["$('.atom_radius').val()"]);
 //				v.option.radius.atom=ctx_Option["$('.atom_radius').val()"];
 //				v.option.bonds=ctx_Option['v.option.bonds'];
-				v.ctxMenu.find('.bond_radius').val(ctx_Option["v.ctxMenu.find('.bond_radius').val()"]);
+				$('.bond_radius').val(ctx_Option["$('.bond_radius').val()"]);
 //				v.option.radius.bond=ctx_Option["$('.bond_radius').val()"];
 //				v.option.cell=ctx_Option['v.option.cell'];
 //				v.option.cellInfo=ctx_Option['v.option.cellInfo'];
@@ -2492,15 +1625,15 @@ console.log('toggle tar', toggleTarget);
 				v.option.ghosts_direction[1]=ctx_Option['v.option.ghosts_direction[1]'];
 				v.option.ghosts_direction[2]=ctx_Option['v.option.ghosts_direction[2]'];
 				var _ghostDirection=ctx_Option['_ghostDirection'];
-				v.option.light = ctx_Option['v.option.light'] ? JSON.parse(JSON.stringify(ctx_Option['v.option.light'])) : v.option.light;
-				v.light[0].intensity = v.option.light[0].intensity;
-				v.light[1].intensity = v.option.light[1].intensity;
-				v.light[2].intensity = v.option.light[2].intensity;
-				v.option.customAtomParam = ctx_Option['v.option.customAtomParam'];
-				v.option.customAtomParam = v.option.customAtomParam || {};
-				for(let i in v.option.customAtomParam){
-					for(let j in v.option.customAtomParam[i]){
-						AtomParam[i][j] = v.option.customAtomParam[i][j];
+				v.option.light[0]=ctx_Option['v.option.light[0]'];
+				v.option.light[1]=ctx_Option['v.option.light[1]'];
+				v.option.light[2]=ctx_Option['v.option.light[2]'];
+				v.light[0].intensity=ctx_Option['v.light[0].intensity'];
+				v.light[1].intensity=ctx_Option['v.light[1].intensity'];
+				v.light[2].intensity=ctx_Option['v.light[2].intensity'];
+				for(var i=0;i<3;i++){
+					var _dimension=['x','y'];
+					for(var j in _dimension){v.option.lightpos[i][_dimension[j]]=ctx_Option['v.option.lightpos['+i+']'][_dimension[j]];
 					}
 				}
 				//값 배분 완료
@@ -2508,28 +1641,26 @@ console.log('toggle tar', toggleTarget);
 				//값 적용(구조 로딩 전)
 				v.ctxMenu.find(".backgroundcolor").change();
 
-				var toggleOption=['perspective','atoms','bonds','cell','cellInfo', 'selectInfo','axis', 'ghosts'];
+				var toggleOption=['perspective','atoms','bonds','cell','cellInfo','selectInfo','axis', 'ghosts'];
 				for(var i=0;i<toggleOption.length;i++){
 					var tmp="v.option."+toggleOption[i];
-					var toggle = !v.ctxMenu.find('.disp_option_toggle[data-option='+toggleOption[i]+']').hasClass("toggle_off");
+					var toggle = !$('.disp_option_toggle[data-option='+toggleOption[i]+']').hasClass("toggle_off");
 					if(ctx_Option[tmp] !== toggle){
 						v.ctxMenu.find('.disp_toggle_swt[data-option='+toggleOption[i]+']').click();
 					}
 				}
-				//클릭시 메시지가 뜨기 때문에 클릭 하지 않고 별도로 설정
-				if(ctx_Option["v.option.cellInfoSpaceGroup"]){
-					v.option.cellInfoSpaceGroup = true;
-					v.ctxMenu.find('.disp_toggle_swt[data-option=cellInfoSpaceGroup]').removeClass("toggle_off");
-				}
-				var targetLight=v.ctxMenu.find('.disp_option_toggle[data-option=light]');
+				var targetLight=$('.disp_option_toggle[data-option=light]');
 				for(var i=0;i<3;i++){
-					if(v.option.light[i].on){
-//						$(targetLight[i]).removeClass("toggle_off");
+					$('.disp_option_toggle[data-option="light"]').parent('[data-lightnumber='+(i+1)+']').find('input').val(ctx_Option['v.light['+i+'].intensity']);
+					if(ctx_Option["v.option.light["+i+"]"]){
+						if($(targetLight[i]).hasClass("toggle_off")){
+							$(targetLight[i]).removeClass("toggle_off");
+							$(targetLight[i]).closest('div').find('.light').show();
+						}
 					}else{
 						$(targetLight[i]).addClass("toggle_off");
-						$(targetLight[i]).parent().find('.fas').hide();
-						$(targetLight[i]).find('label').css('width','59.6px');
 						v.light[i].intensity = 0;
+						$(targetLight[i]).closest('div').find('.light').hide();
 					}
 				}
 
@@ -2542,9 +1673,9 @@ console.log('toggle tar', toggleTarget);
 					}
 				}
 				//값 적용(최초 구조 로딩 후)
-				v.ctxMenu.find('.fov').change();
-				v.ctxMenu.find('.atom_radius').change();
-				v.ctxMenu.find('.bond_radius').change();
+				$('.fov').change();
+				$('.atom_radius').change();
+				$('.bond_radius').change();
 				//적용완료
 			},
 			defaultCtxOption:{
@@ -2552,23 +1683,27 @@ console.log('toggle tar', toggleTarget);
 					"v.option.perspective":true,
 					"v.option.atoms":true,
 					"v.option.bonds":true,
-					"v.ctxMenu.find('.atom_radius').val()":0.6,
-					"v.ctxMenu.find('.bond_radius').val()":0.1,
-					"v.ctxMenu.find('.fov').val()":3,
+					"$('.atom_radius').val()":0.6,
+					"$('.bond_radius').val()":0.1,
+					"$('.fov').val()":3,
 					"v.option.cell":true,
 					"v.option.cellInfo":true,
-					"v.option.cellInfoSpaceGroup":false,
 					"v.option.selectInfo":true,
 					"v.option.axis":true,
 					"v.option.ghosts":false,
 					"v.option.ghosts_direction[0]":2,
 					"v.option.ghosts_direction[1]":2,
 					"v.option.ghosts_direction[2]":2,
-					"v.option.light":[{pos:{x:0,y:0}, on:true, intensity: 0.333},
-									  {pos:{x:0,y:0}, on:true, intensity: 0.333},
-									  {pos:{x:0,y:0}, on:true, intensity: 0.333}],
+					"v.option.light[0]":true,
+					"v.option.light[1]":true,
+					"v.option.light[2]":true,
+					"v.light[0].intensity":1/3,
+					"v.light[1].intensity":1/3,
+					"v.light[2].intensity":1/3,
+					"v.option.lightpos[0]":{x:0,y:0},
+					"v.option.lightpos[1]":{x:0,y:0},
+					"v.option.lightpos[2]":{x:0,y:0},
 					"_ghostDirection":['x','y','z'],
-					"AtomParam":{},
 			},
 		},
 /*		initializeLightPos : function(){
@@ -2583,6 +1718,7 @@ console.log('toggle tar', toggleTarget);
 		bindLightPos : function(){
 			v.ctxMenu.find('.disp_toggle_swt').click(function(e,u){
 				//e.preventDefault(); // 이거 왜했지?
+				
 				var mode = $(this).data("option");
 				switch(mode){
 					case "perspective":
@@ -2595,48 +1731,20 @@ console.log('toggle tar', toggleTarget);
 							v.setOrthographicCamera();
 						}
 					break;
-					case "shift":
-						v.option.shift=!v.option.shift;
-						if(v.option.shift){
-							for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-								v.Structure.atoms[i].x-=v.option.shift_val[0];
-								v.Structure.atoms[i].y-=v.option.shift_val[1];
-								v.Structure.atoms[i].z-=v.option.shift_val[2];
-							}
-							v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-							v.update.atomsChanged = true;
-							v.update.bondsChanged = true;
-							v.animateControl.once();
-						}else{
-							for(let i=0, len=v.Structure.atoms.length ; i<len ; i++){
-								v.Structure.atoms[i].x+=v.option.shift_val[0];
-								v.Structure.atoms[i].y+=v.option.shift_val[1];
-								v.Structure.atoms[i].z+=v.option.shift_val[2];
-							}
-							v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true});
-							v.update.atomsChanged = true;
-							v.update.bondsChanged = true;
-							v.animateControl.once();
-						}
-					break;
 					case "atoms":
 						v.option.atoms=!v.option.atoms;
 						if(v.option.atoms){
 							v.ctxMenu.find(".atom_radius").show();
-							$(this).parent().find('.fas').show();
 						}else{
 							v.ctxMenu.find(".atom_radius").hide();
-							$(this).parent().find('.fas').hide();
 						}
 					break;
 					case "bonds":
 						v.option.bonds=!v.option.bonds;
 						if(v.option.bonds){
 							v.ctxMenu.find(".bond_radius").show();
-							$(this).parent().find('.fas').show();
 						}else{
 							v.ctxMenu.find(".bond_radius").hide();
-							$(this).parent().find('.fas').hide();
 						}
 					break;
 					case "cell":
@@ -2644,23 +1752,6 @@ console.log('toggle tar', toggleTarget);
 					break;
 					case "cellInfo":
 						v.option.cellInfo=!v.option.cellInfo;
-						if(v.option.cellInfo){
-								v.ctxMenu.find('.disp_toggle_swt[data-option="cellInfoSpaceGroup"]').show();
-						} else {
-								v.ctxMenu.find('.disp_toggle_swt[data-option="cellInfoSpaceGroup"]').hide();
-						}
-					break;
-					case "cellInfoSpaceGroup":
-						if(!v.option.cellInfoSpaceGroup){
-							if(confirm("Structural changes may be slowed by space group decision time.\nIf the number of atoms is more than 200, space group is not displayed.")){
-								v.option.cellInfoSpaceGroup=!v.option.cellInfoSpaceGroup;
-//								v.update.cellInfo();
-							} else {
-								return false;
-							}
-						} else {
-							v.option.cellInfoSpaceGroup=!v.option.cellInfoSpaceGroup;
-						}
 					break;
 					case "selectInfo":
 						v.option.selectInfo = !v.option.selectInfo;
@@ -2699,28 +1790,23 @@ console.log('toggle tar', toggleTarget);
 						});
 						console.log(v.option.ghosts_direction);
 					break;
+					//schan made 'case light'.
 					case "light":
-						let lightNumber;
-						lightNumber = $(this).parent().data('lightnumber') - 1;
-						v.option.light[lightNumber].on = !v.option.light[lightNumber].on;
-						let toggleIcon = $(this).parent().find('.fas'); 
-						if (v.option.light[lightNumber].on){
-							v.light[lightNumber].intensity = v.option.light[lightNumber].intensity;
-							if(toggleIcon.hasClass('fa-caret-up')){
-								toggleIcon.addClass('fa-caret-down');
-								toggleIcon.removeClass('fa-caret-up');
-							}
-							$(this).parent().find('.fas').show();
-							$(this).find('label').css('width','42px');
+//console.log($(this).find('a').text().replace("Light","")*1 - 1);
+						var lightNumber;
+						lightNumber = $(this).closest('div').data('lightnumber') - 1;
+						v.option.light[lightNumber] = !v.option.light[lightNumber];
+						if (!v.option.light[lightNumber]){
+								v.light[lightNumber].intensity = 0;
+//								$(this).find('.light').hide();
+								$(this).closest('div').find('.light').hide();
 						} else {
-							v.light[lightNumber].intensity = 0;
-							v.ctxMenu.find('.light_control_box').hide();
-							$(this).parent().find('.fas').hide();
-							$(this).find('label').css('width','59.6px');
+//								$(this).find('.light').show();
+								$(this).closest('div').find('.light').show();
+								v.light[lightNumber].intensity = $(this).closest('div').find('input').val()*1;
 						}
 					break;
 				}
-//console.log(this)
 				if($(this).hasClass("disp_option_toggle")){
 					if($(this).hasClass("toggle_off")){
 						$(this).removeClass("toggle_off");
@@ -2731,13 +1817,11 @@ console.log('toggle tar', toggleTarget);
 
 				v.update.atomsChanged=true;
 				v.update.bondsChanged=true;
-				v.animateControl.once();
 			});
 			v.ctxMenu.find('.toggle_ghosts').click(function(){
 				v.option.ghosts=!v.option.ghosts;
 				v.update.atomsChanged=true;
 				v.update.bondsChanged=true;
-				v.animateControl.once();
 			});
 
 /*			for(var i=1;i<=3;i++){
@@ -2775,7 +1859,6 @@ console.log('toggle tar', toggleTarget);
 		},
 		initKey : function(){
 			$(document).keydown(function(e,u){
-				if( !v.IO.focus ) return;
 				var domtype = $(e.target)[0].type || "Default";
 				if($(e.target)[0].isContentEditable) domtype = "textarea";
 				if(domtype != "text" && domtype != "textarea" && domtype != "select-one"){
@@ -2799,8 +1882,6 @@ console.log('toggle tar', toggleTarget);
 				v.update.selectInfo();
 			});
 			$(document).keyup(function(e,u){
-
-				if( !v.IO.focus ) return;
 				var domtype = $(e.target)[0].type || "Default";
 				if($(e.target)[0].isContentEditable) domtype = "textarea";
 				if((domtype != "text" && domtype != "textarea" && domtype != "select-one" && domtype != "password") || +e.keyCode==27){
@@ -2834,15 +1915,6 @@ console.log('toggle tar', toggleTarget);
 								});
 							}
 						break;
-						case 65 :  // a
-							v.axisView("a");
-						break;
-						case 66 :  // b 
-							v.axisView("b");
-						break;
-						case 67 :  // c 
-							v.axisView("c");
-						break;
 						case 88 :  // x
 							v.axisView("x");
 						break;
@@ -2858,20 +1930,16 @@ console.log('toggle tar', toggleTarget);
 						case 69: // e
 							v.manipulateAtom.rotate({direction:"vz",step:v.option.step.rotate,onEscape:v.option.onEscape});	
 						break;
-						case 38: // up arrow
-//						case 87: // w
+						case 87: // w
 							v.manipulateAtom.move({direction:"vy",step:v.option.step.move,onEscape:v.option.onEscape});	
 						break;
-						case 37: //left arrow
-//						case 65: //a
+						case 65: //a
 							v.manipulateAtom.move({direction:"vx",step:-v.option.step.move,onEscape:v.option.onEscape});	
 						break;
-						case 39: // right arrow
-//						case 68: // d
+						case 68: // d
 							v.manipulateAtom.move({direction:"vx",step:v.option.step.move,onEscape:v.option.onEscape});	
 						break;
-						case 40: // down arrow
-//						case 83: // s
+						case 83: // s
 							v.manipulateAtom.move({direction:"vy",step:-v.option.step.move,onEscape:v.option.onEscape});	
 						break;
 
@@ -2901,8 +1969,6 @@ console.log('toggle tar', toggleTarget);
 						v.ctxMenu.css("left",e.pageX+20);
 						v.ctxMenu.css("top",targetY);
 						v.ctxMenu.show();
-						v.ctxMenu.find(".VLCtx_distance").val("");
-						v.ctxMenu.find(".VLCtx_angle").val("");
 						v.ctxMenu.css("z-index",$.topZIndex()+1);
 					}
 					
@@ -2910,7 +1976,6 @@ console.log('toggle tar', toggleTarget);
 
 		},
 		restoreAtomsColor : function(){
-/*	원자별 표시 선택 기능 추가로 atoms 순서와 Meshes 순서가 같지 않음. (Meshes가 모자람)
 			for(var idx in v.Structure.atoms){
 				var ca = v.Structure.atoms[idx];
 				try{
@@ -2918,40 +1983,14 @@ console.log('toggle tar', toggleTarget);
 				}catch(e){
 				}
 			}
-*/
-			for(let idx in v.atomMeshes){
-				try{
-					v.atomMeshes[idx].material.color.setHex(v.Structure.atoms[v.atomMeshes[idx].atomid].color);	
-				}catch(e){
-				}
-			}
-			v.animateControl.once();
-		},
-		blurAtoms : function(){
-	// TODO HERE
-			for(var i=0;i<v.atomMeshes.length;i++){
-				v.atomMeshes[i].material.opacity = 0.3;
-			}
-		},
-		unblurAtoms : function(){
-			for(var i=0;i<v.atomMeshes.length;i++){
-				v.atomMeshes[i].material.opacity = 1;
-			}
 		},
 		highlightSelectedAtoms : function(){
 			 if(v.IO.selectedAtoms.length != 0){
 				 for(var i=0;i<v.IO.selectedAtoms.length;i++){
 					 var ca_idx = v.IO.selectedAtoms[i];
-/*	원자별 표시 선택 기능 추가로 atoms 순서와 Meshes 순서가 같지 않음. (Meshes가 모자람)
 					 v.atomMeshes[ca_idx].material.color.setHex('0x0000ff');
-					 v.atomMeshes[ca_idx].material.opacity = 1;
-*/
-					 meshIndex = v.atomMeshes.findIndex(function(e){ return e.atomid == ca_idx; });
-					 v.atomMeshes[meshIndex].material.color.setHex('0x0000ff');
-					 v.atomMeshes[meshIndex].material.opacity = 1;
 				 }
 			 }
-			v.animateControl.once();
 		},
 		dragOver : function( e ){
 			e.stopPropagation();
@@ -3034,8 +2073,6 @@ console.log('toggle tar', toggleTarget);
 						//v.Structure = _structure;
 						v.update.atomsChanged = true;
 						v.update.bondsChanged = true;
-						v.setOptimalCamPosition();
-						v.animateControl.once();
 						v.Manipulate.addHistory({
 							mode:"File Load",
 							args:{},
@@ -3043,6 +2080,7 @@ console.log('toggle tar', toggleTarget);
 
 						});
 
+						v.setOptimalCamPosition();
 					}
 				})(files[i]);
 				reader.readAsText(files[i]);
@@ -3063,10 +2101,10 @@ console.log('toggle tar', toggleTarget);
 		loadFile : function(){
 			var evt_tmp;
 			var title = "Load Structure";
-			var msg= "<div style='padding-left:15px;padding-top:15px;'><div class=form-horizontal><div class='form-group'><label class=col-8>File Type</label><div class=col-16><select class=form-control disabled>";
+			var msg= "<div style='padding-left:15px;padding-top:15px;'><div class=form-horizontal><div class='form-group'><label class=col-xs-8>File Type</label><div class=col-xs-16><select class=form-control disabled>";
 				msg+= "<option value=-1>Auto</option>";
 				msg+= "</select></div></div></div>"
-				msg+= "<div class=form-horizontal><div class=form-group><label class=col-8>File</label><div class=col-16>";
+				msg+= "<div class=form-horizontal><div class=form-group><label class=col-xs-8>File</label><div class=col-xs-16>";
 				msg+= "<input type=file class='form-control VLLoadFile'></div></div></div></div>";
 			var btn = {
 				"OK":function(){
@@ -3101,6 +2139,7 @@ console.log('toggle tar', toggleTarget);
 				case "rect":
 					startx = Math.min(v.IO.start[0], cPos[0]);
 					starty = Math.min(v.IO.start[1], cPos[1]);
+
 					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
 					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
 					_guide.css("left",startx);
@@ -3109,223 +2148,21 @@ console.log('toggle tar', toggleTarget);
 					_guide.css("height",gheight);
 				break;
 				case "circ":
+					
 					var radius = VLatoms.Math.len([ cPos[0]-v.IO.start[0], cPos[1]-v.IO.start[1], 0]);
 					_guide.css("left",v.IO.start[0]-radius);
 					_guide.css("top",v.IO.start[1]-radius);
 					_guide.css("width",radius*2);
 					_guide.css("height",radius*2);
-				break;
-				case "pent":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx, starty + gheight/2.618 ]];
-					v.IO.polygon.push([startx + 0.5*gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight / 2.618]);
-					v.IO.polygon.push([startx + 0.80901*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.19098*gwidth, starty + gheight]);
-
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "hex":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx + 0.25*gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.75*gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + 0.5 * gheight]);
-					v.IO.polygon.push([startx + 0.75*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.25*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + 0.5 * gheight]);
-
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "hept":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-
-					v.IO.polygon = [[ startx + 0.5*gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.900969*gwidth, starty + gheight*0.198062]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight*0.643104]);
-					v.IO.polygon.push([startx + 0.722521*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.277479*gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + gheight*0.643104]);
-					v.IO.polygon.push([startx + 0.099031*gwidth, starty + gheight*0.198062]);
-					
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "octa":
-					startx = Math.min(v.IO.start[0], cPos[0]);
-					starty = Math.min(v.IO.start[1], cPos[1]);
-
-					var gwidth = Math.abs(v.IO.start[0] - cPos[0]);
-					var gheight = Math.abs(v.IO.start[1] - cPos[1]);
-
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-					
-					v.IO.polygon = [[ startx + 0.292893 * gwidth, starty ]];
-					v.IO.polygon.push([startx + 0.707107 * gwidth, starty]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight * 0.292893]);
-					v.IO.polygon.push([startx + gwidth, starty + gheight * 0.707107]);
-					v.IO.polygon.push([startx + 0.707107 * gwidth, starty + gheight]);
-					v.IO.polygon.push([startx + 0.292893 * gwidth, starty + gheight]);
-					v.IO.polygon.push([startx, starty + gheight*0.707107]);
-					v.IO.polygon.push([startx, starty + gheight*0.292893]);
-					
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();				
-				break;
-				case "lasso":
-					v.IO.polygon.push(cPos);
-					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-					_ctx.clearRect(0,0,3000,3000);
-					_ctx.fillStyle = 'rgba(183,126,129,0.3)';
-					_ctx.strokeStyle = 'rgba(183,126,129,0.9)';
-					_ctx.fillStyle = 'rgba(255,0,0,0.1)';
-					_ctx.beginPath();
-					_ctx.setLineDash([1,1]);
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1]);
-					for(var i=0;i<v.IO.polygon.length;i++){
-						_ctx.lineTo( v.IO.polygon[i][0], v.IO.polygon[i][1]);
-					}
-					_ctx.closePath();
-					_ctx.stroke();
-					_ctx.fill();
-//					_ctx.beginPath();
-//					_ctx.moveTo( v.IO.polygon[l-1][0], v.IO.polygon[l-1][1] );
-				break;
-				case "sphere":
-					var scr_pos= v.IO.toScreenXY(v.IO.sphereCenter);
-					var inv=false;
-					if(v.ctlPressed) inv=true;
-					v.IO.start[0]=scr_pos.x;
-					v.IO.start[1]=scr_pos.y;
-					var radius = VLatoms.Math.len([ cPos[0]-v.IO.start[0], cPos[1]-v.IO.start[1], 0]);
-					_guide.css("left",v.IO.start[0]-radius);
-					_guide.css("top",v.IO.start[1]-radius);
-					_guide.css("width",radius*2);
-					_guide.css("height",radius*2);
-					let _str_offset = [
-						(v.Structure.a[0]+v.Structure.b[0]+v.Structure.c[0])/2,
-						(v.Structure.a[1]+v.Structure.b[1]+v.Structure.c[1])/2,
-						(v.Structure.a[2]+v.Structure.b[2]+v.Structure.c[2])/2
-					];
-					var wrapper_offset = $(v.wrapper).offset();
-					let sphere_p_x  =  ( (cPos[0] - wrapper_offset.left )/ $(v.wrapper).width() ) * 2 - 1;
-					let sphere_p_y  =  - ( (cPos[1] -wrapper_offset.top )/ $(v.wrapper).height() ) * 2 + 1;
-					let raycaster;
-					if(v.camera.type =="PerspectiveCamera"){
-						let vector = new THREE.Vector3( sphere_p_x, sphere_p_y, 0.5 );
-						v.camera.updateMatrixWorld(true);
-						vector.unproject(v.camera);
-						raycaster = new THREE.Raycaster(v.camera.position, vector.sub(v.camera.position).normalize());
-					}else if(v.camera.type =="OrthographicCamera"){
-						raycaster = new THREE.Raycaster();
-						var vector = new THREE.Vector2( sphere_p_x, sphere_p_y);
-						raycaster.setFromCamera( vector, v.camera );
-					}
-					var z_shift = -(v.IO.sphereCenter).distanceTo(v.camera.position);
-					var target_pos = new THREE.Vector3(
-						raycaster.ray.origin.x - raycaster.ray.direction.x * z_shift,
-						raycaster.ray.origin.y - raycaster.ray.direction.y * z_shift,
-						raycaster.ray.origin.z - raycaster.ray.direction.z * z_shift
-					);
-					v.IO.distance=(v.IO.sphereCenter).distanceTo(target_pos);
-					let __center=[v.IO.sphereCenter.x+_str_offset[0],v.IO.sphereCenter.y+_str_offset[1],v.IO.sphereCenter.z+_str_offset[2]];
-					v.IO.selectedAtoms=[];
-					for(var i=0 ; i<v.Structure.atoms.length ; i++){
-						let sqrt_d=(new THREE.Vector3(__center[0],__center[1],__center[2])).distanceTo(new THREE.Vector3(v.Structure.atoms[i].x,v.Structure.atoms[i].y,v.Structure.atoms[i].z));
-						if(sqrt_d<=v.IO.distance && !inv){
-							v.IO.selectedAtoms.push(i);
-						}else if(sqrt_d>v.IO.distance && inv){
-							v.IO.selectedAtoms.push(i);
-						}
-					}
-					v.update.selectInfo();
-					v.IO.restoreAtomsColor();
-					v.IO.highlightSelectedAtoms();
 				break;
 			}
 		},
 		mouseDown : function( e ){
-$(document.activeElement).blur();
 			if(["text","textarea","select","radio"].indexOf(e.target.nodeName.toLocaleLowerCase())>=0){
 				v.IO.selecting=false;
 				return;
 			}
-			v.IO.focus = ($(e.target).closest( v.option.area ).length == 1);
-			if(!v.IO.focus) return false;
-			v.animateControl.start();
-			if(v.IO.selectMode!=="sphere"){
-				v.IO.start = [ e.pageX, e.pageY ]
-			}
+			v.IO.start = [ e.pageX, e.pageY ]
 			if(v.spacePressed) return;	
 			if(v.IO.selectMode=='none') return;
 			$('#select_guide').remove();
@@ -3348,36 +2185,6 @@ $(document.activeElement).blur();
 				case "circ":
 					$(document.body).append("<div id=select_guide style='background-color:rgba(183,126,129,0.3);position:absolute;border:dotted 1px rgba(183,126,129,0.9);border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;'></div>");
 				break;
-				case "pent":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "hex":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "hept":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "octa":
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-				break;
-				case "lasso":
-					v.IO.polygon = [[ e.pageX-2, e.pageY-2 ]];
-					$('#vlvSelectArea').remove();
-					$(document.body).append("<canvas id=vlvSelectArea width="+$(document).width()+" height="+$(document).height()+" style='position:absolute;left:0;top:0;z-index:10000;'></canvas>");
-					console.log($('#vlvSelectArea').width());
-					console.log($('#vlvSelectArea').height());
-/*					var _canvas = document.getElementById('vlvSelectArea');
-					var _ctx = _canvas.getContext('2d');
-					_ctx.beginPath();
-					_ctx.moveTo( v.IO.polygon[0][0], v.IO.polygon[0][1] );*/
-				break;
-				case "sphere":
-					$(document.body).append("<div id=select_guide style='background-color:rgba(183,126,129,0.3);position:absolute;border:dotted 1px rgba(183,126,129,0.9);border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;'></div>");
-				break;
 			}
 			
 		},
@@ -3385,15 +2192,11 @@ $(document.activeElement).blur();
 				v.IO.showCtxMenu(e);
 		},
 		mouseUp : function( e ){
-			$('#vlvSelectArea').remove();
-			if(v.IO.focus){
-				v.animateControl.stop();
-			}
-//console.log('enter up');
+console.log('enter up');
 			if(!v.IO.selecting){
 				return;
 			}
-//console.log('enter up2');
+console.log('enter up2');
 		
 //			if(!v.IO.mousePressed) return;
 			v.IO.mousePressed=false;
@@ -3408,16 +2211,14 @@ $(document.activeElement).blur();
 				v.IO.showCtxMenu(e);
 				return;
 			}*/
-//moved 20180710
-			v.IO.selecting=false;
-			v.controls.enabled=true;
-			$('#select_guide').remove();
 			if(v.spacePressed) return;
 			if(v.IO.selectMode=='none') return;
 			if(v.IO.selectMode=='atom' && e.target.nodeName.toLocaleLowerCase() != "canvas"){
 				return;
 			} 
-
+			v.IO.selecting=false;
+			v.controls.enabled=true;
+			$('#select_guide').remove();
 		/*	if(e.target.nodeName.toLocaleLowerCase() == "canvas")
 			{*/
 				if(v.IO.selectMode !== "none" ){
@@ -3426,7 +2227,6 @@ $(document.activeElement).blur();
 					v.update.selectInfo();
 				}
 		/*	}*/
-
 		},
 		select : function( mode ){
 			v.IO.selectedAtoms = [];
@@ -3439,34 +2239,7 @@ $(document.activeElement).blur();
 			v.IO.restoreAtomsColor();
 			v.update.cellInfo();
 			v.update.selectInfo();
-			for(var i=0;i<v.IO.customSelectCallback.length;i++){
-				v.IO.customSelectCallback[i](v);
-			}
-
-		},
-		toWorldXYZ : function(position){
-//TODO
-/*
-			var wx,wy,wz;
-			var sx,sy;
-			sx = (position.x - $(v.wrapper).offset().left) / ($(v.wrapper).width()/2) - 1,
-			sy = -( (position.y - $(v.wrapper).offset().top) / ( $(v.wrapper).height()/2 ) -1 );
-			var pos = new THREE.Vector3(sx,sy,-1);
-			var projWorldMat = new THREE.Matrix4();
-			v.camera.updateProjectionMatrix();
-			var pmi = (new THREE.Matrix4()).getInverse(v.camera.projectionMatrix);
-			projWorldMat.multiplyMatrices(v.camera.matrixWorld, pmi );
-	console.log(pos);
-
-
-			var projScreenMat = new THREE.Matrix4();
-			projScreenMat.multiplyMatrices( v.camera.projectionMatrix, v.camera.matrixWorldInverse );
-
-
-			pos.unproject(projScreenMat, v.camera);
-	console.log(pos);
-			return pos;*/
-
+			v.IO.customSelectCallback.run();
 		},
 		toScreenXY : function(position){
 			var pos = position.clone();
@@ -3480,14 +2253,40 @@ $(document.activeElement).blur();
 			}
 		},
 		getPosOnCanvas : function( pos ){
-			var mouse={};
+	        var mouse={};
 			var wrapper_offset = $(v.wrapper).offset();
-			mouse.x  =  ( (pos[0] - wrapper_offset.left )/ $(v.wrapper).width() ) * 2 - 1;
-			mouse.y  =  - ( (pos[1] -wrapper_offset.top )/ $(v.wrapper).height() ) * 2 + 1;
+	        mouse.x  =  ( (pos[0] - wrapper_offset.left )/ $(v.wrapper).width() ) * 2 - 1;
+	        mouse.y  =  - ( (pos[1] -wrapper_offset.top )/ $(v.wrapper).height() ) * 2 + 1;
 			console.log(mouse);
-			return mouse;
+	        return mouse;
 		},
-		customSelectCallback:[], // Array of functions();
+		customSelectCallback : { 
+			list : [], //Array of functions
+			run : function(){
+				for(var i=0; i < v.IO.customSelectCallback.list.length; i++){
+					v.IO.customSelectCallback.list[i](v);
+				}
+			},
+			remove : function(functionName){
+				var target = -1;
+				for (var i in v.IO.customSelectCallback.list){
+					if(v.IO.customSelectCallback.list[i].name == functionName){
+							target = i;
+					}
+				}
+				if(target !== -1){
+					v.IO.customSelectCallback.list.splice(target,1);
+				}
+			},
+			exist : function(functionName){
+				for (var i in v.IO.customSelectCallback.list){
+					if(v.IO.customSelectCallback.list[i].name == functionName){
+							return true;
+					}
+				}
+				return false;
+			}
+		},
 		selectCallback : function(){
 			function getOneAtom(){
 				if(v.camera.type =="PerspectiveCamera"){
@@ -3594,15 +2393,15 @@ $(document.activeElement).blur();
 						console.log(screenpos);;
 						var in_range;
 						 if(inv) {in_range=!((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
-							);}
-						else{in_range=((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
-							(screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
-							);}
+                            (screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
+                            );}
+                        else{in_range=((screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x>startx&&screenpos.x<endx)&&(screenpos.y<starty&&screenpos.y>endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y>starty&&screenpos.y<endy)||
+                            (screenpos.x<startx&&screenpos.x>endx)&&(screenpos.y<starty&&screenpos.y>endy)
+                            );}
 						if(in_range){
 							var this_atomid = atoms[i].atomid
 							var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
@@ -3620,75 +2419,8 @@ $(document.activeElement).blur();
 					v.IO.restoreAtomsColor();
 					v.IO.highlightSelectedAtoms();
 				break;
-				case "pent":
-				case "hex":
-				case "hept":
-				case "octa":
-				case "lasso":
-					for(var i=0;i<atoms.length;i++){
-						var screenpos = v.IO.toScreenXY( v.atomMeshes[i].position );
-						var point = [screenpos.x, screenpos.y];
-						in_range =  VLatoms.Utils.pointInPolygon(point, v.IO.polygon);
-						if(!inv){
-							if(in_range){
-								var this_atomid = atoms[i].atomid
-								var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
-								if(!del){
-									if( cidx < 0 ){
-										v.IO.selectedAtoms.push( this_atomid );
-									}
-								}else{
-									if( cidx>=0 ){
-										v.IO.selectedAtoms.splice(cidx,1);
-									}
-								}
-							}
-						}else{
-							if(!in_range){
-								var this_atomid = atoms[i].atomid
-								var cidx=v.IO.selectedAtoms.indexOf( this_atomid );
-								if(!del){
-									if( cidx < 0 ){
-										v.IO.selectedAtoms.push( this_atomid );
-									}
-								}else{
-									if( cidx>=0 ){
-										v.IO.selectedAtoms.splice(cidx,1);
-									}
-								}
-							}
-						}
-					}
-					v.IO.restoreAtomsColor();
-					v.IO.highlightSelectedAtoms();
-//TODO	
-					console.log(v.IO.polygon);
-				break;
-				case "sphere":
-				break;
-				case "pos":
-					var atom_id=getOneAtom();
-					if(atom_id < 0){
-						return false;
-					}
-					v.IO.exitSelectMode();
-					let _str_offset = [
-						(v.Structure.a[0]+v.Structure.b[0]+v.Structure.c[0])/2,
-						(v.Structure.a[1]+v.Structure.b[1]+v.Structure.c[1])/2,
-						(v.Structure.a[2]+v.Structure.b[2]+v.Structure.c[2])/2
-					];
-					v.IO.sphereCenter.x=v.Structure.atoms[atom_id].x - _str_offset[0];
-					v.IO.sphereCenter.y=v.Structure.atoms[atom_id].y - _str_offset[1];
-					v.IO.sphereCenter.z=v.Structure.atoms[atom_id].z - _str_offset[2];
-					var scr_pos= v.IO.toScreenXY(v.IO.sphereCenter);
-					v.IO.start=[scr_pos.x,scr_pos.y];
-					v.IO.toggleSelection('sphere');
-				break;
 			}
-			for(var i=0;i<v.IO.customSelectCallback.length;i++){
-				console.log(v.IO.customSelectCallback[i]);
-				v.IO.customSelectCallback[i](v);
-			}
+			v.IO.customSelectCallback.run();
 		//	v.IO.showSelectWin();
 		},
 		showSelectWin : function(){
@@ -3764,9 +2496,11 @@ $(document.activeElement).blur();
 						v.Manipulate.execute("vacuum",{"nx":nx,"ny":ny,"nz":nz,"px":px,"py":py,"pz":pz});
 					}else{
 						var latMat = [ v.Structure.a, v.Structure.b, v.Structure.c];
+						console.log(posFract);
 						for(var i=0;i<3;i++){
 							posFract[i]=posFract[i]-Math.floor(posFract[i]);	
 						}
+						console.log(posFract);
 						posCart = VLatoms.Math.vecdotmat(posFract,latMat);
 						ca.x = posCart[0];
 						ca.y = posCart[1];
@@ -3774,7 +2508,6 @@ $(document.activeElement).blur();
 
 						v.update.atomsChanged=true;
 						v.update.bondsChanged=true;
-						v.animateControl.once();
 					}
 				}
 		},
@@ -3818,7 +2551,101 @@ $(document.activeElement).blur();
 			}*/
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
+		},
+		appendToCenter : function(atoms,_option){		//구조를 대상 셀 중심에 옮겨서 구조가 셀에 들어가는지 검사, atoms와 cell은 v.Sturcture에서 쓰이는 형식
+			//이 함수를 우선 실행하고 이후 그 구조를 옮기는 방식으로 임의의 지점에 분자를 놓을 수 있도록 수정할 것.
+			var option = {
+				historyTitle : 'add to center',
+			};
+			if(_option !== undefined){
+				for(var i in _option) option[i] = _option[i];
+			}
+			//2. 최대최소확인 (중심위치확인)
+			var _maxx = atoms[0].x;
+			var _maxy = atoms[0].y;
+			var _maxz = atoms[0].z;
+			var _minx = atoms[0].x;
+			var _miny = atoms[0].y;
+			var _minz = atoms[0].z;
+			for(var i = 1; i < atoms.length; i++){
+					if(_maxx > atoms[i].x) _maxx = atoms[i].x;
+					if(_maxy > atoms[i].y) _maxy = atoms[i].y;
+					if(_maxz > atoms[i].z) _maxz = atoms[i].z;
+					if(_minx < atoms[i].x) _minx = atoms[i].x;
+					if(_miny < atoms[i].y) _miny = atoms[i].y;
+					if(_minz < atoms[i].z) _minz = atoms[i].z;
+			}
+			var cen = [];
+			cen[0] = (_maxx + _minx) / 2;
+			cen[1] = (_maxy + _miny) / 2;
+			cen[2] = (_maxz + _minz) / 2;
+			var cenCell = [];
+			cenCell[0] = (v.Structure.a[0] + v.Structure.b[0] + v.Structure.c[0]) / 2;
+			cenCell[1] = (v.Structure.a[1] + v.Structure.b[1] + v.Structure.c[1]) / 2;
+			cenCell[2] = (v.Structure.a[2] + v.Structure.b[2] + v.Structure.c[2]) / 2;
+
+			//3.보정할 값 찾음
+			var testAtom = [];
+			for(var i=0; i < atoms.length; i++){	//testAtom은 구조 중심과 셀 중심이 일치하도록 이동한 구조[x,y,z,Element]
+					testAtom.push(new VLatoms.Atom(atoms[i].x + cenCell[0] - cen[0], atoms[i].y + cenCell[1] - cen[1], atoms[i].z + cenCell[2] - cen[2], atoms[i].element));
+			}
+			var retVec = v.Manipulate.insideTest(testAtom,{findSize:true}); //이동한게 셀에 들어가는지 테스트
+			for(var i = 3; i < 6; i++){
+					retVec.delta[i] -= 1;	//늘려야 하는 값만 남게 1 빼기
+			}
+			//셀을 충분히 늘렸을 때 구조를 중심에 맞추면 들어가도록 구조 위치 추가 이동, 이걸 위해 이동값 탐색(구조 중심은 늘어난 셀 크기의 절반만큼 이동 필요)
+			var deltaVec = [];
+			deltaVec[0] = (retVec.delta[3] + retVec.delta[0]) / 2;
+			deltaVec[1] = (retVec.delta[4] + retVec.delta[1]) / 2;
+			deltaVec[2] = (retVec.delta[5] + retVec.delta[2]) / 2;
+			var deltaPos = [];
+			deltaPos[0] = deltaVec[0]*v.Structure.a[0] + deltaVec[1]*v.Structure.b[0] + deltaVec[2]*v.Structure.c[0];
+			deltaPos[1] = deltaVec[0]*v.Structure.a[1] + deltaVec[1]*v.Structure.b[1] + deltaVec[2]*v.Structure.c[1];
+			deltaPos[2] = deltaVec[0]*v.Structure.a[2] + deltaVec[1]*v.Structure.b[2] + deltaVec[2]*v.Structure.c[2];
+
+			//4.보정된 위치로 구조 이동
+			var _newPos = [];
+			_newPos[0] = cenCell[0] - cen[0] - deltaPos[0];
+			_newPos[1] = cenCell[1] - cen[1] - deltaPos[1];
+			_newPos[2] = cenCell[2] - cen[2] - deltaPos[2];
+			testAtom = [];
+			for(var i=0;i<atoms.length;i++){
+					testAtom.push(new VLatoms.Atom(atoms[i].x + _newPos[0], atoms[i].y + _newPos[1], atoms[i].z + _newPos[2], atoms[i].element));
+			}
+
+			//5.insidetest후 vacuum, selectMode가 꺼져있을 경우를 atom으로 바꿈
+			var retInside = v.Manipulate.insideTest(testAtom);
+			if(!retInside.inside){
+					if(confirm("The Cell should be expanded to add the atom(s).")){
+							for(var i=0;i<atoms.length;i++){
+									v.Structure.atoms.push( new VLatoms.Atom(atoms[i].x + _newPos[0], atoms[i].y + _newPos[1], atoms[i].z + _newPos[2], atoms[i].element));
+									v.IO.selectedAtoms.push(v.Structure.atoms.length-1);
+							}
+							v.Manipulate.vacuum({
+											"nx":retInside.delta[0],
+											"ny":retInside.delta[1],
+											"nz":retInside.delta[2],
+											"px":retInside.delta[3],
+											"py":retInside.delta[4],
+											"pz":retInside.delta[5]
+							});
+					}else{
+							return false;
+					}
+			}else{
+					for(var i=0;i<atoms.length;i++){
+							v.Structure.atoms.push( new VLatoms.Atom(atoms[i].x + _newPos[0],atoms[i].y + _newPos[1], atoms[i].z + _newPos[2], atoms[i].element));
+							v.IO.selectedAtoms.push(v.Structure.atoms.length-1);
+					}	
+			}
+/*
+			v.Manipulate.addHistory({
+				mode:option.historyTitle,
+				args:{},
+				Structure:objClone(v.Structure),
+			});
+*/
+			return true;
 		},
 		add2 : function(args){
 			var structure = args['Structure'] || {};
@@ -3859,7 +2686,6 @@ $(document.activeElement).blur();
 			console.log(cm);
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Add Atom(s)",
 				args:{direction:direction,step:step},
@@ -3869,39 +2695,19 @@ $(document.activeElement).blur();
 
 		},
 		add : function(args){
-			//change delta of coordination to cartesian 
-			if(args['type'] != undefined){
-				let lattice = [v.Structure.a, v.Structure.b, v.Structure.c];
-				let delta = [args['dx'],args['dy'],args['dz']];
-				switch(args['type']){
-					case "frac":
-						delta = VLatoms.Utils.Structure.fracToCart(delta, lattice);
-					break;
-					case "view":
-						delta = VLatoms.Utils.Structure.viewToCart(delta, v.camera);
-					break;
-				}
-				args['dx'] = delta[0];
-				args['dy'] = delta[1];
-				args['dz'] = delta[2];
-			}		
-			
-
+			console.log('args');
+			console.log(args);
 			var vdw = args['vdw'] ;
 			var mode = args['mode'] ;
 			if(mode==="pre"){
 				var structure = args['Structure'];	
-			}
-			if(mode == "cen" && v.IO.selectedAtoms.length < 2){
-//				alert("Please select more than one atom.");
-				return false;
 			}
 			var dx = +args['dx'] ;
 			var dy = +args['dy'] ;
 			var dz = +args['dz'] ;
 			var element = args['element'] ;
 			var sa = JSON.parse(JSON.stringify(v.IO.selectedAtoms));	// deepcopy로 바꿈
-			v.IO.selectedAtoms = []; //selectedAtoms를 sa에 저장했으니 초기화함
+			v.IO.selectedAtoms = []; //selectedAtmos를 sa에 저장했으니 초기화함
 			var direction = args.direction;// $('.manipulate_move_direction:checked').val();
 			var step = args.step;//$('#manipulate_move_step').val()*1;
 
@@ -3917,7 +2723,7 @@ $(document.activeElement).blur();
 
 			switch(mode){
 				case "cen":
-					if(v.Structure.atoms.length < 2){
+					if(v.Structure.atoms.length === 0){
 						return false;
 					} else {
 						v.Structure.atoms.push( new VLatoms.Atom(cm[0], cm[1], cm[2], element));
@@ -3926,9 +2732,7 @@ $(document.activeElement).blur();
 
 				case "rel":
 					var targetAtoms = [];
-					//if(v.Structure.atoms.length === 0){
-					if(sa.length == 0){
-						alert("Please select at least one atom.");
+					if(v.Structure.atoms.length === 0){
 						return false;
 					}
 					if(vdw){
@@ -3976,22 +2780,9 @@ $(document.activeElement).blur();
 				case "abs":
 					if(v.Structure.atoms.length === 0){
 						var pc = 2; // padding_constant
-						let l_x,l_y,l_z;
-						if(dx===0){
-							v.Structure.a = [1, 0, 0];
-						}else{
-							v.Structure.a = [dx*pc, 0, 0];
-						}
-						if(dy===0){
-							v.Structure.b = [0, 1, 0];
-						}else{
-							v.Structure.b = [0, dy*pc, 0];
-						}
-						if(dz===0){
-							v.Structure.c = [0, 0, 1];
-						}else{
-							v.Structure.c = [0, 0, dz*pc];
-						}
+						v.Structure.a = [dx*pc, 0, 0];
+						v.Structure.b = [0, dy*pc, 0];
+						v.Structure.c = [0, 0, dz*pc];
 						v.Atom.add(dx, dy, dz, element);
 					} else {
 						var testRet = v.Manipulate.insideTest([{x:dx,y:dy,z:dz}]);
@@ -4019,6 +2810,8 @@ $(document.activeElement).blur();
 					break;
 				case "pre":
 //					args['v']=vlv;
+/*
+ * centerTest로 독립시킴
 					var retStr = VLatoms.StructureBuilder(args.structure,{"n":args.n,"m":args.m,"repeat":args.repeat}); 
 					//2. 최대최소확인 (중심위치확인)
 					var _maxx = retStr.atoms[0].x;
@@ -4041,9 +2834,9 @@ $(document.activeElement).blur();
 					cen[1]=(_maxy+_miny)/2;
 					cen[2]=(_maxz+_minz)/2;
 					var cenCell=[];
-					cenCell[0] = (v.Structure.a[0] + v.Structure.b[0] + v.Structure.c[0]) / 2;
-					cenCell[1] = (v.Structure.a[1] + v.Structure.b[1] + v.Structure.c[1]) / 2;
-					cenCell[2] = (v.Structure.a[2] + v.Structure.b[2] + v.Structure.c[2]) / 2;
+					cenCell[0]=(v.Structure.a[0]+v.Structure.b[0]+v.Structure.c[0])/2;
+					cenCell[1]=(v.Structure.a[1]+v.Structure.b[1]+v.Structure.c[1])/2;
+					cenCell[2]=(v.Structure.a[2]+v.Structure.b[2]+v.Structure.c[2])/2;
 //					console.log("cen",cen[0],cen[1],cen[2]);
 
 					//3.보정할 값 찾음
@@ -4100,7 +2893,7 @@ $(document.activeElement).blur();
 									v.Structure.atoms.push( new VLatoms.Atom(retStr.atoms[i].x + _newPos[0],retStr.atoms[i].y + _newPos[1], retStr.atoms[i].z + _newPos[2],retStr.atoms[i].element));
 									v.IO.selectedAtoms.push(v.Structure.atoms.length-1);
 							}	
-					}
+					}*/
 					break;
 					//추가
 			}
@@ -4108,13 +2901,14 @@ $(document.activeElement).blur();
 			if(v.IO.selectMode==="none") v.IO.selectMode = "atom";
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Add Atom(s)",
 				args:{direction:direction,step:step},
 				Structure:objClone(v.Structure),
 			});
 			v.setOptimalCamPosition();
+
+
 		},
 		edit:function(args){
 			var newAtoms = args['atomArr'];
@@ -4135,34 +2929,18 @@ $(document.activeElement).blur();
 				}
 			}
 			if(deleteTarget.length > 0){
-					v.manipulateAtom.removeAtoms(deleteTarget,"off");
+				v.manipulateAtom.removeAtoms(deleteTarget,"off");
 			}
-			var testRet = v.Manipulate.insideTest(v.Structure.atoms);
-			if(!testRet.inside){
-				if(!confirm("Do you want to keep the cell size?")){
-					v.Manipulate.vacuum({
-							"nx":testRet.delta[0],
-							"ny":testRet.delta[1],
-							"nz":testRet.delta[2],
-							"px":testRet.delta[3],
-							"py":testRet.delta[4],
-							"pz":testRet.delta[5]
-					});
-				}else{
-					v.Manipulate.insideTest(v.Structure.atoms,{"onEscape":true})
-				}
-			}
+	console.log('edit3');
 
 			v.update.atomsChanged = true;
 			v.update.bondsChanged = true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Manual Edit",
 				args:{},
 				Structure:objClone(v.Structure)
 			});
 		},
-/*
 		move:function(args){
 			var sa = v.IO.selectedAtoms;
 			var direction = args.direction;// $('.manipulate_move_direction:checked').val();
@@ -4216,109 +2994,11 @@ $(document.activeElement).blur();
 			}
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Move Atom(s)",
 				args:{direction:direction,step:step},
 				Structure:objClone(v.Structure),
 			});
-
-//TODO
-		},
-*/
-		move:function(args){
-			var sa = v.IO.selectedAtoms;
-			var onEscape = args.onEscape=="expand"?true:false;
-			var posFract;
-			var tmpStrain = [];
-			var uparr = [ v.camera.up.x, v.camera.up.y, v.camera.up.z ]; // ^
-				uparr = VLatoms.Math.norm(uparr);
-			var carr = [v.camera.position.x, v.camera.position.y, v.camera.position.z];
-				carr = VLatoms.Math.norm(carr);
-			var rightarr = VLatoms.Math.cross(uparr,carr);
-				rightarr = VLatoms.Math.norm(rightarr);
-
-			var ref = [0,0,0];
-			var newpos;
-			if(args.coordinateType !== undefined){	//apply all three axes
-				let _delta = args.delta;
-				let delta;
-				let coordinateType = args.coordinateType;
-				switch(coordinateType){
-					case "cart":
-						delta = _delta;
-					break;
-					case "frac":
-						let lattice = [v.Structure.a, v.Structure.b, v.Structure.c];
-						delta = VLatoms.Utils.Structure.fracToCart(_delta, lattice);
-					break;
-					case "view":
-						delta = VLatoms.Utils.Structure.viewToCart(_delta, v.camera);
-					break;
-				}
-				for(let i=0; i < sa.length; i++){
-					let ca = v.Structure.atoms[sa[i]];
-					newpos = VLatoms.Math.add( delta , [ca.x, ca.y, ca.z]);
-					ca.x = newpos[0];
-					ca.y = newpos[1];
-					ca.z = newpos[2];
-					// checking if atom is escaped from the cell
-					v.manipulateAtom.checkAtomPositionAfterManipulate(ca, i, onEscape);
-				}
-				v.update.atomsChanged=true;
-				v.update.bondsChanged=true;
-				v.animateControl.once();
-				v.Manipulate.addHistory({
-					mode:"Move Atom(s)",
-					args:{delta:_delta,coordinateType:coordinateType},
-					Structure:objClone(v.Structure),
-				});
-			} else {	//apply just one axis
-				let direction = args.direction;// $('.manipulate_move_direction:checked').val();
-				let step = args.step;//$('#manipulate_move_step').val()*1;
-				for(var i=0;i<sa.length;i++){
-					var ca = v.Structure.atoms[sa[i]];
-					switch(direction){
-						case "x":	//xyz(x) abc(o)
-	//						ref = [1,0,0];
-							ref = math.multiply(v.Structure.a,1/math.norm(v.Structure.a));
-						break;
-						case "y":
-	//						ref = [0,1,0];
-							ref = math.multiply(v.Structure.b,1/math.norm(v.Structure.b));
-						break;
-						case "z":
-	//						ref = [0,0,1];
-							ref = math.multiply(v.Structure.c,1/math.norm(v.Structure.c));
-						break;
-						case "vx":
-							ref = rightarr;
-						break;
-						case "vy":
-							ref = uparr;
-						break;
-						case "vz":
-							ref = carr;
-						break;
-					}
-					newpos = VLatoms.Math.add( VLatoms.Math.cdotvec(step, ref) , [ca.x, ca.y, ca.z]);
-					ca.x = newpos[0];
-					ca.y = newpos[1];
-					ca.z = newpos[2];
-	// check atom is escaped the cell
-					v.manipulateAtom.checkAtomPositionAfterManipulate(ca,i,onEscape);
-	//				v.Manipulate.insideTest(v.Structure.atoms,"onEscape");
-
-				}
-				v.update.atomsChanged=true;
-				v.update.bondsChanged=true;
-				v.animateControl.once();
-				v.Manipulate.addHistory({
-					mode:"Move Atom(s)",
-					args:{direction:direction,step:step},
-					Structure:objClone(v.Structure),
-				});
-			}
 
 //TODO
 		},
@@ -4335,7 +3015,6 @@ $(document.activeElement).blur();
 			}
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Change Atom(s)",
 				args:{},
@@ -4384,17 +3063,9 @@ $(document.activeElement).blur();
 				case "vz":
 					ref = carr;
 				break;
-				case "a":
-					ref = v.Structure.a;
-				break;
-				case "b":
-					ref = v.Structure.b;
-				break;
-				case "c":
-					ref = v.Structure.c;
-				break;
+
 			}
-//			console.log(ref);
+			console.log(ref);
 /*		
 			uparr = [ v.camera.up.x, v.camera.up.y, v.camera.up.z ]; // ^
 			_c = new THREE.Vector3(v.camera.position.x, v.camera.position.y, v.camera.position.z);
@@ -4403,7 +3074,6 @@ $(document.activeElement).blur();
 			refarr = VLatoms.Math.cross(uparr,__c); // ->
 */
 			var step = args.step;//$('#manipulate_rotate_step').val()*1;
-			if(!$.isNumeric(step)) return false;
 			for(var i=0;i<sa.length;i++){
 				var ca = v.Structure.atoms[sa[i]];
 				var tmppos = VLatoms.Math.rotateA(ref,[ca.x-cm[0],ca.y-cm[1],ca.z-cm[2]],step);
@@ -4415,7 +3085,6 @@ $(document.activeElement).blur();
 			}
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			v.Manipulate.addHistory({
 				mode:"Rotate Atom(s)",
 				args:{},
@@ -4431,14 +3100,13 @@ $(document.activeElement).blur();
 			}
 			v.update.atomsChanged=true;
 			v.update.bondsChanged=true;
-			v.animateControl.once();
 			
 			if(historyToggle !== "off"){
-					v.Manipulate.addHistory({
-							mode:"Delete Atom(s)",
-							args:{},
-							Structure:objClone(v.Structure)
-					});
+				v.Manipulate.addHistory({
+					mode:"Delete Atom(s)",
+					args:{},
+					Structure:objClone(v.Structure)
+				});
 			}
 		},
 		removeSelectedAtoms : function(){
@@ -4575,14 +3243,7 @@ $(document.activeElement).blur();
 					},
 					Close : function(){ //different with close
 									var target;
-									for (i in v.IO.customSelectCallback){
-											if(v.IO.customSelectCallback[i].name == "refreshAtomList"){
-													target = i;
-											}
-											if(target !== undefined){
-													v.IO.customSelectCallback.splice(target,1);
-											}
-									}
+									v.IO.customSelectCallback.remove("refreshAtomList");
 									$('#VLMessage').remove();
 					}
 				};
@@ -4616,7 +3277,7 @@ $(document.activeElement).blur();
 						});
 				}
 				refreshAtomList();
-				v.IO.customSelectCallback.push(refreshAtomList);
+				v.IO.customSelectCallback.list.push(refreshAtomList);
 				$('#VLM_btn_1>button').addClass("btn-warn");
 				$('#VLM_btn_1>button').removeClass("btn-info");
 			},
@@ -4786,115 +3447,8 @@ $(document.activeElement).blur();
 				};
 				v.UI.message( title, msg, btn, {width:400});
 
-			},
-			DrawFromInput : function(){
-				var title="Structure Input";
-				var desc1, desc2, fields;
-					fields = "<div style='width:300px'>"
-					fields += "<label>Cell</label><br/>";
-					fields += "<input class='customInputCellOpt' type=checkbox><span>Use the Current Cell</span><br/>";
-					fields += "<div class='customInputCellWrapper'>"
-					fields += "<div>";
-					fields += "<div style='display:inline-block;width:25%;'><span>a</span></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=0 data-column=0 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=0 data-column=1 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=0 data-column=2 style='width:100%;'></div>";
-					fields += "</div>";
-					fields += "<div>";
-					fields += "<div style='display:inline-block;width:25%;'><span>b</span></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=1 data-column=0 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=1 data-column=1 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=1 data-column=2 style='width:100%;'></div>";
-					fields += "</div>";
-					fields += "<div>";
-					fields += "<div style='display:inline-block;width:25%;'><span>c</span></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=2 data-column=0 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=2 data-column=1 style='width:100%;'></div>";
-					fields += "<div style='display:inline-block;width:25%;'><input class='customInputCell' data-row=2 data-column=2 style='width:100%;'></div>";
-					fields += "</div>";
-					fields += "</div>";
-					fields += "<label>Atoms</label>";
-					fields += "<div class='customInputAtomsWrapper' style='height:300px;overflow-y:auto;'>"
-					fields += "<div>";
-					fields += "<div style='display:inline-block;width:10%;'><span>1</span></div>";
-					fields += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=0 data-column=0 style='width:100%;' placeholder='Element'></div>";
-					fields += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=0 data-column=1 style='width:100%;' placeholder='x'></div>";
-					fields += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=0 data-column=2 style='width:100%;' placeholder='y'></div>";
-					fields += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=0 data-column=3 style='width:100%;' placeholder='z'></div>";
-					fields += "</div>";
-					fields += "</div>";
-					fields += "</div>";
-					fields += "</div>";
-				var btn={
-					"Apply":function(){v.Manipulate.drawFromInput()},
-					"close":true
-				}
-				var msg = this.GenerateManipulatorMessage(desc1,desc2,fields);
-				v.UI.message( title, msg, btn, {"width":"auto","height":500});
-				$(".customInputCell").off();
-				$(".customInputCell").on("paste", function(e) {
-					e.stopPropagation();
-					e.preventDefault();
-					let row = $(e.target).data("row");
-					let col = $(e.target).data("column");
-					console.log(row, col);
-					var cd = e.originalEvent.clipboardData.getData("text/plain");
-					cd = cd.trim().split("\n");
-					for (let i = 0; i < cd.length; i++) {
-						cd[i] = cd[i].trim().replace(/\s+/g, " ").replace(/\t+/g, " ").split(" ");
-					}
-					for (let i = 0; i < cd.length; i++) {
-						for (let j = 0; j < cd[i].length; j++) {
-							$(".customInputCell[data-row=" + (row + i) + "][data-column=" + (col + j) + "]").empty().val(cd[i][j]);
-						}
-					}
-				});
-				
-				function atomsPatseEvent(e) {
-					e.stopPropagation();
-					e.preventDefault();
-					let row = $(e.target).data("row");
-					let col = $(e.target).data("column");
-					var cd = e.originalEvent.clipboardData.getData("text/plain");
-					cd = cd.trim().split("\n");
-					for (let i = 0; i < cd.length; i++) {
-						cd[i] = cd[i].trim().replace(/\s+/g, " ").replace(/\t+/g, " ").split(" ");
-					}
-					for (let i = 0; i < cd.length; i++) {
-						let nrow=row*1+i*1;
-						if ($(".customInputAtoms[data-row=" + nrow + "]").length === 0) {
-							let inh = "<div>";
-							inh += "<div style='display:inline-block;width:10%;'><span>" + (nrow + 1) + "</span></div>";
-							inh += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=" + nrow + " data-column=0 style='width:100%;' placeholder='Element'></div>";
-							inh += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=" + nrow + " data-column=1 style='width:100%;' placeholder='x'></div>";
-							inh += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=" + nrow + " data-column=2 style='width:100%;' placeholder='y'></div>";
-							inh += "<div style='display:inline-block;width:22.5%;'><input class='customInputAtoms' data-row=" + nrow + " data-column=3 style='width:100%;' placeholder='z'></div>";
-							inh += "</div>";
-							$(".customInputAtomsWrapper").append(inh);
-						}
-						for (let j = 0; j < cd[i].length; j++) {
-							$(".customInputAtoms[data-row=" + (row + i) + "][data-column=" + (col + j) + "]").empty().val(cd[i][j]);
-						}
-					}
-					$(".customInputAtoms").off();
-					$(".customInputAtoms").on("paste", function(e) {
-						atomsPatseEvent(e)
-					});
-				};
-				$(".customInputCellOpt").off();
-				$(".customInputCellOpt").click(function() {
-					let checked = $(this).prop("checked");
-					if (checked) {
-						$(".customInputCellWrapper").hide();
-					} else {
-						$(".customInputCellWrapper").show();
-					}
-				});
-				$(".customInputAtoms").off();
-				$(".customInputAtoms").on("paste", function(e) {
-					atomsPatseEvent(e)
-				});
 			}
+
 		}
 	},
 
@@ -4902,66 +3456,14 @@ $(document.activeElement).blur();
 	v.Manipulate = {
 		historyLoaded : -1,
 		history : [],
-		updateHistoryTbl : function(){
-			if( v.option.historyWrapper !==undefined ){
-				v.option.historyWrapper.empty();
-				for(var idx = 0;idx<v.Manipulate.history.length;idx++){
-				//	var idx = v.Manipulate.history.length - 1;
-					v.option.historyWrapper
-							.append("<div class='history_bar_record' data-historyidx='"+idx+"'><span class='history_bar_record_title' style='float:left;padding-top:5px;'>"
-											+v.Manipulate.history[idx].mode
-											+"</span><span class='history_bar_record_delete' style='float:right;font-size:9px;color:red;padding-top:5px;'>X</span><br><img class='history_bar_img' src='"
-											+v.Manipulate.history[idx].Image+"'></div>");
-
-					v.option.historyWrapper.scrollLeft(v.option.historyWrapper[0].scrollWidth);
-					v.option.historyWrapper.children("div").eq(idx).unbind();
-					v.option.historyWrapper.children("div").eq(idx).bind("click",function(){
-							v.IO.selectedAtoms = [];
-							var ci = $(this).data("historyidx");
-							var _structure = v.Manipulate.history[ci].Structure;
-							v.Structure = $.extend(true,{},_structure);
-							v.update.atomsChanged = true;
-							v.update.bondsChanged = true;
-							v.animateControl.once();
-							v.strlist[v.strNum]["Structure"]=ci;
-					});
-					v.option.historyWrapper.find(".history_bar_record_delete").off();
-					v.option.historyWrapper.find(".history_bar_record_delete").click(function(e){
-						let ci=$(this).parent().data("historyidx")*1;
-						let si=v.strlist[v.strNum]["Structure"]*1;
-						let ni=0;
-						if(v.Manipulate.history.length <2){
-							return;
-						}
-						v.Manipulate.history.splice(ci,1);
-						if(ci>si){
-							ni=si;
-						}else if(ci===si){
-							ni=v.Manipulate.history.length-1;
-							var _structure = v.Manipulate.history[ni].Structure;
-							v.Structure = VLatoms.Utils.redefineStructure(_structure);
-							v.update.atomsChanged = true;
-							v.update.bondsChanged = true;
-							v.animateControl.once();
-
-						}else{
-							ni=si-1;
-						}
-						v.strlist[v.strNum]["Structure"]=ni;
-						v.Manipulate.updateHistoryTbl();
-						e.stopPropagation();
-					});
-				}
-			}
-
-		},
 		addHistory : function(historyData){
 			if(!v.option.history) return false;
 			if(v.Manipulate.history.length === 0 && v.Structure.atoms.length === 0) return false;
 			historyData.selectedAtoms = JSON.parse(JSON.stringify(v.IO.selectedAtoms));
 			if(v.Manipulate.history.length > 0){
 				if(VLatoms.Utils.Structure.compare(v.Structure, v.Manipulate.history[v.Manipulate.history.length - 1].Structure)) { 
-					console.warn("Nothing has changed.");
+console.log(v.Structure, v.Manipulate.history[v.Manipulate.history.length - 1].Structure);
+					alert("Nothing has changed.");
 					v.shiftPressed=false;
 					v.ctlPressed=false;
 					v.altPressed=false;
@@ -4972,39 +3474,52 @@ $(document.activeElement).blur();
 			v.update.atom();
 			v.update.bond();
 			v.update.atom();
-			v.IO.highlightSelectedAtoms();
 			v.renderer.render( v.scene, v.camera );
 			historyData.Image = v.renderer.domElement.toDataURL("image/png");
-			//반복 작업 통합
 			var _idx = v.Manipulate.history.length - 1;
 			if(_idx > 0){
-				if(historyData.mode == "Move Atom(s)" || historyData.mode == "Rotate Atom(s)"){
+				if(historyData.mode == "Move Atom(s)"){
 					if(historyData.mode == v.Manipulate.history[_idx].mode
 							&& math.deepEqual(historyData.selectedAtoms, v.Manipulate.history[_idx].selectedAtoms)){
-						v.option.historyWrapper.find("div:last-child").remove();
+						$("#vlv_history_bar>div:last-child").remove();
+						v.Manipulate.history.pop();
+					}
+				}
+				if(historyData.mode == "Rotate Atom(s)"){
+					if(historyData.mode == v.Manipulate.history[_idx].mode
+							&& math.deepEqual(historyData.selectedAtoms, v.Manipulate.history[_idx].selectedAtoms)){
+						$("#vlv_history_bar>div:last-child").remove();
 						v.Manipulate.history.pop();
 					}
 				}
 			}
 			v.Manipulate.history.push(historyData);
-			v.Manipulate.updateHistoryTbl();
+			if($('#vlv_history_bar').length == 1){
+					var idx = v.Manipulate.history.length - 1;
+					$('#vlv_history_bar')
+							.append("<div class='history_bar_record' data-historyidx='"+idx+"'><span class='history_bar_record_title'>"
+											+v.Manipulate.history[idx].mode
+											+"</span><br><img class='history_bar_img' src='"
+											+v.Manipulate.history[idx].Image+"'></div>");
+
+					$('#vlv_history_bar').scrollLeft($('#vlv_history_bar')[0].scrollWidth);
+					$("#vlv_history_bar>div").eq(idx).unbind();
+					$("#vlv_history_bar>div").eq(idx).bind("click",function(){
+							v.IO.selectedAtoms = [];
+							var ci = $(this).data("historyidx");
+							var _structure = v.Manipulate.history[ci].Structure;
+							v.Structure = $.extend(true,{},_structure);
+							v.update.atomsChanged = true;
+							v.update.bondsChanged = true;
+					});
+			}
 			v.Manipulate.callback();
-			v.strlist[v.strNum]["Structure"]=v.Manipulate.history.length -1;
+			v.IO.highlightSelectedAtoms();
 			//v.setOptimalCamPosition();
 		},
 		callback : function(){
-			if( typeof(v.option.manipulateCallback) == "function"){
-				v.option.manipulateCallback = [v.option.manipulateCallback];
-			}else if (typeof(v.option.manipulateCallback) != "object"){
-				console.warn("manipulate callback is not an object : "+ typeof(v.option.manipulateCallback));
-			}
-			
-			if(typeof(v.option.manipulateCallback) == "object"){
-				for(var i=0;i<v.option.manipulateCallback.length;i++){
-					if(typeof(v.option.manipulateCallback[i]) == "function"){
-						v.option.manipulateCallback[i](v);
-					}
-				}
+			if(v.option.manipulateCallback){
+				v.option.manipulateCallback(v);
 			}
 
 		},
@@ -5017,7 +3532,7 @@ $(document.activeElement).blur();
 
 			v.Manipulate[mode](args);
 			v.Manipulate.addHistory({
-				mode:mode[0].toUpperCase()+mode.slice(1),
+				mode:mode,
 				args:args,
 				Structure:objClone(v.Structure),
 			});
@@ -5092,7 +3607,6 @@ $(document.activeElement).blur();
 				v.Structure = retStructure;
 				v.update.atomsChanged = true;
 				v.update.bondsChanged = true;
-				v.animateControl.once();
 			}
 			return retStructure;
 		},
@@ -5119,7 +3633,6 @@ $(document.activeElement).blur();
 			v.Structure = retStructure;
 			v.update.atomsChanged = true;
 			v.update.bondsChanged = true;
-			v.animateControl.once();
 			return retStructure;
 		},
 		vacuum : function( args ){
@@ -5199,7 +3712,6 @@ console.log(ret);
 				v.Structure = retStructure;
 				v.update.atomsChanged = true;
 				v.update.bondsChanged = true;
-				v.animateControl.once();
 			}
 			v.setOptimalCamPosition();
 			return retStructure;
@@ -5221,7 +3733,6 @@ console.log(ret);
 			});
 			worker.onmessage = function(e){
 				var stat = e.data;
-console.log('get data from worker', stat);
 				if(stat.state == 'busy'){
 				
 				}else if(stat.state == 'finished'){
@@ -5229,16 +3740,7 @@ console.log('get data from worker', stat);
 					v.Structure = VLatoms.Utils.redefineStructure(retdata);//TODO Here
 					v.update.atomsChanged=true;
 					v.update.bondsChanged=true;
-					v.animateControl.once();
-					v.Manipulate.addHistory({
-						mode:"Fill-"+option.molecules[0].formula.formulaStr,
-						args:{},
-						Structure:objClone(v.Structure),
-					});
-					if(typeof(option.callback == "function")){
-						option.callback();
-					}
-
+					option.callback();
 				}
 				console.log(e);
 			}
@@ -5260,7 +3762,6 @@ console.log('get data from worker', stat);
 
 				v.update.atomsChanged=true;
 				v.update.bondsChanged=true;
-				v.animateControl.once();
 					
 			}	
 		},
@@ -5319,7 +3820,7 @@ console.log('get data from worker', stat);
 			//option.cell로 임의의 셀과 비교하는 기능 제공.
 			//기본적으로 findSize=true 인 경우에 대한 값을 구하고, 그걸 후처리해서 findSize=false일때의 기본 delta 제공. 
 			var cell = v.Structure;
-			var onEscape = false;		//셀은 고정 시키고 벗어난 원자들은 벗어난 위치의 다른 셀에 
+			var onEscape = false;		//true 일 경우, 셀은 고정 시키고 벗어난 원자들은 벗어난 위치의 다른 셀에 
 										//해당하는 위치로 넣는 기능.(atoms 좌표가 call by reference로 바뀜)
 										// return 값 필요 없음.
 			var findSize = false;		//셀에서 atoms가 차지하는 위치의 최대최소값을 abc에 대한 상대좌표로 제공. 
@@ -5425,6 +3926,7 @@ console.log('get data from worker', stat);
 					}
 				}
 			}
+			
 			return ret;
 		},
 		paste : function( args ){
@@ -5446,366 +3948,7 @@ console.log('get data from worker', stat);
 			}
 			v.IO.selectedAtoms=_tmp_selectedAtoms.slice(0);
 			v.Manipulate.insideTest(v.Structure.atoms, {onEscape:true});
-		},
-		merge : function(args){
-			let idx1=args.idx1;
-			let idx2=args.idx2;
-			let target_plane=args.tplane;
-			let order =args.order;
-			let space=args.space;
-			let cloneOpt=args.clone;
-			if(cloneOpt===undefined){
-				cloneOpt=[true,true,true];
-			}
-			let vll = v.strlist[idx1].history[v.strlist[idx1].Structure].Structure;
-			let vlr = v.strlist[idx2].history[v.strlist[idx2].Structure].Structure;
-			let cen1 = [
-				(vll.a[0]+vll.b[0]+vll.c[0])/2,
-				(vll.a[1]+vll.b[1]+vll.c[1])/2,
-				(vll.a[2]+vll.b[2]+vll.c[2])/2
-			];
-			let cen2 = [
-				(vlr.a[0]+vlr.b[0]+vlr.c[0])/2,
-				(vlr.a[1]+vlr.b[1]+vlr.c[1])/2,
-				(vlr.a[2]+vlr.b[2]+vlr.c[2])/2
-			];
-			v.addStrlist();
-			var cube = [];
-			cube[0] = vlr.a.slice(0);
-			cube[1] = vlr.b.slice(0);
-			cube[2] = vlr.c.slice(0);
-			var cube2 = [];
-			cube2[0] = vll.a.slice(0);
-			cube2[1] = vll.b.slice(0);
-			cube2[2] = vll.c.slice(0);
-			v.Structure.a = vlr.a.slice(0);
-			v.Structure.b = vlr.b.slice(0);
-			v.Structure.c = vlr.c.slice(0);
-			v.Structure.atoms = vlr.atoms.slice(0);
-			var new_atoms = [];
-			var max = [0, 0, 0];
-			var min = [1, 1, 1]
-			var target_point = [
-				[0, 0, 0]
-			];
-			target_point.push([vll.a[0] + vll.b[0] + vll.c[0], vll.a[1] + vll.b[1] + vll.c[1], vll.a[2] + vll.b[2] + vll.c[2]]);
-			target_point.push([vll.a[0] + vll.b[0], vll.a[1] + vll.b[1], vll.a[2] + vll.b[2]]);
-			target_point.push([vll.a[0] + vll.c[0], vll.a[1] + vll.c[1], vll.a[2] + vll.c[2]]);
-			target_point.push([vll.b[0] + vll.c[0], vll.b[1] + vll.c[1], vll.b[2] + vll.c[2]]);
-			target_point.push([vll.a[0], vll.a[1], vll.a[2]]);
-			target_point.push([vll.b[0], vll.b[1], vll.b[2]]);
-			target_point.push([vll.c[0], vll.c[1], vll.c[2]]);
-			var max2 = [0, 0, 0];
-			var min2 = [1, 1, 1];
-			var target_point2 = [
-				[0, 0, 0]
-			];
-			target_point2.push([vlr.a[0] + vlr.b[0] + vlr.c[0], vlr.a[1] + vlr.b[1] + vlr.c[1], vlr.a[2] + vlr.b[2] + vlr.c[2]]);
-			target_point2.push([vlr.a[0] + vlr.b[0], vlr.a[1] + vlr.b[1], vlr.a[2] + vlr.b[2]]);
-			target_point2.push([vlr.a[0] + vlr.c[0], vlr.a[1] + vlr.c[1], vlr.a[2] + vlr.c[2]]);
-			target_point2.push([vlr.b[0] + vlr.c[0], vlr.b[1] + vlr.c[1], vlr.b[2] + vlr.c[2]]);
-			target_point2.push([vlr.a[0], vlr.a[1], vlr.a[2]]);
-			target_point2.push([vlr.b[0], vlr.b[1], vlr.b[2]]);
-			target_point2.push([vlr.c[0], vlr.c[1], vlr.c[2]]);
-			for (var i = 0; i < target_point.length; i++) {
-				let atom=[]
-				for( var j=0 ; j<3 ; j++){
-					atom.push(target_point[i][j].toFixed(5));
-				}
-				let vectorSize = math.multiply(math.inv(math.transpose(cube)), atom);
-				if (vectorSize[0] > max[0]) max[0] = vectorSize[0];
-				if (vectorSize[1] > max[1]) max[1] = vectorSize[1];
-				if (vectorSize[2] > max[2]) max[2] = vectorSize[2];
-				if (vectorSize[0] < min[0]) min[0] = vectorSize[0];
-				if (vectorSize[1] < min[1]) min[1] = vectorSize[1];
-				if (vectorSize[2] < min[2]) min[2] = vectorSize[2];
-				let atom2 = [];
-				for( var j=0 ; j<3 ; j++){
-					atom2.push(target_point2[i][j].toFixed(5));
-				}
-				let vectorSize2 = math.multiply(math.inv(math.transpose(cube2)), atom2);
-				if (vectorSize2[0] > max2[0]) max2[0] = vectorSize2[0];
-				if (vectorSize2[1] > max2[1]) max2[1] = vectorSize2[1];
-				if (vectorSize2[2] > max2[2]) max2[2] = vectorSize2[2];
-				if (vectorSize2[0] < min2[0]) min2[0] = vectorSize2[0];
-				if (vectorSize2[1] < min2[1]) min2[1] = vectorSize2[1];
-				if (vectorSize2[2] < min2[2]) min2[2] = vectorSize2[2];
-			}
-			var _cube = [];
-			let shift=[0,0,0];
-			let cloneVal=[];
-			for(var i=0 ; i<3 ; i++){
-				if(cloneOpt[i]){
-					cloneVal[i]=Math.ceil(max[i]-min[i]);
-				}else{
-					cloneVal[i]=1;
-				}
-			}
-
-			switch (target_plane) {
-				case "XY":
-					v.Manipulate.execute("clone", {
-						"nx": cloneVal[0],
-						"ny": cloneVal[1],
-						"nz": cloneVal[2]+(cloneOpt[2]?1:0),
-					});
-					_cube[0] = vll.a.slice(0);
-					_cube[1] = vll.b.slice(0);
-					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[2][i]*=(max2[2] - min2[2]);
-					}
-					break;
-				case "XZ":
-					v.Manipulate.execute("clone", {
-						"nx": cloneVal[0],
-						"ny": cloneVal[1]+(cloneOpt[1]?1:0),
-						"nz": cloneVal[2],
-					});
-					_cube[0] = vll.a.slice(0);
-					_cube[1] = vll.b.slice(0);
-					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[1][i]*=(max2[1] - min2[1]);
-					}
-					break;
-				case "YZ":
-					v.Manipulate.execute("clone", {
-						"nx": cloneVal[0]+(cloneOpt[0]?1:0),
-						"ny": cloneVal[1],
-						"nz": cloneVal[2],
-					});
-					_cube[0] = vll.a.slice(0);
-					_cube[1] = vll.b.slice(0);
-					_cube[2] = vll.c.slice(0);
-					for(var i=0 ; i<3 ; i++){
-						_cube[0][i]*=(max2[0] - min2[0]);
-					}
-					break;
-			}
-
-			cen1 = [
-				(_cube[0][0]+_cube[1][0]+_cube[2][0])/2,
-				(_cube[0][1]+_cube[1][1]+_cube[2][1])/2,
-				(_cube[0][2]+_cube[1][2]+_cube[2][2])/2,
-			];
-
-			for(var i=0 ; i<3 ; i++){
-				if(cloneOpt[i]){
-					shift[i]=0;
-				}else{
-					shift[i]=cen1[i]-cen2[i];
-				}
-			}
-
-			let tooSmall=0;
-
-			for (var i = 0; i < v.Structure.atoms.length; i++) {
-				let atom = v.Structure.atoms[i];
-				if(shift[0]===0){
-					atom.x = atom.x * 1 + vlr.a[0] * min[0] + vlr.b[0] * min[1] + vlr.c[0] * min[2];
-				}else{
-					atom.x = atom.x * 1 + shift[0];
-				}
-				if(shift[1]===0){
-					atom.y = atom.y * 1 + vlr.a[1] * min[0] + vlr.b[1] * min[1] + vlr.c[1] * min[2];
-				}else{
-					atom.y = atom.y * 1 + shift[1];
-				}
-				if(shift[2]===0){
-					atom.z = atom.z * 1 + vlr.a[2] * min[0] + vlr.b[2] * min[1] + vlr.c[2] * min[2];
-				}else{
-					atom.z = atom.z * 1 + shift[2];
-				}
-				let atom_pos = [atom.x, atom.y, atom.z];
-				let vectorSize = math.multiply(math.inv(math.transpose(_cube)), atom_pos);
-				if (
-/*					(target_plane !== "YZ" & ( vectorSize[0] < 0 || vectorSize[0] > 1)) ||
- *										(target_plane !== "XZ" & ( vectorSize[1] < 0 || vectorSize[1] > 1)) ||
- *															(target_plane !== "XY" & ( vectorSize[2] < 0 || vectorSize[2] > 1))
- *															*/
-					( vectorSize[0] < 0 || vectorSize[0] > 1) ||
-					( vectorSize[1] < 0 || vectorSize[1] > 1) ||
-					( vectorSize[2] < 0 || vectorSize[2] > 1)
-				){	
-					if(shift[0] !== 0 || shift[1] !== 0 || shift[2] !== 0){
-						tooSmall++;
-					}
-				}else{
-					new_atoms.push(atom);
-				}
-			}
-			v.Structure.a = vll.a.slice(0);
-			v.Structure.b = vll.b.slice(0);
-			v.Structure.c = vll.c.slice(0);
-			v.Structure.atoms = [];
-			for (var i = 0; i < vll.atoms.length; i++) {
-				v.Structure.atoms.push($.extend(true, {}, vll.atoms[i]));
-			}
-			var offset = [0, 0, 0];
-			if (Number.isNaN(space) || space < 0){
-				console.log("a");
-				space = 0;
-			}
-			switch (target_plane) {
-				case "XY":
-					for (var i = 0; i < 3; i++) {
-						v.Structure.c[i] += _cube[2][i];
-					}
-					let length_m_c = VLatoms.Math.len(v.Structure.c);
-					if(order==="or-fixed-added"){
-						offset = vll.c.slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.c[j] *= (1 + space / length_m_c);
-							offset[j] *= (1 + space / VLatoms.Math.len(vll.c));
-						}
-					}else if(order==="or-added-fixed"){
-						offset = _cube[2].slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.c[j] *= (1 + space / length_m_c);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
-						}
-					}
-
-					break;
-				case "XZ":
-					for (var i = 0; i < 3; i++) {
-						v.Structure.b[i] += _cube[1][i];
-					}
-					let length_m_b = VLatoms.Math.len(v.Structure.b);
-					if(order==="or-fixed-added"){
-						offset = vll.b.slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.b[j] *= (1 + space / length_m_b);
-							offset[j] *= (1 + space / VLatoms.Math.len(vll.b));
-						}
-					}else if(order==="or-added-fixed"){
-						offset = _cube[1].slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.b[j] *= (1 + space / length_m_b);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
-						}					
-					}
-					break;
-				case "YZ":
-					for (var i = 0; i < 3; i++) {
-						v.Structure.a[i] += _cube[0][i];
-					}
-					let length_m_a = VLatoms.Math.len(v.Structure.a);
-					if(order==="or-fixed-added"){
-						offset = vll.a.slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.a[j] *= (1 + space / length_m_a);
-							offset[j] *= (1 + space / VLatoms.Math.len(vll.a));
-						}
-					}else if(order==="or-added-fixed"){
-						offset = _cube[0].slice(0);
-						for (let j = 0; j < 3; j++) {
-							v.Structure.a[j] *= (1 + space / length_m_a);
-							offset[j] *= (1 + space / VLatoms.Math.len(offset));
-						}
-					}
-					break;
-			}
-			switch (order) {
-				case "or-fixed-added":
-					console.log(offset);
-					for (let i = 0; i < new_atoms.length; i++) {
-						let _atom = new_atoms[i];
-						_atom.x += offset[0];
-						_atom.y += offset[1];
-						_atom.z += offset[2];
-						v.Structure.atoms.push(_atom);
-					}
-					break;
-				case "or-added-fixed":
-					console.log(offset);
-					for (let i = 0; i < v.Structure.atoms.length; i++) {
-						let _atom = v.Structure.atoms[i];
-						_atom.x += offset[0];
-						_atom.y += offset[1];
-						_atom.z += offset[2];
-					}
-					for (let i = 0; i < new_atoms.length; i++) {
-						let _atom = new_atoms[i];
-						v.Structure.atoms.push(_atom);
-					}
-					break;
-			}
-			v.update.atomsChanged = true;
-			v.update.bondsChanged = true;
-			v.animateControl.once();
-			v.setOptimalCamPosition();
-			v.Manipulate.history.length=0;
-			v.Manipulate.addHistory({
-				"mode":"Merge",
-				"args":{},
-				"Structure":objClone(v.Structure)
-			})
-			if(tooSmall>0 && !cloneOpt[0] && !cloneOpt[1] && !cloneOpt[2]){
-				alert("Some of the atoms in the Attached Structure were deleted because the based structure was small.");
-			}
-		},
-		drawFromInput:function(){
-			if($(".customInputCellOpt").prop("checked")){
-			}else{
-				let exit=false;
-				let ncell={"a":[],"b":[],"c":[]};
-				for(let j=0 ; j<3 ; j++){
-					let a_val = $(".customInputCell[data-row=0][data-column="+j+"]").val()*1;
-					let b_val = $(".customInputCell[data-row=1][data-column="+j+"]").val()*1;
-					let c_val = $(".customInputCell[data-row=2][data-column="+j+"]").val()*1;
-					if(Number.isNaN(a_val*1) || Number.isNaN(b_val*1) || Number.isNaN(c_val*1)){
-						exit=true;
-						break;
-					}
-					ncell.a[j]=$(".customInputCell[data-row=0][data-column="+j+"]").val();
-					ncell.b[j]=$(".customInputCell[data-row=1][data-column="+j+"]").val();
-					ncell.c[j]=$(".customInputCell[data-row=2][data-column="+j+"]").val();
-				}
-			}
-			let atoms=$(".customInputAtomsWrapper").children("div");
-			let tempAtoms=[]
-			for(let i=0 ; i<atoms.length ; i++){
-				var _x=$(atoms[i]).find(".customInputAtoms[data-column=1]").val()*1;
-				var _y=$(atoms[i]).find(".customInputAtoms[data-column=2]").val()*1;
-				var _z=$(atoms[i]).find(".customInputAtoms[data-column=3]").val()*1;
-				var _ele=$(atoms[i]).find(".customInputAtoms[data-column=0]").val();
-				if(_x=== "" || _y === "" || _z === "" || _ele === ""){
-					continue;
-				}
-				if(Number.isNaN(_x) || Number.isNaN(_y) || Number.isNaN(_z) ){
-					continue;
-				}
-				tempAtoms.push(new VLatoms.Atom(_x,_y,_z,_ele));
-			}
-			var testRet = v.Manipulate.insideTest(tempAtoms);
-			if(!testRet.inside){
-				if(confirm("The cell should be expanded to add the atom(s).")){
-					v.Structure.atoms = objClone(tempAtoms);
-					v.Manipulate.vacuum({
-							"nx":testRet.delta[0],
-							"ny":testRet.delta[1],
-							"nz":testRet.delta[2],
-							"px":testRet.delta[3],
-							"py":testRet.delta[4],
-							"pz":testRet.delta[5]
-					});
-				}else{
-					return false;
-				}
-			} else {
-				v.Structure.atoms = objClone(tempAtoms);
-			}
-			v.Manipulate.addHistory({
-				"mode":"Structure Input",
-				"args":{},
-				"Structure":objClone(v.Structure)
-			});
-			v.update.atomsChanged=true;
-			v.update.bondsChanged=true;
-			v.animateControl.once();
-		}
+		}		
 	}
 // -------------------------------------------------------------------------------- //
 }
@@ -6015,7 +4158,7 @@ VLatoms.Math = {
 		var ret = 0;
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret+= v1[i]*v2[i];
+		    ret+= v1[i]*v2[i];
 		}
 		return ret;
 	},
@@ -6023,7 +4166,7 @@ VLatoms.Math = {
 		var ret = [];
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret.push( v1[i] + v2[i] );
+		    ret.push( v1[i] + v2[i] );
 		}
 		return ret;
 
@@ -6032,7 +4175,7 @@ VLatoms.Math = {
 		var ret = [];
 		for(var i = 0;i<v1.length;i++)
 		{
-			ret.push( v1[i] - v2[i] );
+		    ret.push( v1[i] - v2[i] );
 		}
 		return ret;
 
@@ -6100,143 +4243,51 @@ VLatoms.Math = {
 		return ret;
 	},
 	rotate : function(dir,pos,angle){
-		var cos=Math.cos(angle/180*Math.PI);
-		var sin=Math.sin(angle/180*Math.PI);
-		var mat=Array(3);
-		switch(dir){
-			case "x":
-				mat[0]=[1,0,0];
-				mat[1]=[0,cos,-1*sin];
-				mat[2]=[0,sin,cos];
-			break;
-			case "y":
-				mat[0]=[cos,0,sin];
-				mat[1]=[0,1,0];
-				mat[2]=[-1*sin,0,cos];
-			break;
-			case "z":
-				mat[0]=[cos,-1*sin,0];
-				mat[1]=[sin,cos,0];
-				mat[2]=[0,0,1];
-			break;
-		}
-		return VLatoms.Math.matdotvec(mat,pos);
+        var cos=Math.cos(angle/180*Math.PI);
+        var sin=Math.sin(angle/180*Math.PI);
+        var mat=Array(3);
+        switch(dir){
+            case "x":
+                mat[0]=[1,0,0];
+                mat[1]=[0,cos,-1*sin];
+                mat[2]=[0,sin,cos];
+            break;
+            case "y":
+                mat[0]=[cos,0,sin];
+                mat[1]=[0,1,0];
+                mat[2]=[-1*sin,0,cos];
+            break;
+            case "z":
+                mat[0]=[cos,-1*sin,0];
+                mat[1]=[sin,cos,0];
+                mat[2]=[0,0,1];
+            break;
+        }
+        return VLatoms.Math.matdotvec(mat,pos);
 	},
-	   rotateA : function(ref,pos,angle){
-			// ref : reference vector;
-			var u = VLatoms.Math.norm(ref);
-			var ux = u[0],uy=u[1],uz=u[2];
-			var cos=Math.cos(angle/180*Math.PI);
-			var sin=Math.sin(angle/180*Math.PI);
-			var mat = [];
-			mat[0] = [ cos + ux*ux*(1-cos), ux*uy*(1-cos)-uz*sin, ux*uz*(1-cos)+uy*sin ];
-			mat[1] = [ uy*ux*(1-cos) + uz*sin, cos+uy*uy*(1-cos), uy*uz*(1-cos)-ux*sin ];
-			mat[2] = [ uz*ux*(1-cos) - uy*sin, uz*uy*(1-cos)+ux*sin, cos+uz*uz*(1-cos) ];
-			return VLatoms.Math.matdotvec(mat,pos);
-		},
-	angle : function(v1,v2){
-	  var v1len = VLatoms.Math.len(v1);
-	  var v2len = VLatoms.Math.len(v2);
-		var _angle=VLatoms.Math.dot(v1,v2) / v1len / v2len;
-		if(_angle>1){
-			console.log(_angle);
-			_angle=1;
-		}else if(_angle<-1){
-			console.log(_angle);
-			_angle=-1;
-		}
-	  return Math.acos(_angle);
-	},
-	rad2deg : function(rad){
-	  return rad*180/Math.PI;
-	},
-	checkPlaneAngle : function(v){
-		let sa=v.IO.selectedAtoms;
-		if(sa.length !== 4 ){
-			return "Select 4 atoms";
-		}
-		let pva=objClone(sa);
-		let pvb=objClone(sa);
-
-		pva.splice(0,1);
-		pvb.splice(3,1);
-		let pvaP={"x":[],"y":[],"z":[]};
-		let pvbP={"x":[],"y":[],"z":[]};
-		for(let i=0 ; i<3 ; i++){
-			pvaP.x.push(v.Structure.atoms[pva[i]].x);
-			pvaP.y.push(v.Structure.atoms[pva[i]].y);
-			pvaP.z.push(v.Structure.atoms[pva[i]].z);
-
-			pvbP.x.push(v.Structure.atoms[pvb[i]].x);
-			pvbP.y.push(v.Structure.atoms[pvb[i]].y);
-			pvbP.z.push(v.Structure.atoms[pvb[i]].z);
-		}
-
-		let va=[
-			pvaP.y[0]*(pvaP.z[1]-pvaP.z[2])+pvaP.y[1]*(pvaP.z[2]-pvaP.z[0])+pvaP.y[2]*(pvaP.z[0]-pvaP.z[1]),
-			pvaP.z[0]*(pvaP.x[1]-pvaP.x[2])+pvaP.z[1]*(pvaP.x[2]-pvaP.x[0])+pvaP.z[2]*(pvaP.x[0]-pvaP.x[1]),
-			pvaP.x[0]*(pvaP.y[1]-pvaP.y[2])+pvaP.x[1]*(pvaP.y[2]-pvaP.y[0])+pvaP.x[2]*(pvaP.y[0]-pvaP.y[1])
-		];
-		let vb=[
-			pvbP.y[0]*(pvbP.z[1]-pvbP.z[2])+pvbP.y[1]*(pvbP.z[2]-pvbP.z[0])+pvbP.y[2]*(pvbP.z[0]-pvbP.z[1]),
-			pvbP.z[0]*(pvbP.x[1]-pvbP.x[2])+pvbP.z[1]*(pvbP.x[2]-pvbP.x[0])+pvbP.z[2]*(pvbP.x[0]-pvbP.x[1]),
-			pvbP.x[0]*(pvbP.y[1]-pvbP.y[2])+pvbP.x[1]*(pvbP.y[2]-pvbP.y[0])+pvbP.x[2]*(pvbP.y[0]-pvbP.y[1])
-		];
-		let angle=this.angle(va,vb).toFixed(5)*180/Math.PI;
-		return angle;
-		if(angle>1){
-			angle=1;
-		}else if(angle<-1){
-			angle=-1;
-		}
-		return Math.acos(angle)*180/Math.PI;
-	}
+	    rotateA : function(ref,pos,angle){
+	        // ref : reference vector;
+	        var u = VLatoms.Math.norm(ref);
+	        var ux = u[0],uy=u[1],uz=u[2];
+	        var cos=Math.cos(angle/180*Math.PI);
+	        var sin=Math.sin(angle/180*Math.PI);
+	        var mat = [];
+	        mat[0] = [ cos + ux*ux*(1-cos), ux*uy*(1-cos)-uz*sin, ux*uz*(1-cos)+uy*sin ];
+	        mat[1] = [ uy*uz*(1-cos) + uz*sin, cos+uy*uy*(1-cos), uy*uz*(1-cos)-ux*sin ];
+	        mat[2] = [ uz*ux*(1-cos) - uy*sin, uz*uy*(1-cos)+ux*sin, cos+uz*uz*(1-cos) ];
+	        return VLatoms.Math.matdotvec(mat,pos);
+	    },
+    angle : function(v1,v2){
+      var v1len = VLatoms.Math.len(v1);
+      var v2len = VLatoms.Math.len(v2);
+      return Math.acos( VLatoms.Math.dot(v1,v2) / v1len / v2len);
+    },
+    rad2deg : function(rad){
+      return rad*180/Math.PI;
+    }
 }
 VLatoms.Utils = {
-	pointInPolygon : function(point,vs){
-		// ray-casting algorithm based on
-		// http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-	
-		var x = point[0], y = point[1];
-	
-		var inside = false;
-		for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-			var xi = vs[i][0], yi = vs[i][1];
-			var xj = vs[j][0], yj = vs[j][1];
-	
-			var intersect = ((yi > y) != (yj > y))
-				&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-			if (intersect) inside = !inside;
-		}
-	
-		return inside;
-	},
-	minimizeStructure : function(_s){
-		var s = {};
-		s.a = [ +_s.a[0],+_s.a[1],+_s.a[2]];
-		s.b = [ +_s.b[0],+_s.b[1],+_s.b[2]];
-		s.c = [ +_s.c[0],+_s.c[1],+_s.c[2]];
-		var natoms=_s.atoms.length;
-		s.atoms = [];
-		for(var i=0;i<natoms;i++){
-			var ca = _s.atoms[i];
-			var _x = +ca.x;
-			var _y = +ca.y;
-			var _z = +ca.z;
-			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
-			s.atoms.push({"element":_el, "x":_x, "y":_y, "z":_z});
-		}
-		
-		return s;
-	},
-	redefineStructure : function(_s,_v={}){
-		if(_v.option===undefined){
-			_v.option={};
-		}
-		if(_v.option.shift===undefined){
-			_v.option.shift=false;
-			_v.option.shift_val=[0,0,0];
-		}
+	redefineStructure : function(_s){
 		var s = {};
 		s.a = [ +_s.a[0],+_s.a[1],+_s.a[2]];
 		s.b = [ +_s.b[0],+_s.b[1],+_s.b[2]];
@@ -6250,19 +4301,12 @@ VLatoms.Utils = {
 		s.atoms = [];
 		for(var i=0;i<natoms;i++){
 			var ca = _s.atoms[i];
-			if(_v.option.shift){
-				var _x = +ca.x-_v.option.shift_val[0];
-				var _y = +ca.y-_v.option.shift_val[1];
-				var _z = +ca.z-_v.option.shift_val[2];
-			}else{
-				var _x = +ca.x;
-				var _y = +ca.y;
-				var _z = +ca.z;
-			}
-			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
+			var _x = +ca.x;
+			var _y = +ca.y;
+			var _z = +ca.z;
+			var _el = ca.element;
 			s.atoms.push(new VLatoms.Atom( _x, _y, _z, _el ));
 		}
-		
 		return s;
 	
 			
@@ -6271,11 +4315,10 @@ VLatoms.Utils = {
 		return [obj.x, obj.y, obj.z];
 	},
 	download : function( filename, contents){
-		var tmphtml="<form class=downloader target=_blank method=post action=/utils/txtDownloader>";
-			tmphtml+="<input type=hidden name=_token value="+$('meta[name="csrf-token"]').attr('content')+">";
-			tmphtml+="<input type=hidden name=filename class=downloader_filename>";
-			tmphtml+="<input type=hidden name=content class=downloader_content>";
-			tmphtml+="</form>";
+		var tmphtml="<form class=downloader target=_blank method=post action=/simulation/txtDownloader>";
+		    tmphtml+="<input type=hidden name=filename class=downloader_filename>";
+		    tmphtml+="<input type=hidden name=content class=downloader_content>";
+		    tmphtml+="</form>";
 		var tmphtml_=$(document.body).append(tmphtml);
 		$('.downloader_filename').val(filename);
 		$('.downloader_content').val(contents);
@@ -6354,27 +4397,6 @@ VLatoms.Utils = {
 	}
 }
 VLatoms.Utils.Structure = {
-	getSpaceGroup : function(v){
-		if(
-				v.Structure.atoms.length == 0 
-				|| v.Structure.atoms.length > 200 
-				|| !v.option.cellInfo
-				|| !v.option.cellInfoSpaceGroup
-		  ) { 
-/*
-			console.log('spacegroup cancel');
-			console.log(
-				v.Structure.atoms.length 
-				, v.option.cellInfo
-				, v.option.cellInfoSpaceGroup
-					);
-*/
-			return false; 
-		}
-		var cif = VLatoms.Utils.Structure.toCIF(v.Structure);
-		var ret = post_ajax("/modeling/symcheck",{"ciffile":cif});	
-		return ret*1;
-	},
 	toFormula : function(s){
 		var formulaArr = {};
 		var ca;
@@ -6505,72 +4527,18 @@ VLatoms.Utils.Structure = {
 			pos_fract = VLatoms.Math.vecdotmat(pos,latMatInv);
 		return pos_fract;
 	},
-	fracToCart : function(delta, lattice){
-		return math.multiply(delta, lattice);
-	},
-	viewToCart : function(delta, camera){
-		 var uparr = [ camera.up.x, camera.up.y, camera.up.z ]; // ^
-		 uparr = VLatoms.Math.norm(uparr);
-		 var carr = [camera.position.x, camera.position.y, camera.position.z];
-		 carr = VLatoms.Math.norm(carr);
-		 var rightarr = VLatoms.Math.cross(uparr,carr);
-		 rightarr = VLatoms.Math.norm(rightarr);
-//		 var ref = [0,0,0];
-		 let newDelta = math.add(
-									math.add( math.multiply(delta[0], rightarr), math.multiply(delta[1], uparr) ),
-			 						math.multiply(delta[2], carr) 
-								);
-//				newpos = VLatoms.Math.add( VLatoms.Math.cdotvec(step, ref) , position);
-//				newpos = VLatoms.Math.cdotvec(step, ref);
-		 return newDelta;
-//----------------------------------------------
-/*
-			var sa = v.IO.selectedAtoms;
-			var direction = args.direction;// $('.manipulate_move_direction:checked').val();
-			var step = args.step;// 1
-			var onEscape = args.onEscape=="expand"?true:false;
-			var posFract;
-			var tmpStrain = [];
-			var uparr = [ v.camera.up.x, v.camera.up.y, v.camera.up.z ]; // ^
-				uparr = VLatoms.Math.norm(uparr);
-			var carr = [v.camera.position.x, v.camera.position.y, v.camera.position.z];
-				carr = VLatoms.Math.norm(carr);
-			var rightarr = VLatoms.Math.cross(uparr,carr);
-				rightarr = VLatoms.Math.norm(rightarr);
-
-			var newpos;
-			for(var i=0;i<sa.length;i++){
-				var ca = v.Structure.atoms[sa[i]];
-				switch(direction){
-					case "x":
-//						ref = [1,0,0];
-						ref = math.multiply(v.Structure.a,1/math.norm(v.Structure.a));
-					break;
-					case "y":
-//						ref = [0,1,0];
-						ref = math.multiply(v.Structure.b,1/math.norm(v.Structure.b));
-					break;
-					case "z":
-//						ref = [0,0,1];
-						ref = math.multiply(v.Structure.c,1/math.norm(v.Structure.c));
-					break;
-					case "vx":
-						ref = rightarr;
-					break;
-					case "vy":
-						ref = uparr;
-					break;
-					case "vz":
-						ref = carr;
-					break;
-				}
-				newpos = VLatoms.Math.add( VLatoms.Math.cdotvec(step, ref) , [ca.x, ca.y, ca.z]);
-				ca.x = newpos[0];
-				ca.y = newpos[1];
-				ca.z = newpos[2];
-*/
-	},
 	cleaveSurface : function(basis,milIndex,args){
+/*
+ * test cell
+ *  [[0,4.736235,0],
+ *  [4.101698,-2.368118,0],
+ *  [0,0,13.492372]]
+ *  (1,0,4)
+ *  output
+ *  [[4.101698,-2.368118,0],
+ *  [0,-18.944941,13.492372],
+ *  [0,-4.736235,0]]
+ * */
 		if(args===undefined){
 			args = [];
 		}
@@ -6578,6 +4546,7 @@ VLatoms.Utils.Structure = {
 			args['maxv3length']=50;
 		}
 		var maxv3length=args['maxv3length'];
+console.log('maxv3',maxv3length);
 		function nonZeros(arr){
 			var retArr = [];
 			for(var i=0;i<arr.length;i++){
@@ -6593,7 +4562,7 @@ VLatoms.Utils.Structure = {
 			var nzeros = 3-nonZeroMilIndices.length;
 			var lcm = 1;
 			for(var i=0;i<nonZeroMilIndices.length;i++){
-				console.log(nonZeroMilIndices[i]);
+//				console.log(nonZeroMilIndices[i]);
 				lcm = VLatoms.Math.lcm(lcm,nonZeroMilIndices[i]);
 			}
 		var p1,p2,p3;
@@ -6622,20 +4591,20 @@ VLatoms.Utils.Structure = {
 				}
 			break;
 			case 2:
-				return;
+
 			break;
 		}
 		//milIndex :
-	console.log('milIndex',milIndex);
-	console.log('nzeros',nzeros);
-	console.log('p1~3',p1,p2,p3);
-	console.log('v12',v1,v2);
-	console.log('v1x2',v1xv2);
 		var v1 = VLatoms.Math.subtract(p2,p1);
 		var v2 = VLatoms.Math.subtract(p3,p1);
 		var v3;
 		var v1xv2 = VLatoms.Math.cross(v1,v2);
-
+/*
+	console.log('nzeros',nzeros);
+	console.log('p1~3',p1,p2,p3);
+	console.log('v12',v1,v2);
+	console.log('v1x2',v1xv2);
+*/
 // most orthogonal v3
 		var theta1,theta2,theta3;
 		var lastT=100;
@@ -6661,29 +4630,34 @@ VLatoms.Utils.Structure = {
 //		var maxv3length = 30; // Maximum v3 length
 
 
-	console.log(v3,VLatoms.Math.rad2deg(lastT));
+//	console.log('v3, deg lastT', v3,VLatoms.Math.rad2deg(lastT));
 
 
-	console.log(v1,v2);
+//	console.log(v1,v2);
 // Loop
+//Find maximally-orthogonal v3 within maximum v3 length
 		//var NNv3 = v3.splice(0);
 		var NNv3 = v3;
 		var pv1,pv2;
-		var tol = 0.5;
+
+		//tol is the tolerance in the angle in the v3. Should be smaller for big
+		//cells, bigger for small cells. Default 0.2, adjust as necessary
+		var tol = 0.2;
 		var v3matrix = [];
 		var lenangles=[];
 		var millerv3s=[];
 		for(var q=1;q<50;q++){
 			pv1 = VLatoms.Math.dot( VLatoms.Math.cdotvec(q,NNv3), v1);
 			pv2 = VLatoms.Math.dot( VLatoms.Math.cdotvec(q,NNv3), v2);
-			console.log(pv1,pv2,pv1%1,pv2%1);
+//			console.log(pv1,pv2,pv1%1,pv2%1);
 			if( pv1%1>(1-tol) || pv1%1<tol ){
 				if( pv2%1>(1-tol) || pv2%1<tol ){
+					//Iterative search for most orthogonal version of this v3
 					var done = false;
 					var angle = VLatoms.Math.angle(v1xv2,NNv3);
-					console.log(VLatoms.Math.rad2deg( VLatoms.Math.angle( v1xv2, NNv3 )));
+//					console.log(VLatoms.Math.rad2deg( VLatoms.Math.angle( v1xv2, NNv3 )));
 					v3 = VLatoms.Math.cdotvec(q,NNv3);
-						console.log(VLatoms.Math.rad2deg(angle) + "DEG");
+//						console.log(VLatoms.Math.rad2deg(angle) + "DEG");
 					while(!done){
 						if(VLatoms.Math.rad2deg(angle) < 5){
 								done=true;
@@ -6727,19 +4701,23 @@ VLatoms.Utils.Structure = {
 				basis : [v1, v2, v3matrix[i]]
 			});
 		}
-/*console.log('basis1',JSON.parse(JSON.stringify(basisList)));
-		for(var i = 0; i<basisList.length; i++){
+
+
+/*	align a-b to x-y
+ * 			for(var i = 0; i<basisList.length; i++){
 			basisList[i].basis = math.divide(basisList[i].basis,VLatoms.Utils.gram_schmidt_orthonormalization_3d(basisList[i].basis));
-			if(basisList[i].basis[0][1] < 1e-7) basisList[i].basis[0][1] = 0;
-			if(basisList[i].basis[0][2] < 1e-7) basisList[i].basis[0][2] = 0;
-			if(basisList[i].basis[1][2] < 1e-7) basisList[i].basis[1][2] = 0;
-		}
-console.log('basis2',basisList);*/
+			for(var j = 0; j < 3; j++){
+				for(var k = 0; k < 3; k++){
+					if(basisList[i].basis[j][k] < 1e-7) basisList[i].basis[j][k] = 0;
+				}
+			}
+		}*/
 		return basisList;
 //		return {"v3matrix":v3matrix,"lenangles":lenangles,"millerv3s":millerv3s,newbasis:[v1,v2,v3matrix[0]]};
 	},
 	basisTransform : function(orgB,newB,orgPos){
-		var oBInv = math.inv(math.transpose(orgB));
+		//var oBInv = math.inv(math.transpose(orgB));
+		var oBInv = math.inv(orgB);
 		var C = VLatoms.Math.matdotmat(newB, oBInv);
 		var v1 = newB[0];
 		var v2 = newB[1];
@@ -6751,55 +4729,58 @@ console.log('basis2',basisList);*/
 		
 		var Sxyz = [[0,0,0],[0,0,0]];
 		var M;
-		for(var xx=0;xx<2;xx++){
-			for(var yy=0;yy<2;yy++){
-				for(var zz=0;zz<2;zz++){
-				 	M = VLatoms.Math.add(VLatoms.Math.add(VLatoms.Math.cdotvec(xx,millerv1),  VLatoms.Math.cdotvec(yy,millerv2)), VLatoms.Math.cdotvec(zz,millerv3));  
-					for(var aa=0;aa<3;aa++){
-						if(M[aa]>Sxyz[0][aa]){
-							Sxyz[0][aa]=Math.round(M[aa]);
-						}
-						if(M[aa]<Sxyz[1][aa]){
-							Sxyz[1][aa]=Math.round(M[aa]);
+//schan change range (0~1 -> -2~2)
+		function fill_atoms(fillRange){
+console.log('----- range '+fillRange+' -----');
+			for(var xx=-fillRange;xx<fillRange;xx++){
+				for(var yy=-fillRange;yy<fillRange;yy++){
+					for(var zz=-fillRange;zz<fillRange;zz++){
+						M = VLatoms.Math.add(VLatoms.Math.add(VLatoms.Math.cdotvec(xx,millerv1),  VLatoms.Math.cdotvec(yy,millerv2)), VLatoms.Math.cdotvec(zz,millerv3));  
+						for(var aa=0;aa<3;aa++){
+							if(M[aa]>Sxyz[0][aa]){
+								Sxyz[0][aa]=Math.round(M[aa]);
+							}
+							if(M[aa]<Sxyz[1][aa]){
+								Sxyz[1][aa]=Math.round(M[aa]);
+							}
 						}
 					}
 				}
 			}
-		}
-		var nRows = orgPos.length;
-		//var nCols = orgPos[0].length;
-//		for (var i = 0; i < orgPos.length; i++){
-//			orgPos[i].push(i);
-//		}
-//		var retAtoms = [], ca;
-		var retAtoms = [];
-		console.log(Sxyz);
-		console.log(C);
-		for(var ii=0;ii<nRows;ii++){
-			for(var x = Sxyz[1][0]; x<=Sxyz[0][0]; x++){
-				for(var y = Sxyz[1][1]; y<=Sxyz[0][1]; y++){
-					for(var z = Sxyz[1][2]; z<=Sxyz[0][2]; z++){
-						retAtoms.push([orgPos[ii][0]+x, orgPos[ii][1]+y, orgPos[ii][2]+z, ii]);
+			var nRows = orgPos.length;
+			//var nCols = orgPos[0].length;
+	//		for (var i = 0; i < orgPos.length; i++){
+	//			orgPos[i].push(i);
+	//		}
+	//		var retAtoms = [], ca;
+			var retAtoms = [];
+//			console.log(Sxyz);
+//			console.log(C);
+			for(var ii=0;ii<nRows;ii++){
+				for(var x = Sxyz[1][0]; x<=Sxyz[0][0]; x++){
+					for(var y = Sxyz[1][1]; y<=Sxyz[0][1]; y++){
+						for(var z = Sxyz[1][2]; z<=Sxyz[0][2]; z++){
+							retAtoms.push([orgPos[ii][0]+x, orgPos[ii][1]+y, orgPos[ii][2]+z, ii]);
+						}
 					}
 				}
 			}
-		}
-		var _C = VLatoms.Math.matdotmat( newB, VLatoms.Math.inv3(orgB) );
-		var C = Array();
+			var _C = VLatoms.Math.matdotmat( newB, VLatoms.Math.inv3(orgB) );
+			var C = Array();
 			C.push([_C[0][0],_C[0][1],_C[0][2],0]);
 			C.push([_C[1][0],_C[1][1],_C[1][2],0]);
 			C.push([_C[2][0],_C[2][1],_C[2][2],0]);
 			C.push([0,0,0,1]);
 //			console.log('c_1',math.multiply(newB,math.inv(orgB)));
 			//schan wrote below
-			console.log(C, retAtoms);
+//			console.log('C, retAtoms',C, retAtoms);
 			retAtoms = math.transpose(math.multiply(math.inv(math.transpose(C)), math.transpose(retAtoms)));
-console.log("retatom",retAtoms);
 			var NewAtoms = [];
 			var tol, XA, XB, XC, XL;
-				tol = 1e-3;
+//				tol = 1e-3;
+			tol = 1e-3;
 			for (var i = 0; i < retAtoms.length; i++){
-				XA = retAtoms[i][0];				
+				XA = retAtoms[i][0];
 				XB = retAtoms[i][1];				
 				XC = retAtoms[i][2];				
 				XL = retAtoms[i][3];				
@@ -6807,6 +4788,7 @@ console.log("retatom",retAtoms);
 					NewAtoms.push([XA, XB, XC, XL]);
 				}
 			}
+		//console.log("newA",NewAtoms);
 			function matlab_unique(target, direction) {
 				var arrayEquality;
 				if(direction =='rows'){
@@ -6839,20 +4821,33 @@ console.log("retatom",retAtoms);
 					return ret;
 				}
 			}*/
-			if(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol) >= 0.0001){
-console.log(NewAtoms.length, orgPos.length,NewBasisVol,OrigBasisVol);
-console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
-				console.warn('EGREGIOUS ERROR, # of NewAtoms inconsistent with size of basis!\nMay need to manually tweak tolerance of atom elimination outside supercell\n');
-				return;
+			return {NewAtoms:NewAtoms, NewBasisVol:NewBasisVol, OrigBasisVol:OrigBasisVol};
+		}	//end of fill_atoms()
+		for(var _range = 2; _range < 7; _range++){
+			var fill_atoms_return = fill_atoms(_range);
+			var NewAtoms = fill_atoms_return.NewAtoms;
+			var NewBasisVol = fill_atoms_return.NewBasisVol;
+			var OrigBasisVol = fill_atoms_return.OrigBasisVol;
+			if(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol) < 0.0001){
+				_range = 100;
 			}
-			NewAtoms.sort(function(a,b){
-					if(a[3] === b[3]){
-						return a[2] < b[2] ? -1 : a[2] > b[2] ? 1: 0;
-					} else {
-						return a[3] < b[3] ? -1 : 1;
-					}
-			});
-			return NewAtoms;
+		}
+
+
+		if(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol) >= 0.0001){
+			console.warn('EGREGIOUS ERROR, # of NewAtoms inconsistent with size of basis!\nMay need to manually tweak tolerance of atom elimination outside supercell\n');
+			console.log(NewAtoms.length, orgPos.length,NewBasisVol,OrigBasisVol);
+			console.log(NewAtoms.length/orgPos.length, NewBasisVol/OrigBasisVol, Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
+			return false;
+		}
+		NewAtoms.sort(function(a,b){
+				if(a[3] === b[3]){
+					return a[2] < b[2] ? -1 : a[2] > b[2] ? 1: 0;
+				} else {
+					return a[3] < b[3] ? -1 : 1;
+				}
+		});
+		return NewAtoms;
 	},
 	union : function(a,b){
 		newStructure = VLatoms.Utils.redefineStructure(a); 
@@ -6940,9 +4935,9 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 		var lc = structure['c'];
 		var poscar ="POSCAR Generated by VLAtoms at MaterialsSquare.com\n";
 			poscar+="1.0\n";
-			poscar+=Number(la[0]).toFixed(5)+" "+Number(la[1]).toFixed(5)+" "+Number(la[2]).toFixed(5)+"\n";
-			poscar+=Number(lb[0]).toFixed(5)+" "+Number(lb[1]).toFixed(5)+" "+Number(lb[2]).toFixed(5)+"\n";
-			poscar+=Number(lc[0]).toFixed(5)+" "+Number(lc[1]).toFixed(5)+" "+Number(lc[2]).toFixed(5)+"\n";
+			poscar+=la[0]+" "+la[1]+" "+la[2]+"\n";
+			poscar+=lb[0]+" "+lb[1]+" "+lb[2]+"\n";
+			poscar+=lc[0]+" "+lc[1]+" "+lc[2]+"\n";
 		var elarr = VLatoms.Utils.Structure.getElArr(structure);
 		var catoms = structure.atoms;
 		for(var element in elarr){
@@ -6961,7 +4956,7 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 				var ca = atoms_thisElement[i];
 				var cp = [ca.x, ca.y, ca.z];
 				var cp_frac = VLatoms.Math.vecdotmat( cp, latMatInv ); 
-				poscar+=Number(cp_frac[0]).toFixed(5)+" "+Number(cp_frac[1]).toFixed(5)+" "+Number(cp_frac[2]).toFixed(5)+" \n";
+				poscar+=cp_frac[0]+" "+cp_frac[1]+" "+cp_frac[2]+" \n";
 			}
 		}
 		return poscar;
@@ -6997,10 +4992,10 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 			if(lv[1][1]>0)
 			{
 			   lv[2][1]=(   b*c*Math.cos(alpha)
-						   -b*Math.cos(gamma)*c*Math.cos(beta)
-						)/lv[1][1];
+			               -b*Math.cos(gamma)*c*Math.cos(beta)
+			            )/lv[1][1];
 			}else{
-				lv[2][1]=0;
+			    lv[2][1]=0;
 			}
 			var c2sq = c*c-lv[2][0]*lv[2][0]-lv[2][1]*lv[2][1];
 			if(c2sq<0){
@@ -7169,109 +5164,107 @@ console.log(Math.abs(NewAtoms.length/orgPos.length - NewBasisVol/OrigBasisVol));
 //
 var supportedElements = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es'];
 
-// Reference :	 TODO
+// Reference :     TODO
 var AtomParam={};
-AtomParam['H']={'no':1,'radius':0.79,'color':'0xFFD3D3','mass':1.00794,'group':1,'period':1,'block':'s','ie':13.598434005136,'oxi_n':[-1,1]};
-AtomParam['He']={'no':2,'radius':0.49,'color':'0xFE1E00','mass':4.002602,'group':18,'period':1,'block':'s','ie':24.587387936,'oxi_n':[]};
-AtomParam['Li']={'no':3,'radius':1.05,'color':'0xf477ff','mass':6.941,'group':1,'period':2,'block':'s','ie':5.391714761,'oxi_n':[1]};
-AtomParam['Be']={'no':4,'radius':1.4,'color':'0x003EFE','mass':9.012182,'group':2,'period':2,'block':'s','ie':9.322699,'oxi_n':[1,2]};
-AtomParam['B']={'no':5,'radius':1.17,'color':'0xBFFE00','mass':10.811,'group':13,'period':2,'block':'p','ie':8.298019,'oxi_n':[-5,-1,1,2,3]};
-AtomParam['C']={'no':6,'radius':0.91,'color':'0x999999','mass':12.0107,'group':14,'period':2,'block':'p','ie':11.2603,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
-AtomParam['N']={'no':7,'radius':0.75,'color':'0x6D77FF','mass':14.00674,'group':15,'period':2,'block':'p','ie':14.53413,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
-AtomParam['O']={'no':8,'radius':0.65,'color':'0xFF0000','mass':15.9994,'group':16,'period':2,'block':'p','ie':13.618054,'oxi_n':[-2,-1,1,2]};
-AtomParam['F']={'no':9,'radius':0.57,'color':'0x6DFF89','mass':18.9984032,'group':17,'period':2,'block':'p','ie':17.42282,'oxi_n':[-1]};
-AtomParam['Ne']={'no':10,'radius':0.51,'color':'0xFE1900','mass':20.1797,'group':18,'period':2,'block':'p','ie':21.56454,'oxi_n':[]};
-AtomParam['Na']={'no':11,'radius':2.23,'color':'0x0009FE','mass':22.98976928,'group':1,'period':3,'block':'s','ie':5.1390767,'oxi_n':[-1,1]};
-AtomParam['Mg']={'no':12,'radius':1.72,'color':'0x0043FE','mass':24.305,'group':2,'period':3,'block':'s','ie':7.646235,'oxi_n':[1,2]};
-AtomParam['Al']={'no':13,'radius':1.82,'color':'0xC5FE00','mass':26.9815386,'group':13,'period':3,'block':'p','ie':5.985768,'oxi_n':[-2,-1,1,2,3]};
-AtomParam['Si']={'no':14,'radius':1.46,'color':'0xFEFC00','mass':28.0855,'group':14,'period':3,'block':'p','ie':8.151683,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
-AtomParam['P']={'no':15,'radius':1.23,'color':'0xFF6666','mass':30.973762,'group':15,'period':3,'block':'p','ie':10.486686,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
-AtomParam['S']={'no':16,'radius':1.09,'color':'0xFFFF00','mass':32.066,'group':16,'period':3,'block':'p','ie':10.36001,'oxi_n':[-2,-1,1,2,3,4,5,6]};
-AtomParam['Cl']={'no':17,'radius':0.97,'color':'0xFE4E00','mass':35.4527,'group':17,'period':3,'block':'p','ie':12.96763,'oxi_n':[-1,1,2,3,4,5,6,7]};
-AtomParam['Ar']={'no':18,'radius':0.88,'color':'0xFE1400','mass':39.948,'group':18,'period':3,'block':'p','ie':15.7596112,'oxi_n':[]};
-AtomParam['K']={'no':19,'radius':2.77,'color':'0x000EFE','mass':39.0983,'group':1,'period':4,'block':'s','ie':4.34066354,'oxi_n':[-1,1]};
-AtomParam['Ca']={'no':20,'radius':2.23,'color':'0x0048FE','mass':40.078,'group':2,'period':4,'block':'s','ie':6.1131552,'oxi_n':[1,2]};
-AtomParam['Sc']={'no':21,'radius':2.09,'color':'0x0083FE','mass':44.955912,'group':3,'period':4,'block':'d','ie':6.56149,'oxi_n':[1,2,3]};
-AtomParam['Ti']={'no':22,'radius':2,'color':'0x00BDFE','mass':47.867,'group':4,'period':4,'block':'d','ie':6.82812,'oxi_n':[-2,-1,1,2,3,4]};
-AtomParam['V']={'no':23,'radius':1.92,'color':'0x00F7FE','mass':50.9415,'group':5,'period':4,'block':'d','ie':6.746187,'oxi_n':[-3,-1,1,2,3,4,5]};
-AtomParam['Cr']={'no':24,'radius':1.85,'color':'0x00FECA','mass':51.9961,'group':6,'period':4,'block':'d','ie':6.76651,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
-AtomParam['Mn']={'no':25,'radius':1.79,'color':'0x9C7AC7','mass':54.938045,'group':7,'period':4,'block':'d','ie':7.434038,'oxi_n':[-3,-2,-1,1,2,3,4,5,6,7]};
-AtomParam['Fe']={'no':26,'radius':1.72,'color':'0x00FE56','mass':55.845,'group':8,'period':4,'block':'d','ie':7.9024678,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7]};
-AtomParam['Co']={'no':27,'radius':1.67,'color':'0xf090a0','mass':58.933195,'group':9,'period':4,'block':'d','ie':7.88101,'oxi_n':[-3,-1,1,2,3,4,5]};
-AtomParam['Ni']={'no':28,'radius':1.62,'color':'0x1CFE00','mass':58.6934,'group':10,'period':4,'block':'d','ie':7.639877,'oxi_n':[-2,-1,1,2,3,4]};
-AtomParam['Cu']={'no':29,'radius':1.57,'color':'0x8C3610','mass':63.546,'group':11,'period':4,'block':'d','ie':7.72638,'oxi_n':[-2,1,2,3,4]};
-AtomParam['Zn']={'no':30,'radius':1.53,'color':'0xA0ED20','mass':65.39,'group':12,'period':4,'block':'d','ie':9.3941968,'oxi_n':[-2,1,2]};
-AtomParam['Ga']={'no':31,'radius':1.81,'color':'0xCAFE00','mass':69.723,'group':13,'period':4,'block':'p','ie':5.9993018,'oxi_n':[-5,-4,-2,-1,1,2,3]};
-AtomParam['Ge']={'no':32,'radius':1.52,'color':'0xFEF700','mass':72.61,'group':14,'period':4,'block':'p','ie':7.899435,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
-AtomParam['As']={'no':33,'radius':1.33,'color':'0xFEBD00','mass':74.9216,'group':15,'period':4,'block':'p','ie':9.7886,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
-AtomParam['Se']={'no':34,'radius':1.22,'color':'0xFE8300','mass':78.96,'group':16,'period':4,'block':'p','ie':9.752392,'oxi_n':[-2,-1,1,2,3,4,5,6]};
-AtomParam['Br']={'no':35,'radius':1.12,'color':'0xFE4800','mass':79.904,'group':17,'period':4,'block':'p','ie':11.81381,'oxi_n':[-1,1,3,4,5,7]};
-AtomParam['Kr']={'no':36,'radius':1.03,'color':'0xFE0E00','mass':83.8,'group':18,'period':4,'block':'p','ie':13.9996049,'oxi_n':[2]};
-AtomParam['Rb']={'no':37,'radius':2.98,'color':'0x0014FE','mass':85.4678,'group':1,'period':5,'block':'s','ie':4.177128,'oxi_n':[-1,1]};
-AtomParam['Sr']={'no':38,'radius':2.45,'color':'0x004EFE','mass':87.62,'group':2,'period':5,'block':'s','ie':5.6948672,'oxi_n':[1,2]};
-AtomParam['Y']={'no':39,'radius':2.27,'color':'0x0088FE','mass':88.90585,'group':3,'period':5,'block':'d','ie':6.21726,'oxi_n':[1,2,3]};
-AtomParam['Zr']={'no':40,'radius':2.16,'color':'0x00C2FE','mass':91.224,'group':4,'period':5,'block':'d','ie':6.6339,'oxi_n':[-2,1,2,3,4]};
-AtomParam['Nb']={'no':41,'radius':2.08,'color':'0x00FCFE','mass':92.90638,'group':5,'period':5,'block':'d','ie':6.75885,'oxi_n':[-3,-1,1,2,3,4,5]};
-AtomParam['Mo']={'no':42,'radius':2.01,'color':'0x64BDB0','mass':95.94,'group':6,'period':5,'block':'d','ie':7.09243,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
-AtomParam['Tc']={'no':43,'radius':1.95,'color':'0x00FE8B','mass':97.9072,'group':7,'period':5,'block':'d','ie':7.11938,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
-AtomParam['Ru']={'no':44,'radius':1.89,'color':'0x00FE50','mass':101.07,'group':8,'period':5,'block':'d','ie':7.3605,'oxi_n':[-4,-2,1,2,3,4,5,6,7,8]};
-AtomParam['Rh']={'no':45,'radius':1.83,'color':'0x00FE16','mass':102.9055,'group':9,'period':5,'block':'d','ie':7.4589,'oxi_n':[-3,-1,1,2,3,4,5,6]};
-AtomParam['Pd']={'no':46,'radius':1.79,'color':'0x21FE00','mass':106.42,'group':10,'period':5,'block':'d','ie':8.33686,'oxi_n':[1,2,3,4,5,6]};
-AtomParam['Ag']={'no':47,'radius':1.75,'color':'0x464646','mass':107.8682,'group':11,'period':5,'block':'d','ie':7.576234,'oxi_n':[-2,-1,1,2,3,4]};
-AtomParam['Cd']={'no':48,'radius':1.71,'color':'0x95FE00','mass':112.411,'group':12,'period':5,'block':'d','ie':8.99382,'oxi_n':[-2,1,2]};
-AtomParam['In']={'no':49,'radius':2,'color':'0xCFFE00','mass':114.818,'group':13,'period':5,'block':'p','ie':5.7863554,'oxi_n':[-5,-2,-1,1,2,3]};
-AtomParam['Sn']={'no':50,'radius':1.72,'color':'0xFEF200','mass':118.71,'group':14,'period':5,'block':'p','ie':7.343917,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
-AtomParam['Sb']={'no':51,'radius':1.53,'color':'0xFEB700','mass':121.76,'group':15,'period':5,'block':'p','ie':8.608389,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
-AtomParam['Te']={'no':52,'radius':1.42,'color':'0xFE7D00','mass':127.6,'group':16,'period':5,'block':'p','ie':9.00966,'oxi_n':[-2,-1,1,2,3,4,5,6]};
-AtomParam['I']={'no':53,'radius':1.32,'color':'0xFE4300','mass':126.90447,'group':17,'period':5,'block':'p','ie':10.45126,'oxi_n':[-1,1,3,4,5,6,7]};
-AtomParam['Xe']={'no':54,'radius':1.24,'color':'0xFE0900','mass':131.29,'group':18,'period':5,'block':'p','ie':12.1298431,'oxi_n':[2,4,6,8]};
-AtomParam['Cs']={'no':55,'radius':3.34,'color':'0x0019FE','mass':132.9054519,'group':1,'period':6,'block':'s','ie':3.893905557,'oxi_n':[-1,1]};
-AtomParam['Ba']={'no':56,'radius':2.78,'color':'0x585017','mass':137.327,'group':2,'period':6,'block':'s','ie':5.211664,'oxi_n':[1,2]};
-AtomParam['La']={'no':57,'radius':2.74,'color':'0x008DFE','mass':178.49,'group':53,'period':6,'block':'f','ie':5.5769,'oxi_n':[1,2,3]};
-AtomParam['Ce']={'no':58,'radius':2.7,'color':'0x008DFE','mass':180.94788,'group':53,'period':6,'block':'f','ie':5.5386,'oxi_n':[2,3,4]};
-AtomParam['Pr']={'no':59,'radius':2.67,'color':'0x008DFE','mass':183.84,'group':53,'period':6,'block':'f','ie':5.47,'oxi_n':[2,3,4,5]};
-AtomParam['Nd']={'no':60,'radius':2.64,'color':'0x008DFE','mass':186.207,'group':53,'period':6,'block':'f','ie':5.525,'oxi_n':[2,3,4]};
-AtomParam['Pm']={'no':61,'radius':2.62,'color':'0x008DFE','mass':190.23,'group':53,'period':6,'block':'f','ie':5.577,'oxi_n':[2,3]};
-AtomParam['Sm']={'no':62,'radius':2.59,'color':'0x008DFE','mass':192.217,'group':53,'period':6,'block':'f','ie':5.64371,'oxi_n':[2,3]};
-AtomParam['Eu']={'no':63,'radius':2.56,'color':'0x008DFE','mass':195.084,'group':53,'period':6,'block':'f','ie':5.670385,'oxi_n':[2,3]};
-AtomParam['Gd']={'no':64,'radius':2.54,'color':'0x008DFE','mass':196.966569,'group':53,'period':6,'block':'f','ie':6.1498,'oxi_n':[1,2,3]};
-AtomParam['Tb']={'no':65,'radius':2.51,'color':'0x008DFE','mass':200.59,'group':53,'period':6,'block':'f','ie':5.8638,'oxi_n':[1,2,3,4]};
-AtomParam['Dy']={'no':66,'radius':2.49,'color':'0x008DFE','mass':204.3833,'group':53,'period':6,'block':'f','ie':5.93905,'oxi_n':[2,3,4]};
-AtomParam['Ho']={'no':67,'radius':2.47,'color':'0x008DFE','mass':207.2,'group':53,'period':6,'block':'f','ie':6.0215,'oxi_n':[2,3]};
-AtomParam['Er']={'no':68,'radius':2.45,'color':'0x008DFE','mass':208.9804,'group':53,'period':6,'block':'f','ie':6.1077,'oxi_n':[2,3]};
-AtomParam['Tm']={'no':69,'radius':2.42,'color':'0x008DFE','mass':208.9824,'group':53,'period':6,'block':'f','ie':6.18431,'oxi_n':[2,3]};
-AtomParam['Yb']={'no':70,'radius':2.4,'color':'0x008DFE','mass':209.9871,'group':53,'period':6,'block':'f','ie':6.254159,'oxi_n':[2,3]};
-AtomParam['Lu']={'no':71,'radius':2.25,'color':'0x008DFE','mass':222.0176,'group':53,'period':6,'block':'f','ie':5.425871,'oxi_n':[2,3]};
-AtomParam['Hf']={'no':72,'radius':2.16,'color':'0x00C7FE','mass':138.90547,'group':4,'period':6,'block':'d','ie':6.825069,'oxi_n':[-2,1,2,3,4]};
-AtomParam['Ta']={'no':73,'radius':2.09,'color':'0x00FEFA','mass':140.116,'group':5,'period':6,'block':'d','ie':7.549571,'oxi_n':[-3,-1,1,2,3,4,5]};
-AtomParam['W']={'no':74,'radius':2.02,'color':'0x00FEBF','mass':140.90765,'group':6,'period':6,'block':'d','ie':7.86403,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
-AtomParam['Re']={'no':75,'radius':1.97,'color':'0x00FE85','mass':144.242,'group':7,'period':6,'block':'d','ie':7.83352,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
-AtomParam['Os']={'no':76,'radius':1.92,'color':'0x00FE4B','mass':144.9127,'group':8,'period':6,'block':'d','ie':8.43823,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7,8]};
-AtomParam['Ir']={'no':77,'radius':1.87,'color':'0x00FE11','mass':150.36,'group':9,'period':6,'block':'d','ie':8.96702,'oxi_n':[-3,-1,1,2,3,4,5,6,7,8]};
-AtomParam['Pt']={'no':78,'radius':1.83,'color':'0x26FE00','mass':151.964,'group':10,'period':6,'block':'d','ie':8.95883,'oxi_n':[-3,-2,-1,1,2,3,4,5,6]};
-AtomParam['Au']={'no':79,'radius':1.79,'color':'0x585017','mass':157.25,'group':11,'period':6,'block':'d','ie':9.225553,'oxi_n':[-3,-2,-1,1,2,3,5]};
-AtomParam['Hg']={'no':80,'radius':1.76,'color':'0x9AFE00','mass':158.92535,'group':12,'period':6,'block':'d','ie':10.437504,'oxi_n':[-2,1,2]};
-AtomParam['Tl']={'no':81,'radius':2.08,'color':'0xD5FE00','mass':162.5,'group':13,'period':6,'block':'p','ie':6.1082871,'oxi_n':[-5,-2,-1,1,2,3]};
-AtomParam['Pb']={'no':82,'radius':1.81,'color':'0xFEEC00','mass':164.93032,'group':14,'period':6,'block':'p','ie':7.4166796,'oxi_n':[-4,-2,-1,1,2,3,4]};
-AtomParam['Bi']={'no':83,'radius':1.63,'color':'0xFEB200','mass':167.259,'group':15,'period':6,'block':'p','ie':7.285516,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
-AtomParam['Po']={'no':84,'radius':1.53,'color':'0xFE7800','mass':168.93421,'group':16,'period':6,'block':'p','ie':8.414,'oxi_n':[-2,2,4,5,6]};
-AtomParam['At']={'no':85,'radius':1.43,'color':'0xFE3E00','mass':173.04,'group':17,'period':6,'block':'p','ie':9.31751,'oxi_n':[-1,1,3,5,7]};
-AtomParam['Rn']={'no':86,'radius':1.34,'color':'0xFE0400','mass':174.967,'group':18,'period':6,'block':'p','ie':10.7485,'oxi_n':[2,6]};
-AtomParam['Fr']={'no':87,'radius':1.5,'color':'0x001EFE','mass':223.0197,'group':1,'period':7,'block':'s','ie':4.0727409,'oxi_n':[1]};
-AtomParam['Ra']={'no':88,'radius':1.5,'color':'0x0058FE','mass':226.0254,'group':2,'period':7,'block':'s','ie':5.278424,'oxi_n':[2]};
-AtomParam['Ac']={'no':89,'radius':1.88,'color':'0x0092FE','mass':263.1125,'group':63,'period':7,'block':'f','ie':5.380226,'oxi_n':[3]};
-AtomParam['Th']={'no':90,'radius':1.5,'color':'0x0092FE','mass':262.1144,'group':63,'period':7,'block':'f','ie':6.3067,'oxi_n':[1,2,3,4]};
-AtomParam['Pa']={'no':91,'radius':1.5,'color':'0x0092FE','mass':266.1219,'group':63,'period':7,'block':'f','ie':5.89,'oxi_n':[3,4,5]};
-AtomParam['U']={'no':92,'radius':1.5,'color':'0x0092FE','mass':264.1247,'group':63,'period':7,'block':'f','ie':6.19405,'oxi_n':[1,2,3,4,5,6]};
-AtomParam['Np']={'no':93,'radius':1.5,'color':'0x0092FE','mass':269.1341,'group':63,'period':7,'block':'f','ie':6.2655,'oxi_n':[2,3,4,5,6,7]};
-AtomParam['Pu']={'no':94,'radius':1.5,'color':'0x0092FE','mass':268.1388,'group':63,'period':7,'block':'f','ie':6.0258,'oxi_n':[2,3,4,5,6,7]};
-AtomParam['Am']={'no':95,'radius':1.5,'color':'0x0092FE','mass':272.1463,'group':63,'period':7,'block':'f','ie':5.9738,'oxi_n':[2,3,4,5,6,7]};
-AtomParam['Cm']={'no':96,'radius':1.5,'color':'0x0092FE','mass':272.1535,'group':63,'period':7,'block':'f','ie':5.9914,'oxi_n':[3,4,6]};
-AtomParam['Bk']={'no':97,'radius':1.5,'color':'0x0092FE','mass':277,'group':63,'period':7,'block':'f','ie':6.1978,'oxi_n':[3,4]};
-AtomParam['Cf']={'no':98,'radius':1.5,'color':'0x0092FE','mass':284,'group':63,'period':7,'block':'f','ie':6.2817,'oxi_n':[2,3,4]};
-AtomParam['Es']={'no':99,'radius':1.5,'color':'0x0092FE','mass':289,'group':63,'period':7,'block':'f','ie':6.3676,'oxi_n':[2,3,4]};
-
-
+AtomParam['H']={'no':1,'mass':1.00794,'group':1,'period':1,'block':'s','ie':13.598434005136,'oxi_n':[-1,1]};
+AtomParam['He']={'no':2,'mass':4.002602,'group':18,'period':1,'block':'s','ie':24.587387936,'oxi_n':[]};
+AtomParam['Li']={'no':3,'mass':6.941,'group':1,'period':2,'block':'s','ie':5.391714761,'oxi_n':[1]};
+AtomParam['Be']={'no':4,'mass':9.012182,'group':2,'period':2,'block':'s','ie':9.322699,'oxi_n':[1,2]};
+AtomParam['B']={'no':5,'mass':10.811,'group':13,'period':2,'block':'p','ie':8.298019,'oxi_n':[-5,-1,1,2,3]};
+AtomParam['C']={'no':6,'mass':12.0107,'group':14,'period':2,'block':'p','ie':11.2603,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['N']={'no':7,'mass':14.00674,'group':15,'period':2,'block':'p','ie':14.53413,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['O']={'no':8,'mass':15.9994,'group':16,'period':2,'block':'p','ie':13.618054,'oxi_n':[-2,-1,1,2]};
+AtomParam['F']={'no':9,'mass':18.9984032,'group':17,'period':2,'block':'p','ie':17.42282,'oxi_n':[-1]};
+AtomParam['Ne']={'no':10,'mass':20.1797,'group':18,'period':2,'block':'p','ie':21.56454,'oxi_n':[]};
+AtomParam['Na']={'no':11,'mass':22.98976928,'group':1,'period':3,'block':'s','ie':5.1390767,'oxi_n':[-1,1]};
+AtomParam['Mg']={'no':12,'mass':24.305,'group':2,'period':3,'block':'s','ie':7.646235,'oxi_n':[1,2]};
+AtomParam['Al']={'no':13,'mass':26.9815386,'group':13,'period':3,'block':'p','ie':5.985768,'oxi_n':[-2,-1,1,2,3]};
+AtomParam['Si']={'no':14,'mass':28.0855,'group':14,'period':3,'block':'p','ie':8.151683,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['P']={'no':15,'mass':30.973762,'group':15,'period':3,'block':'p','ie':10.486686,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['S']={'no':16,'mass':32.066,'group':16,'period':3,'block':'p','ie':10.36001,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['Cl']={'no':17,'mass':35.4527,'group':17,'period':3,'block':'p','ie':12.96763,'oxi_n':[-1,1,2,3,4,5,6,7]};
+AtomParam['Ar']={'no':18,'mass':39.948,'group':18,'period':3,'block':'p','ie':15.7596112,'oxi_n':[]};
+AtomParam['K']={'no':19,'mass':39.0983,'group':1,'period':4,'block':'s','ie':4.34066354,'oxi_n':[-1,1]};
+AtomParam['Ca']={'no':20,'mass':40.078,'group':2,'period':4,'block':'s','ie':6.1131552,'oxi_n':[1,2]};
+AtomParam['Sc']={'no':21,'mass':44.955912,'group':3,'period':4,'block':'d','ie':6.56149,'oxi_n':[1,2,3]};
+AtomParam['Ti']={'no':22,'mass':47.867,'group':4,'period':4,'block':'d','ie':6.82812,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['V']={'no':23,'mass':50.9415,'group':5,'period':4,'block':'d','ie':6.746187,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Cr']={'no':24,'mass':51.9961,'group':6,'period':4,'block':'d','ie':6.76651,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Mn']={'no':25,'mass':54.938045,'group':7,'period':4,'block':'d','ie':7.434038,'oxi_n':[-3,-2,-1,1,2,3,4,5,6,7]};
+AtomParam['Fe']={'no':26,'mass':55.845,'group':8,'period':4,'block':'d','ie':7.9024678,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7]};
+AtomParam['Co']={'no':27,'mass':58.933195,'group':9,'period':4,'block':'d','ie':7.88101,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Ni']={'no':28,'mass':58.6934,'group':10,'period':4,'block':'d','ie':7.639877,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['Cu']={'no':29,'mass':63.546,'group':11,'period':4,'block':'d','ie':7.72638,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Zn']={'no':30,'mass':65.39,'group':12,'period':4,'block':'d','ie':9.3941968,'oxi_n':[-2,1,2]};
+AtomParam['Ga']={'no':31,'mass':69.723,'group':13,'period':4,'block':'p','ie':5.9993018,'oxi_n':[-5,-4,-2,-1,1,2,3]};
+AtomParam['Ge']={'no':32,'mass':72.61,'group':14,'period':4,'block':'p','ie':7.899435,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['As']={'no':33,'mass':74.9216,'group':15,'period':4,'block':'p','ie':9.7886,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Se']={'no':34,'mass':78.96,'group':16,'period':4,'block':'p','ie':9.752392,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['Br']={'no':35,'mass':79.904,'group':17,'period':4,'block':'p','ie':11.81381,'oxi_n':[-1,1,3,4,5,7]};
+AtomParam['Kr']={'no':36,'mass':83.8,'group':18,'period':4,'block':'p','ie':13.9996049,'oxi_n':[2]};
+AtomParam['Rb']={'no':37,'mass':85.4678,'group':1,'period':5,'block':'s','ie':4.177128,'oxi_n':[-1,1]};
+AtomParam['Sr']={'no':38,'mass':87.62,'group':2,'period':5,'block':'s','ie':5.6948672,'oxi_n':[1,2]};
+AtomParam['Y']={'no':39,'mass':88.90585,'group':3,'period':5,'block':'d','ie':6.21726,'oxi_n':[1,2,3]};
+AtomParam['Zr']={'no':40,'mass':91.224,'group':4,'period':5,'block':'d','ie':6.6339,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Nb']={'no':41,'mass':92.90638,'group':5,'period':5,'block':'d','ie':6.75885,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Mo']={'no':42,'mass':95.94,'group':6,'period':5,'block':'d','ie':7.09243,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Tc']={'no':43,'mass':97.9072,'group':7,'period':5,'block':'d','ie':7.11938,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
+AtomParam['Ru']={'no':44,'mass':101.07,'group':8,'period':5,'block':'d','ie':7.3605,'oxi_n':[-4,-2,1,2,3,4,5,6,7,8]};
+AtomParam['Rh']={'no':45,'mass':102.9055,'group':9,'period':5,'block':'d','ie':7.4589,'oxi_n':[-3,-1,1,2,3,4,5,6]};
+AtomParam['Pd']={'no':46,'mass':106.42,'group':10,'period':5,'block':'d','ie':8.33686,'oxi_n':[1,2,3,4,5,6]};
+AtomParam['Ag']={'no':47,'mass':107.8682,'group':11,'period':5,'block':'d','ie':7.576234,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['Cd']={'no':48,'mass':112.411,'group':12,'period':5,'block':'d','ie':8.99382,'oxi_n':[-2,1,2]};
+AtomParam['In']={'no':49,'mass':114.818,'group':13,'period':5,'block':'p','ie':5.7863554,'oxi_n':[-5,-2,-1,1,2,3]};
+AtomParam['Sn']={'no':50,'mass':118.71,'group':14,'period':5,'block':'p','ie':7.343917,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['Sb']={'no':51,'mass':121.76,'group':15,'period':5,'block':'p','ie':8.608389,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Te']={'no':52,'mass':127.6,'group':16,'period':5,'block':'p','ie':9.00966,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['I']={'no':53,'mass':126.90447,'group':17,'period':5,'block':'p','ie':10.45126,'oxi_n':[-1,1,3,4,5,6,7]};
+AtomParam['Xe']={'no':54,'mass':131.29,'group':18,'period':5,'block':'p','ie':12.1298431,'oxi_n':[2,4,6,8]};
+AtomParam['Cs']={'no':55,'mass':132.9054519,'group':1,'period':6,'block':'s','ie':3.893905557,'oxi_n':[-1,1]};
+AtomParam['Ba']={'no':56,'mass':137.327,'group':2,'period':6,'block':'s','ie':5.211664,'oxi_n':[1,2]};
+AtomParam['La']={'no':57,'mass':178.49,'group':53,'period':6,'block':'f','ie':5.5769,'oxi_n':[1,2,3]};
+AtomParam['Ce']={'no':58,'mass':180.94788,'group':53,'period':6,'block':'f','ie':5.5386,'oxi_n':[2,3,4]};
+AtomParam['Pr']={'no':59,'mass':183.84,'group':53,'period':6,'block':'f','ie':5.47,'oxi_n':[2,3,4,5]};
+AtomParam['Nd']={'no':60,'mass':186.207,'group':53,'period':6,'block':'f','ie':5.525,'oxi_n':[2,3,4]};
+AtomParam['Pm']={'no':61,'mass':190.23,'group':53,'period':6,'block':'f','ie':5.577,'oxi_n':[2,3]};
+AtomParam['Sm']={'no':62,'mass':192.217,'group':53,'period':6,'block':'f','ie':5.64371,'oxi_n':[2,3]};
+AtomParam['Eu']={'no':63,'mass':195.084,'group':53,'period':6,'block':'f','ie':5.670385,'oxi_n':[2,3]};
+AtomParam['Gd']={'no':64,'mass':196.966569,'group':53,'period':6,'block':'f','ie':6.1498,'oxi_n':[1,2,3]};
+AtomParam['Tb']={'no':65,'mass':200.59,'group':53,'period':6,'block':'f','ie':5.8638,'oxi_n':[1,2,3,4]};
+AtomParam['Dy']={'no':66,'mass':204.3833,'group':53,'period':6,'block':'f','ie':5.93905,'oxi_n':[2,3,4]};
+AtomParam['Ho']={'no':67,'mass':207.2,'group':53,'period':6,'block':'f','ie':6.0215,'oxi_n':[2,3]};
+AtomParam['Er']={'no':68,'mass':208.9804,'group':53,'period':6,'block':'f','ie':6.1077,'oxi_n':[2,3]};
+AtomParam['Tm']={'no':69,'mass':208.9824,'group':53,'period':6,'block':'f','ie':6.18431,'oxi_n':[2,3]};
+AtomParam['Yb']={'no':70,'mass':209.9871,'group':53,'period':6,'block':'f','ie':6.254159,'oxi_n':[2,3]};
+AtomParam['Lu']={'no':71,'mass':222.0176,'group':53,'period':6,'block':'f','ie':5.425871,'oxi_n':[2,3]};
+AtomParam['Hf']={'no':72,'mass':138.90547,'group':4,'period':6,'block':'d','ie':6.825069,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Ta']={'no':73,'mass':140.116,'group':5,'period':6,'block':'d','ie':7.549571,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['W']={'no':74,'mass':140.90765,'group':6,'period':6,'block':'d','ie':7.86403,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Re']={'no':75,'mass':144.242,'group':7,'period':6,'block':'d','ie':7.83352,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
+AtomParam['Os']={'no':76,'mass':144.9127,'group':8,'period':6,'block':'d','ie':8.43823,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7,8]};
+AtomParam['Ir']={'no':77,'mass':150.36,'group':9,'period':6,'block':'d','ie':8.96702,'oxi_n':[-3,-1,1,2,3,4,5,6,7,8]};
+AtomParam['Pt']={'no':78,'mass':151.964,'group':10,'period':6,'block':'d','ie':8.95883,'oxi_n':[-3,-2,-1,1,2,3,4,5,6]};
+AtomParam['Au']={'no':79,'mass':157.25,'group':11,'period':6,'block':'d','ie':9.225553,'oxi_n':[-3,-2,-1,1,2,3,5]};
+AtomParam['Hg']={'no':80,'mass':158.92535,'group':12,'period':6,'block':'d','ie':10.437504,'oxi_n':[-2,1,2]};
+AtomParam['Tl']={'no':81,'mass':162.5,'group':13,'period':6,'block':'p','ie':6.1082871,'oxi_n':[-5,-2,-1,1,2,3]};
+AtomParam['Pb']={'no':82,'mass':164.93032,'group':14,'period':6,'block':'p','ie':7.4166796,'oxi_n':[-4,-2,-1,1,2,3,4]};
+AtomParam['Bi']={'no':83,'mass':167.259,'group':15,'period':6,'block':'p','ie':7.285516,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Po']={'no':84,'mass':168.93421,'group':16,'period':6,'block':'p','ie':8.414,'oxi_n':[-2,2,4,5,6]};
+AtomParam['At']={'no':85,'mass':173.04,'group':17,'period':6,'block':'p','ie':9.31751,'oxi_n':[-1,1,3,5,7]};
+AtomParam['Rn']={'no':86,'mass':174.967,'group':18,'period':6,'block':'p','ie':10.7485,'oxi_n':[2,6]};
+AtomParam['Fr']={'no':87,'mass':223.0197,'group':1,'period':7,'block':'s','ie':4.0727409,'oxi_n':[1]};
+AtomParam['Ra']={'no':88,'mass':226.0254,'group':2,'period':7,'block':'s','ie':5.278424,'oxi_n':[2]};
+AtomParam['Ac']={'no':89,'mass':263.1125,'group':63,'period':7,'block':'f','ie':5.380226,'oxi_n':[3]};
+AtomParam['Th']={'no':90,'mass':262.1144,'group':63,'period':7,'block':'f','ie':6.3067,'oxi_n':[1,2,3,4]};
+AtomParam['Pa']={'no':91,'mass':266.1219,'group':63,'period':7,'block':'f','ie':5.89,'oxi_n':[3,4,5]};
+AtomParam['U']={'no':92,'mass':264.1247,'group':63,'period':7,'block':'f','ie':6.19405,'oxi_n':[1,2,3,4,5,6]};
+AtomParam['Np']={'no':93,'mass':269.1341,'group':63,'period':7,'block':'f','ie':6.2655,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Pu']={'no':94,'mass':268.1388,'group':63,'period':7,'block':'f','ie':6.0258,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Am']={'no':95,'mass':272.1463,'group':63,'period':7,'block':'f','ie':5.9738,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Cm']={'no':96,'mass':272.1535,'group':63,'period':7,'block':'f','ie':5.9914,'oxi_n':[3,4,6]};
+AtomParam['Bk']={'no':97,'mass':277,'group':63,'period':7,'block':'f','ie':6.1978,'oxi_n':[3,4]};
+AtomParam['Cf']={'no':98,'mass':284,'group':63,'period':7,'block':'f','ie':6.2817,'oxi_n':[2,3,4]};
+AtomParam['Es']={'no':99,'mass':289,'group':63,'period':7,'block':'f','ie':6.3676,'oxi_n':[2,3,4]};
 
 //setting color
 AtomParam['H'].color = '0xFFD3D3';
@@ -7478,6 +5471,109 @@ AtomParam['Cf'].radius =  1.55; //arbitrary value
 AtomParam['Es'].radius =  1.5; //arbitrary value
 
 
+
+
+/*
+AtomParam['H']={'no':1,'radius':0.79,'color':'0xFFD3D3','mass':1.00794,'group':1,'period':1,'block':'s','ie':13.598434005136,'oxi_n':[-1,1]};
+AtomParam['He']={'no':2,'radius':0.49,'color':'0xFE1E00','mass':4.002602,'group':18,'period':1,'block':'s','ie':24.587387936,'oxi_n':[]};
+AtomParam['Li']={'no':3,'radius':1.05,'color':'0xf477ff','mass':6.941,'group':1,'period':2,'block':'s','ie':5.391714761,'oxi_n':[1]};
+AtomParam['Be']={'no':4,'radius':1.4,'color':'0x003EFE','mass':9.012182,'group':2,'period':2,'block':'s','ie':9.322699,'oxi_n':[1,2]};
+AtomParam['B']={'no':5,'radius':1.17,'color':'0xBFFE00','mass':10.811,'group':13,'period':2,'block':'p','ie':8.298019,'oxi_n':[-5,-1,1,2,3]};
+AtomParam['C']={'no':6,'radius':0.91,'color':'0x999999','mass':12.0107,'group':14,'period':2,'block':'p','ie':11.2603,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['N']={'no':7,'radius':0.75,'color':'0x6D77FF','mass':14.00674,'group':15,'period':2,'block':'p','ie':14.53413,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['O']={'no':8,'radius':0.65,'color':'0xFF0000','mass':15.9994,'group':16,'period':2,'block':'p','ie':13.618054,'oxi_n':[-2,-1,1,2]};
+AtomParam['F']={'no':9,'radius':0.57,'color':'0x6DFF89','mass':18.9984032,'group':17,'period':2,'block':'p','ie':17.42282,'oxi_n':[-1]};
+AtomParam['Ne']={'no':10,'radius':0.51,'color':'0xFE1900','mass':20.1797,'group':18,'period':2,'block':'p','ie':21.56454,'oxi_n':[]};
+AtomParam['Na']={'no':11,'radius':2.23,'color':'0x0009FE','mass':22.98976928,'group':1,'period':3,'block':'s','ie':5.1390767,'oxi_n':[-1,1]};
+AtomParam['Mg']={'no':12,'radius':1.72,'color':'0x0043FE','mass':24.305,'group':2,'period':3,'block':'s','ie':7.646235,'oxi_n':[1,2]};
+AtomParam['Al']={'no':13,'radius':1.82,'color':'0xC5FE00','mass':26.9815386,'group':13,'period':3,'block':'p','ie':5.985768,'oxi_n':[-2,-1,1,2,3]};
+AtomParam['Si']={'no':14,'radius':1.46,'color':'0xFEFC00','mass':28.0855,'group':14,'period':3,'block':'p','ie':8.151683,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['P']={'no':15,'radius':1.23,'color':'0xFF6666','mass':30.973762,'group':15,'period':3,'block':'p','ie':10.486686,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['S']={'no':16,'radius':1.09,'color':'0xFFFF00','mass':32.066,'group':16,'period':3,'block':'p','ie':10.36001,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['Cl']={'no':17,'radius':0.97,'color':'0xFE4E00','mass':35.4527,'group':17,'period':3,'block':'p','ie':12.96763,'oxi_n':[-1,1,2,3,4,5,6,7]};
+AtomParam['Ar']={'no':18,'radius':0.88,'color':'0xFE1400','mass':39.948,'group':18,'period':3,'block':'p','ie':15.7596112,'oxi_n':[]};
+AtomParam['K']={'no':19,'radius':2.77,'color':'0x000EFE','mass':39.0983,'group':1,'period':4,'block':'s','ie':4.34066354,'oxi_n':[-1,1]};
+AtomParam['Ca']={'no':20,'radius':2.23,'color':'0x0048FE','mass':40.078,'group':2,'period':4,'block':'s','ie':6.1131552,'oxi_n':[1,2]};
+AtomParam['Sc']={'no':21,'radius':2.09,'color':'0x0083FE','mass':44.955912,'group':3,'period':4,'block':'d','ie':6.56149,'oxi_n':[1,2,3]};
+AtomParam['Ti']={'no':22,'radius':2,'color':'0x00BDFE','mass':47.867,'group':4,'period':4,'block':'d','ie':6.82812,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['V']={'no':23,'radius':1.92,'color':'0x00F7FE','mass':50.9415,'group':5,'period':4,'block':'d','ie':6.746187,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Cr']={'no':24,'radius':1.85,'color':'0x00FECA','mass':51.9961,'group':6,'period':4,'block':'d','ie':6.76651,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Mn']={'no':25,'radius':1.79,'color':'0x9C7AC7','mass':54.938045,'group':7,'period':4,'block':'d','ie':7.434038,'oxi_n':[-3,-2,-1,1,2,3,4,5,6,7]};
+AtomParam['Fe']={'no':26,'radius':1.72,'color':'0x00FE56','mass':55.845,'group':8,'period':4,'block':'d','ie':7.9024678,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7]};
+AtomParam['Co']={'no':27,'radius':1.67,'color':'0xf090a0','mass':58.933195,'group':9,'period':4,'block':'d','ie':7.88101,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Ni']={'no':28,'radius':1.62,'color':'0x1CFE00','mass':58.6934,'group':10,'period':4,'block':'d','ie':7.639877,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['Cu']={'no':29,'radius':1.57,'color':'0x8C3610','mass':63.546,'group':11,'period':4,'block':'d','ie':7.72638,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Zn']={'no':30,'radius':1.53,'color':'0xA0ED20','mass':65.39,'group':12,'period':4,'block':'d','ie':9.3941968,'oxi_n':[-2,1,2]};
+AtomParam['Ga']={'no':31,'radius':1.81,'color':'0xCAFE00','mass':69.723,'group':13,'period':4,'block':'p','ie':5.9993018,'oxi_n':[-5,-4,-2,-1,1,2,3]};
+AtomParam['Ge']={'no':32,'radius':1.52,'color':'0xFEF700','mass':72.61,'group':14,'period':4,'block':'p','ie':7.899435,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['As']={'no':33,'radius':1.33,'color':'0xFEBD00','mass':74.9216,'group':15,'period':4,'block':'p','ie':9.7886,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Se']={'no':34,'radius':1.22,'color':'0xFE8300','mass':78.96,'group':16,'period':4,'block':'p','ie':9.752392,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['Br']={'no':35,'radius':1.12,'color':'0xFE4800','mass':79.904,'group':17,'period':4,'block':'p','ie':11.81381,'oxi_n':[-1,1,3,4,5,7]};
+AtomParam['Kr']={'no':36,'radius':1.03,'color':'0xFE0E00','mass':83.8,'group':18,'period':4,'block':'p','ie':13.9996049,'oxi_n':[2]};
+AtomParam['Rb']={'no':37,'radius':2.98,'color':'0x0014FE','mass':85.4678,'group':1,'period':5,'block':'s','ie':4.177128,'oxi_n':[-1,1]};
+AtomParam['Sr']={'no':38,'radius':2.45,'color':'0x004EFE','mass':87.62,'group':2,'period':5,'block':'s','ie':5.6948672,'oxi_n':[1,2]};
+AtomParam['Y']={'no':39,'radius':2.27,'color':'0x0088FE','mass':88.90585,'group':3,'period':5,'block':'d','ie':6.21726,'oxi_n':[1,2,3]};
+AtomParam['Zr']={'no':40,'radius':2.16,'color':'0x00C2FE','mass':91.224,'group':4,'period':5,'block':'d','ie':6.6339,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Nb']={'no':41,'radius':2.08,'color':'0x00FCFE','mass':92.90638,'group':5,'period':5,'block':'d','ie':6.75885,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['Mo']={'no':42,'radius':2.01,'color':'0x64BDB0','mass':95.94,'group':6,'period':5,'block':'d','ie':7.09243,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Tc']={'no':43,'radius':1.95,'color':'0x00FE8B','mass':97.9072,'group':7,'period':5,'block':'d','ie':7.11938,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
+AtomParam['Ru']={'no':44,'radius':1.89,'color':'0x00FE50','mass':101.07,'group':8,'period':5,'block':'d','ie':7.3605,'oxi_n':[-4,-2,1,2,3,4,5,6,7,8]};
+AtomParam['Rh']={'no':45,'radius':1.83,'color':'0x00FE16','mass':102.9055,'group':9,'period':5,'block':'d','ie':7.4589,'oxi_n':[-3,-1,1,2,3,4,5,6]};
+AtomParam['Pd']={'no':46,'radius':1.79,'color':'0x21FE00','mass':106.42,'group':10,'period':5,'block':'d','ie':8.33686,'oxi_n':[1,2,3,4,5,6]};
+AtomParam['Ag']={'no':47,'radius':1.75,'color':'0x464646','mass':107.8682,'group':11,'period':5,'block':'d','ie':7.576234,'oxi_n':[-2,-1,1,2,3,4]};
+AtomParam['Cd']={'no':48,'radius':1.71,'color':'0x95FE00','mass':112.411,'group':12,'period':5,'block':'d','ie':8.99382,'oxi_n':[-2,1,2]};
+AtomParam['In']={'no':49,'radius':2,'color':'0xCFFE00','mass':114.818,'group':13,'period':5,'block':'p','ie':5.7863554,'oxi_n':[-5,-2,-1,1,2,3]};
+AtomParam['Sn']={'no':50,'radius':1.72,'color':'0xFEF200','mass':118.71,'group':14,'period':5,'block':'p','ie':7.343917,'oxi_n':[-4,-3,-2,-1,1,2,3,4]};
+AtomParam['Sb']={'no':51,'radius':1.53,'color':'0xFEB700','mass':121.76,'group':15,'period':5,'block':'p','ie':8.608389,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Te']={'no':52,'radius':1.42,'color':'0xFE7D00','mass':127.6,'group':16,'period':5,'block':'p','ie':9.00966,'oxi_n':[-2,-1,1,2,3,4,5,6]};
+AtomParam['I']={'no':53,'radius':1.32,'color':'0xFE4300','mass':126.90447,'group':17,'period':5,'block':'p','ie':10.45126,'oxi_n':[-1,1,3,4,5,6,7]};
+AtomParam['Xe']={'no':54,'radius':1.24,'color':'0xFE0900','mass':131.29,'group':18,'period':5,'block':'p','ie':12.1298431,'oxi_n':[2,4,6,8]};
+AtomParam['Cs']={'no':55,'radius':3.34,'color':'0x0019FE','mass':132.9054519,'group':1,'period':6,'block':'s','ie':3.893905557,'oxi_n':[-1,1]};
+AtomParam['Ba']={'no':56,'radius':2.78,'color':'0x585017','mass':137.327,'group':2,'period':6,'block':'s','ie':5.211664,'oxi_n':[1,2]};
+AtomParam['La']={'no':57,'radius':2.74,'color':'0x008DFE','mass':178.49,'group':53,'period':6,'block':'f','ie':5.5769,'oxi_n':[1,2,3]};
+AtomParam['Ce']={'no':58,'radius':2.7,'color':'0x008DFE','mass':180.94788,'group':53,'period':6,'block':'f','ie':5.5386,'oxi_n':[2,3,4]};
+AtomParam['Pr']={'no':59,'radius':2.67,'color':'0x008DFE','mass':183.84,'group':53,'period':6,'block':'f','ie':5.47,'oxi_n':[2,3,4,5]};
+AtomParam['Nd']={'no':60,'radius':2.64,'color':'0x008DFE','mass':186.207,'group':53,'period':6,'block':'f','ie':5.525,'oxi_n':[2,3,4]};
+AtomParam['Pm']={'no':61,'radius':2.62,'color':'0x008DFE','mass':190.23,'group':53,'period':6,'block':'f','ie':5.577,'oxi_n':[2,3]};
+AtomParam['Sm']={'no':62,'radius':2.59,'color':'0x008DFE','mass':192.217,'group':53,'period':6,'block':'f','ie':5.64371,'oxi_n':[2,3]};
+AtomParam['Eu']={'no':63,'radius':2.56,'color':'0x008DFE','mass':195.084,'group':53,'period':6,'block':'f','ie':5.670385,'oxi_n':[2,3]};
+AtomParam['Gd']={'no':64,'radius':2.54,'color':'0x008DFE','mass':196.966569,'group':53,'period':6,'block':'f','ie':6.1498,'oxi_n':[1,2,3]};
+AtomParam['Tb']={'no':65,'radius':2.51,'color':'0x008DFE','mass':200.59,'group':53,'period':6,'block':'f','ie':5.8638,'oxi_n':[1,2,3,4]};
+AtomParam['Dy']={'no':66,'radius':2.49,'color':'0x008DFE','mass':204.3833,'group':53,'period':6,'block':'f','ie':5.93905,'oxi_n':[2,3,4]};
+AtomParam['Ho']={'no':67,'radius':2.47,'color':'0x008DFE','mass':207.2,'group':53,'period':6,'block':'f','ie':6.0215,'oxi_n':[2,3]};
+AtomParam['Er']={'no':68,'radius':2.45,'color':'0x008DFE','mass':208.9804,'group':53,'period':6,'block':'f','ie':6.1077,'oxi_n':[2,3]};
+AtomParam['Tm']={'no':69,'radius':2.42,'color':'0x008DFE','mass':208.9824,'group':53,'period':6,'block':'f','ie':6.18431,'oxi_n':[2,3]};
+AtomParam['Yb']={'no':70,'radius':2.4,'color':'0x008DFE','mass':209.9871,'group':53,'period':6,'block':'f','ie':6.254159,'oxi_n':[2,3]};
+AtomParam['Lu']={'no':71,'radius':2.25,'color':'0x008DFE','mass':222.0176,'group':53,'period':6,'block':'f','ie':5.425871,'oxi_n':[2,3]};
+AtomParam['Hf']={'no':72,'radius':2.16,'color':'0x00C7FE','mass':138.90547,'group':4,'period':6,'block':'d','ie':6.825069,'oxi_n':[-2,1,2,3,4]};
+AtomParam['Ta']={'no':73,'radius':2.09,'color':'0x00FEFA','mass':140.116,'group':5,'period':6,'block':'d','ie':7.549571,'oxi_n':[-3,-1,1,2,3,4,5]};
+AtomParam['W']={'no':74,'radius':2.02,'color':'0x00FEBF','mass':140.90765,'group':6,'period':6,'block':'d','ie':7.86403,'oxi_n':[-4,-2,-1,1,2,3,4,5,6]};
+AtomParam['Re']={'no':75,'radius':1.97,'color':'0x00FE85','mass':144.242,'group':7,'period':6,'block':'d','ie':7.83352,'oxi_n':[-3,-1,1,2,3,4,5,6,7]};
+AtomParam['Os']={'no':76,'radius':1.92,'color':'0x00FE4B','mass':144.9127,'group':8,'period':6,'block':'d','ie':8.43823,'oxi_n':[-4,-2,-1,1,2,3,4,5,6,7,8]};
+AtomParam['Ir']={'no':77,'radius':1.87,'color':'0x00FE11','mass':150.36,'group':9,'period':6,'block':'d','ie':8.96702,'oxi_n':[-3,-1,1,2,3,4,5,6,7,8]};
+AtomParam['Pt']={'no':78,'radius':1.83,'color':'0x26FE00','mass':151.964,'group':10,'period':6,'block':'d','ie':8.95883,'oxi_n':[-3,-2,-1,1,2,3,4,5,6]};
+AtomParam['Au']={'no':79,'radius':1.79,'color':'0x585017','mass':157.25,'group':11,'period':6,'block':'d','ie':9.225553,'oxi_n':[-3,-2,-1,1,2,3,5]};
+AtomParam['Hg']={'no':80,'radius':1.76,'color':'0x9AFE00','mass':158.92535,'group':12,'period':6,'block':'d','ie':10.437504,'oxi_n':[-2,1,2]};
+AtomParam['Tl']={'no':81,'radius':2.08,'color':'0xD5FE00','mass':162.5,'group':13,'period':6,'block':'p','ie':6.1082871,'oxi_n':[-5,-2,-1,1,2,3]};
+AtomParam['Pb']={'no':82,'radius':1.81,'color':'0xFEEC00','mass':164.93032,'group':14,'period':6,'block':'p','ie':7.4166796,'oxi_n':[-4,-2,-1,1,2,3,4]};
+AtomParam['Bi']={'no':83,'radius':1.63,'color':'0xFEB200','mass':167.259,'group':15,'period':6,'block':'p','ie':7.285516,'oxi_n':[-3,-2,-1,1,2,3,4,5]};
+AtomParam['Po']={'no':84,'radius':1.53,'color':'0xFE7800','mass':168.93421,'group':16,'period':6,'block':'p','ie':8.414,'oxi_n':[-2,2,4,5,6]};
+AtomParam['At']={'no':85,'radius':1.43,'color':'0xFE3E00','mass':173.04,'group':17,'period':6,'block':'p','ie':9.31751,'oxi_n':[-1,1,3,5,7]};
+AtomParam['Rn']={'no':86,'radius':1.34,'color':'0xFE0400','mass':174.967,'group':18,'period':6,'block':'p','ie':10.7485,'oxi_n':[2,6]};
+AtomParam['Fr']={'no':87,'radius':1.5,'color':'0x001EFE','mass':223.0197,'group':1,'period':7,'block':'s','ie':4.0727409,'oxi_n':[1]};
+AtomParam['Ra']={'no':88,'radius':1.5,'color':'0x0058FE','mass':226.0254,'group':2,'period':7,'block':'s','ie':5.278424,'oxi_n':[2]};
+AtomParam['Ac']={'no':89,'radius':1.88,'color':'0x0092FE','mass':263.1125,'group':63,'period':7,'block':'f','ie':5.380226,'oxi_n':[3]};
+AtomParam['Th']={'no':90,'radius':1.5,'color':'0x0092FE','mass':262.1144,'group':63,'period':7,'block':'f','ie':6.3067,'oxi_n':[1,2,3,4]};
+AtomParam['Pa']={'no':91,'radius':1.5,'color':'0x0092FE','mass':266.1219,'group':63,'period':7,'block':'f','ie':5.89,'oxi_n':[3,4,5]};
+AtomParam['U']={'no':92,'radius':1.5,'color':'0x0092FE','mass':264.1247,'group':63,'period':7,'block':'f','ie':6.19405,'oxi_n':[1,2,3,4,5,6]};
+AtomParam['Np']={'no':93,'radius':1.5,'color':'0x0092FE','mass':269.1341,'group':63,'period':7,'block':'f','ie':6.2655,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Pu']={'no':94,'radius':1.5,'color':'0x0092FE','mass':268.1388,'group':63,'period':7,'block':'f','ie':6.0258,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Am']={'no':95,'radius':1.5,'color':'0x0092FE','mass':272.1463,'group':63,'period':7,'block':'f','ie':5.9738,'oxi_n':[2,3,4,5,6,7]};
+AtomParam['Cm']={'no':96,'radius':1.5,'color':'0x0092FE','mass':272.1535,'group':63,'period':7,'block':'f','ie':5.9914,'oxi_n':[3,4,6]};
+AtomParam['Bk']={'no':97,'radius':1.5,'color':'0x0092FE','mass':277,'group':63,'period':7,'block':'f','ie':6.1978,'oxi_n':[3,4]};
+AtomParam['Cf']={'no':98,'radius':1.5,'color':'0x0092FE','mass':284,'group':63,'period':7,'block':'f','ie':6.2817,'oxi_n':[2,3,4]};
+AtomParam['Es']={'no':99,'radius':1.5,'color':'0x0092FE','mass':289,'group':63,'period':7,'block':'f','ie':6.3676,'oxi_n':[2,3,4]};
+*/
 /*
  * AtomParam['H']={'no':1,'radius':0.79,'color':'0xFFD3D3','mass':1.00794,'group':1,'period':1};
 AtomParam['He']={'no':2,'radius':0.49,'color':'0xFE1E00','mass':4.002602,'group':18,'period':1};
@@ -7682,5 +5778,4 @@ AtomParam['Cf']={radius : 1.5, color : '0x0092FE', mass : 284};
 AtomParam['Es']={radius : 1.5, color : '0x0092FE', mass : 289};
 */
 AtomParam['X']={oxi_n:[],radius : 3, color : '0x000000', mass : 0.0001}; // If element is not defined
-_AtomParam = JSON.parse(JSON.stringify(AtomParam));
-SpaceGroups = ['P1','P-1','P2','P21','C2','Pm','Pc','Cm','Cc','P2/m','P21/m','C2/m','P2/c','P21/c','C2/c','P222','P2221','P21212','P212121','C2221','C222','F222','I222','I212121','Pmm2','Pmc21','Pcc2','Pma2','Pca21','Pnc2','Pmn21','Pba2','Pna21','Pnn2','Cmm2','Cmc21','Ccc2','Amm2','Aem2','Ama2','Aea2','Fmm2','Fdd2','Imm2','Iba2','Ima2','Pmmm','Pnnn','Pccm','Pban','Pmma','Pnna','Pmna','Pcca','Pbam','Pccn','Pbcm','Pnnm','Pmmn','Pbcn','Pbca','Pnma','Cmcm','Cmce','Cmmm','Cccm','Cmme','Ccce','Fmmm','Fddd','Immm','Ibam','Ibca','Imma','P4','P41','P42','P43','I4','I41','P-4','I-4','P4/m','P42/m','P4/n','P42/n','I4/m','I41/a','P422','P4212','P4122','P41212','P4222','P42212','P4322','P43212','I422','I4122','P4mm','P4bm','P42cm','P42nm','P4cc','P4nc','P42mc','P42bc','I4mm','I4cm','I41md','I41cd','P-42m','P-42c','P-421m','P-421c','P-4m2','P-4c2','P-4b2','P-4n2','I-4m2','I-4c2','I-42m','I-42d','P4/mmm','P4/mcc','P4/nbm','P4/nnc','P4/mbm','P4/mnc','P4/nmm','P4/ncc','P42/mmc','P42/mcm','P42/nbc','P42/nnm','P42/mbc','P42/mnm','P42/nmc','P42/ncm','I4/mmm','I4/mcm','I41/amd','I41/acd','P3','P31','P32','R3','P-3','R-3','P312','P321','P3112','P3121','P3212','P3221','R32','P3m1','P31m','P3c1','P31c','R3m','R3c','P-31m','P-31c','P-3m1','P-3c1','R-3m','R-3c','P6','P61','P65','P62','P64','P63','P-6','P6/m','P63/m','P622','P6122','P6522','P6222','P6422','P6322','P6mm','P6cc','P63cm','P63mc','P-6m2','P-6c2','P-62m','P-62c','P6/mmm','P6/mcc','P63/mcm','P63/mmc','P23','F23','I23','P213','I213','Pm-3','Pn-3','Fm-3','Fd-3','Im-3','Pa-3','Ia-3','P432','P4232','F432','F4132','I432','P4332','P4132','I4132','P-43m','F-43m','I-43m','P-43n','F-43c','I-43d','Pm-3m','Pn-3n','Pm-3n','Pn-3m','Fm-3m','Fm-3c','Fd-3m','Fd-3c','Im-3m','Ia-3d'];
+

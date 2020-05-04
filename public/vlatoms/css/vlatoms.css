@@ -1,18 +1,82 @@
 .VLScreen_message{
 	position:absolute;
 	display:table;
-	background : repeating-linear-gradient(    -45deg,    #ffffff,    #ffffff 10px,    #ededf9 10px,    #ededf9 20px  );
+	background : repeating-linear-gradient(-45deg,#ffffff,#ffffff 10px,#ededf9 10px,#ededf9 20px);
 	-webkit-box-shadow: 0px 0px 10px 1px rgba(189,189,189,1);
 	-moz-box-shadow: 0px 0px 10px 1px rgba(189,189,189,1);
 	box-shadow: 0px 0px 10px 1px rgba(189,189,189,1);
 }
 .VLScreen_message .messagebox{
-    display: table-cell;
-    vertical-align: middle;
-    font-weight: bold;
-    color: #558;
-    text-align: center;
-    font-size: 26px;
-    line-height: 2.2em;
-
+	display: table-cell;
+	vertical-align: middle;
+	font-weight: bold;
+	color: #558;
+	text-align: center;
+	font-size: 26px;
+	line-height: 2.2em;
+}
+.VLMHeader>tr>td {
+	font-size: 20px;
+	text-align: left;
+	padding: 10px 0 0 15px;
+}
+.VLMessage {
+	border-radius: 15px;
+	margin: auto;
+	box-shadow: 0px 0px 29px -2px rgb(187, 187, 187);
+	padding-bottom: 5px;
+	background-color: white;
+}
+.VLM_msg_fields {
+	margin:15px 0 10px 0;
+	display: block;
+}
+.disp_option_toggle {
+	font-size: 11pt;
+	font-weight: bold;
+	color: #333;
+	font-family: 'Droid Sans', sans-serif;
+	background-image:none;
+	display: block;
+	margin-bottom: 6px;
+}
+.disp_option_toggle:before {
+	content: "";
+	width: 16px;
+	height: 10px;
+	display: inline-block;
+	background-image: url(/vlatoms/check.png);
+	background-repeat: no-repeat;
+	background-size: 10px;
+}
+.VLMBody>tr>td {
+	padding:5px 15px;
+}
+.VLMFooter {
+	border-radius: 0 0 5px 5px;
+	border-top-color: #ccc;
+	border-top-width: 1px;
+	border-top-style: dotted;
+	width: 100%;
+}
+.VLMFooter tr td {
+	text-align: right;
+	padding: 2px 12px 0 15px;
+}
+.toggle_off{
+	opacity:0.6;
+}
+.toggle_off:before {
+	content: "";
+	width: 16px;
+	height: 12px;
+	display: inline-block;
+	background-image:none;
+}
+.light.glyphicon{
+	cursor:pointer;
+}
+.bondpairs>label{
+	width:33%;
+	font-size:12px;
 }
