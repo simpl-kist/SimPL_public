@@ -629,7 +629,6 @@ var VLatoms = function(option){
 			"right":"0.5em",
 			"bottom":"0.5em",
 			"width":160,
-			"height":55,
 			"text-align":"right"
 		});
 		// Message window
@@ -988,9 +987,9 @@ v.controls.visualizer=v;
 			var ca, tmpmesh;
 			var gidx = 0;
 			var nghosts=v.option.ghosts_direction;
-			for(var xx=0;xx<nghosts[0];xx++){
-				for(var yy=0;yy<nghosts[1];yy++){
-					for(var zz=0;zz<nghosts[2];zz++){
+			for(var xx=nghosts[0]+1;xx<nghosts[0];xx++){
+				for(var yy=nghosts[1]+1;yy<nghosts[1];yy++){
+					for(var zz=nghosts[2]+1;zz<nghosts[2];zz++){
 						for( var i = 0 ; i < v.natoms() ; i++ ){
 							ca = objClone(v.Structure.atoms[i]);
 							tmpmesh = new THREE.Mesh( v.Sphere, material.clone() );
