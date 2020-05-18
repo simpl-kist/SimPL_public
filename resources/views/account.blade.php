@@ -106,7 +106,9 @@
 				if(ret.status === "Fail"){
 					alert(ret.message);
 				}else if(ret.status === "Success"){
-					alert("Changed!");
+					if(confirm("Your account information has been changed successfully. Would you like to go to the front page?")){
+						location.href="/";
+					}
 				}
 			}
 		});
