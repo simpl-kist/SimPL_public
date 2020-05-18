@@ -47,7 +47,7 @@ $env = CmsEnv::where('var_key', 'logo')->first();
 $filename = "/img/simpl_logo.png";
 $filename=$env->var_value;
 ?>
-			<img src="{{$filename}}" style="width:300px;">
+			<img src="{{$filename}}" style="max-height:200px;">
 @else
 			<img src="/img/simpl_logo.png" style="width:300px;">
 @endif
