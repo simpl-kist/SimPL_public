@@ -71,7 +71,7 @@ class UserController extends Controller
 			$user->password = Hash::make($request->input('my_password_new'));
 		}
 		$user->save();
-		return ["message"=>"success", "status"=>"success"];
+		return ["message"=>"success", "status"=>"Success"];
 	}
 
 	public function updatePic(Request $request){
