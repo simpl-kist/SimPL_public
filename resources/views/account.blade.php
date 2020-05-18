@@ -67,7 +67,6 @@
 			</tr>
 			<tr>
 				<td colspan=3 style="text-align:right;">
-					<button class="btn btn-outline-primary" onclick="location.href='/';">Home</button>
 					<button class="btn btn-outline-success" onclick="updateMe();">Update</button>
 				</td>
 			</tr>
