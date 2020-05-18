@@ -41,7 +41,7 @@ $env = CmsEnv::where('var_key', 'logo')->first();
 </head>
 <body>
     <div style="position:absolute; left:0; right:0; top:0; bottom: 0; height:400px; margin:auto; text-align:center;">
-		<a href="{{url('/')}}" style="min-height:100px;">
+		<a href="{{url('/')}}" style="min-height:100px; display:inline-block;">
 @if(isset($env) && $env->var_value !== "")
 <?php
 $filename = "/img/simpl_logo.png";
