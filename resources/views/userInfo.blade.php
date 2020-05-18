@@ -4,7 +4,7 @@ use App\Repository;
 <h2>Account Info</h2>
 <table class=table style='width:625px'>
 	<tbody>
-	<form method="POST" action="{{route('preset.updateMe')}}" enctype="multipart/form-data">
+	<form method="POST" action="{{route('preset.updateMe')}}" enctype="multipart/form-data" onsubmit="return redirect('/');">
 		{{csrf_field()}}
 		<tr>
 			<td>Picture</td>
