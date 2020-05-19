@@ -538,7 +538,7 @@ class PluginController extends Controller
 					$__plugin_name = "TEST";
 				}else{
 					$__p = Plugin::where("id",$jobs[$i]->pluginId)->select(["id","name"])->first();
-					if($__p === null){
+					if($__p !== null){
 						$__plugin_name=$__p->name;
 					}else{
 						$__plugin_name="Deleted Plugin";
