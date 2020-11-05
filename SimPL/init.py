@@ -61,10 +61,10 @@ def register(username, remocon_url):
         f=open("/etc/group","w")
         f.write(grplist)
         f.close()
-        subprocess.check_output("/etc/init.d/apache2 restart", shell=True)
 #group
     except:
       pass
+  subprocess.check_output("/etc/init.d/apache2 restart", shell=True)
   subprocess.check_output("chown SimPL.SimPL /var/www/SimPL/ -R", shell=True)
   if not os.path.isdir("/data/jobs"):
     subprocess.check_output("mkdir /data/jobs", shell=True)

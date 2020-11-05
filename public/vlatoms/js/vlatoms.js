@@ -987,10 +987,16 @@ v.controls.visualizer=v;
 			var ca, tmpmesh;
 			var gidx = 0;
 			var nghosts=v.option.ghosts_direction;
-			for(var xx=nghosts[0]+1;xx<nghosts[0];xx++){
-				for(var yy=nghosts[1]+1;yy<nghosts[1];yy++){
-					for(var zz=nghosts[2]+1;zz<nghosts[2];zz++){
+			for(var i=0 ; i<3; i ++){
+				nghosts[i]-=1;
+			}
+			for(var xx=nghosts[0]*-1;xx<=nghosts[0]*1;xx++){
+				for(var yy=nghosts[1]*-1;yy<=nghosts[1]*1;yy++){
+					for(var zz=nghosts[2]*-1;zz<=nghosts[2]*1;zz++){
 						for( var i = 0 ; i < v.natoms() ; i++ ){
+							if(xx===0 && yy=== 0 && zz===0){
+								continue;
+							}
 							ca = objClone(v.Structure.atoms[i]);
 							tmpmesh = new THREE.Mesh( v.Sphere, material.clone() );
 							tmpmesh.material.color.setHex( ca.color );
@@ -6222,7 +6228,8 @@ VLatoms.Utils = {
 			var _x = +ca.x;
 			var _y = +ca.y;
 			var _z = +ca.z;
-			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
+//			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
+			var _el = ca.element; //temp
 			s.atoms.push({"element":_el, "x":_x, "y":_y, "z":_z});
 		}
 		
@@ -6258,7 +6265,8 @@ VLatoms.Utils = {
 				var _y = +ca.y;
 				var _z = +ca.z;
 			}
-			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
+//			var _el = ca.element.replace(/[^a-zA-Z]/g,""); //temp
+			var _el = ca.element; //temp
 			s.atoms.push(new VLatoms.Atom( _x, _y, _z, _el ));
 		}
 		

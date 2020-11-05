@@ -481,7 +481,7 @@ class PluginController extends Controller
 			$id = $request->input('id');
 		}
 		$job = Job::findOrNew($id);
-		$fields = ['qinfo','status','pluginId','pluginAlias','jobBefore','jobNext','input','output','name','jobdir','owner'];
+		$fields = ['qinfo','status','pluginId','pluginAlias','jobBefore','jobNext','input','output','name','jobdir','owner',"parent","project"];
 		$job->project = 1;
 		foreach($fields as $field){
 			if( $request->has($field) ){
