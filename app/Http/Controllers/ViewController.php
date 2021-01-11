@@ -40,8 +40,35 @@ class ViewController extends Controller
 		$users = User::orderBy('id','desc')->paginate(20);
 		return view('admin.users')->with(['users'=>$users]);
 	}
-	public function jobs(){
-		$jobs = Job::select(['id','name','pluginId','owner','status','jobdir'])->orderBy('id','desc')->paginate(15);
+	public function jobs(Request $request){
+		$jobs = Job::select(['id','name','pluginId','owner','status','jobdir']);
+		if($request->has("key")){
+			if($request->has("val") && $request->input("val") !== ""){
+				$key = $request->input("key");
+				$val = $request->input("val");
+			}
+			switch($key){
+				case "all":
+					$pluginlist = Plugin::where("name", "like", "%".$val."%")->pluck('id');
+					$jobs->whereIn("pluginId", $pluginlist)->orWhere("name", "like", "%".$val."%");
+					break;
+				case "name":
+					$pluginlist = Plugin::where("name", "like", "%".$val."%")->pluck('id');
+					$jobs->where("name", "like", "%".$val."%");
+					break;
+				case "plugin":
+					$pluginlist = Plugin::where("name", "like", "%".$val."%")->pluck('id');
+					$jobs->whereIn("pluginId", $pluginlist);
+					break;
+				case "owner":
+					$userlist = User::where("name", "like", "%".$val."%")->pluck('id');
+					$jobs->whereIn("owner", $userlist);
+					break;
+			}
+		}
+			
+			
+		$jobs = $jobs->orderBy('id','desc')->paginate(15);
 		for($i=0 ; $i<count($jobs) ; $i++){
 			if($jobs[$i]->pluginId === -1){
 				$jobs[$i]->pluginName = "Test";

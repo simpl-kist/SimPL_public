@@ -20,8 +20,15 @@ class PageController extends Controller
 			$this->env[$e->var_key] = $e->var_value;
 		}
 	}
-	public function getList(){
-		$pages = Page::get(['id','title','isfront']);
+	public function getList(Request $request){
+		if($request->has("filter")){
+			$filter = $request->input("filter");
+		}
+		if($filter !== ""){
+			$pages = Page::where("contents", "like", "%".$filter."%")->get(['id','title','isfront']);
+		}else{
+			$pages = Page::get(['id','title','isfront']);
+		}
 		return $pages;
 	}
 	public function loadPage(Request $request){

@@ -20,8 +20,15 @@ class PluginController extends Controller
 			$this->env[$e->var_key] = $e->var_value;
 		}
 	}
-	public function getList(){
-		$plugins = Plugin::get(['id','name']);
+	public function getList(Request $request){
+		if($request->has("filter")){
+			$filter = $request->input("filter");
+		}
+		if($filter !== ""){
+			$plugins = Plugin::where("script", "like", "%".$filter."%")->orWhere("name", "like", "%".$filter."%")->orWhere("includes", "like", "%".$filter."%")->get(['id','name']);
+		}else{
+			$plugins = Plugin::get(['id','name']);
+		}
 		return $plugins;
 	}
 	public function loadPlugin(Request $request){

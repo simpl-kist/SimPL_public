@@ -17,7 +17,24 @@
 <div class="container">
 	<h3 style="margin:30px 0;">Jobs</h3>
 	<div class="row">
-		<div class="col-12">
+		<div class="col-md-6">
+
+		</div>
+		<div class="col-md-6 form-inline input-group" style="text-align:right:">
+			<select class="form-control search-key">
+				<option value="all">All</option>
+				<option value="name">Name</option>
+				<option value="plugin">Plugin</option>
+				<option value="owner">Owner</option>
+			</select>
+			<input class="form-control search-val">
+			<div class="input-group-append">
+				<button class="btn btn-primary" onclick="search()">
+					<i class="fas fa-search"></i>
+				</button>
+			</div>
+		</div>
+		<div class="col-12" style="margin-top:10px;">
 			<table class="table">
 				<thead>
 					<tr>
@@ -188,7 +205,32 @@
 				}
 			}
 		});
-	
+	}
+	function search(){
+		var searchkey = $(".search-key").val().trim();
+		var searchval = $(".search-val").val().trim();
+		if(searchval === ""){
+			return;
+		}
+		var url_string = location.href;
+		var url = new URL(url_string);
+		console.log(url);
+		var page = url.searchParams.get("page");
+		var data ={
+			"key":searchkey,
+			"val":searchval,
+		}
+		if(url.searchParams.get("key") === searchkey && url.searchParams.get("val") === searchval){	
+			data["page"] = page;
+		}
+		console.log(searchkey, searchval);
+		function encodeQueryData(data) {
+			const ret = [];
+			for (let d in data) ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+			return ret.join('&');
+		}
+		const querystring = encodeQueryData(data);
+		location.href=url.pathname + "?" + querystring;
 	}
 </script>
 @endsection

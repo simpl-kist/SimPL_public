@@ -234,9 +234,86 @@ $users = App\User::get(['id','name']);
 					@endif
 					</td>
 				</tr>
+				<tr>
+					<td colspan=4>
+<div style="padding:5px;">
+<select onchange="selectTheme()" id="select" style="border-radius:5px;height:28px;vertical-align:bottom;">
+	<option selected="">default</option>
+	<option>3024-day</option>
+	<option>3024-night</option>
+	<option>abcdef</option>
+	<option>ambiance</option>
+	<option>base16-dark</option>
+	<option>base16-light</option>
+	<option>bespin</option>
+	<option>blackboard</option>
+	<option>cobalt</option>
+	<option>colorforth</option>
+	<option>darcula</option>
+	<option>dracula</option>
+	<option>duotone-dark</option>
+	<option>duotone-light</option>
+	<option>eclipse</option>
+	<option>elegant</option>
+	<option>erlang-dark</option>
+	<option>gruvbox-dark</option>
+	<option>hopscotch</option>
+	<option>icecoder</option>
+	<option>idea</option>
+	<option>isotope</option>
+	<option>lesser-dark</option>
+	<option>liquibyte</option>
+	<option>lucario</option>
+	<option selected>material</option>
+	<option>mbo</option>
+	<option>mdn-like</option>
+	<option>midnight</option>
+	<option>monokai</option>
+	<option>neat</option>
+	<option>neo</option>
+	<option>night</option>
+	<option>nord</option>
+	<option>oceanic-next</option>
+	<option>panda-syntax</option>
+	<option>paraiso-dark</option>
+	<option>paraiso-light</option>
+	<option>pastel-on-dark</option>
+	<option>railscasts</option>
+	<option>rubyblue</option>
+	<option>seti</option>
+	<option>shadowfox</option>
+	<option>solarized dark</option>
+	<option>solarized light</option>
+	<option>the-matrix</option>
+	<option>tomorrow-night-bright</option>
+	<option>tomorrow-night-eighties</option>
+	<option>ttcn</option>
+	<option>twilight</option>
+	<option>vibrant-ink</option>
+	<option>xq-dark</option>
+	<option>xq-light</option>
+	<option>yeti</option>
+	<option>yonce</option>
+	<option>zenburn</option>
+</select>
+<select onchange="selectFontsize()" id="select-font" style="border-radius:5px;height:28px;vertical-align:bottom;">
+	<option>10px</option>
+	<option>11px</option>
+	<option>12px</option>
+	<option selected>13px</option>
+	<option>14px</option>
+	<option>16px</option>
+	<option>18px</option>
+</select>
+</div>
+
+					</td>
+				</tr>
 			</tbody>
 		</table>
+		<div class="script-main-wrapper" style="font-size:13px;">
 		<textarea class="form-control plugin_script">&#13;&#13;&#13;&#13;&#13;&#13;&#13;&#13;&#13;</textarea>
+		</div>
 	</div>
 </div>
 <div class="modal fade" tabindex="-1" role="dialog">
@@ -271,6 +348,7 @@ $users = App\User::get(['id','name']);
 </div>
 
 <script>
+	var plugin_filter = "";
 	var scriptEditor;
 	$('document').ready(function(){
 		scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('plugin_script')[0],{
@@ -325,6 +403,7 @@ $users = App\User::get(['id','name']);
 			url:"/admin/plugins/list",
 			type:"post",
 			data:{
+				"filter":plugin_filter,
 				"_token":"{{csrf_token()}}"
 			},
 			success:function(ret){
@@ -383,11 +462,13 @@ $users = App\User::get(['id','name']);
 		var lists = getFiles();
 		var files = lists["file"];
 		var folders = lists["folder"];
+
 		if(pluginNow === -1){
 			ih += "<div class='simpl-plugin-list active' data-idx='-1' style='height:50px;'><span class='simpl-plugin-list-new'>New</span></div>";
 		}else{
 			ih += "<div class='simpl-plugin-list' data-idx='-1' style='height:50px;'><span class='simpl-plugin-list-new'>New</span></div>";
 		}
+		ih += "<div class='input-group' style='margin:1px 0;'><input class='form-control plugin-filter' placeholder='Filter' value='"+plugin_filter+"'><div class='input-group-append'><button class='btn btn-primary' onclick='javscript:changeFilter()'><i class='fas fa-search'></i></button></div></div>";
 		ih += "<input class='form-control' value='"+folder+"' readonly>";
 		for(var i=0 ; i<folders.length ; i++){
 			ih+="<div class='simpl-plugin-folder-list' data-folder='"+folders[i]+"'><i class='far fa-folder-open' style='margin-right:5px;'></i>"+folders[i]+"</div>";
@@ -665,5 +746,18 @@ $users = App\User::get(['id','name']);
 		'input': 'args={<br/>"cols":[column list you want to get],<br/>"order": [key, ("asc" or "desc"),<br/>"limit": ["offset", "limit"],<br/>"criteria": ["array of criteria(Raw Where Query)"],<br/>[columns]: [value]<br/>}',
 		'output': 'Jobs that meet the conditions.',
 	}];
+
+  function selectTheme() {
+	var theme = $("#select").find("option:selected").val();
+	scriptEditor.setOption("theme", theme);
+  }
+  function selectFontsize(){
+	  var fontsize = $("#select-font").find("option:selected").val();
+	  $(".script-main-wrapper").css("font-size", fontsize);
+  }
+  function changeFilter(){
+	plugin_filter = $(".plugin-filter").val();
+	getPluginList();
+  }
 </script>
 @endsection

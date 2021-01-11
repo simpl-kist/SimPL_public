@@ -376,7 +376,16 @@ $users = App\User::get(['id','name']);
 	<option>yonce</option>
 	<option>zenburn</option>
 </select>
-			<div style="font-size:13px;">
+<select onchange="selectFontsize()" id="select-font" style="border-radius:5px;height:28px;vertical-align:bottom;">
+	<option>10px</option>
+	<option>11px</option>
+	<option>12px</option>
+	<option selected>13px</option>
+	<option>14px</option>
+	<option>16px</option>
+	<option>18px</option>
+</select>
+			<div class="script-main-wrapper" style="font-size:13px;">
 				<textarea class="form-control page_contents">&#13;&#13;&#13;&#13;&#13;&#13;&#13;&#13;&#13;</textarea>
 			</div>
 		</div>
@@ -878,6 +887,7 @@ if($footer!==null){
 </div>
 <script>
 	var scriptEditor;
+	var page_filter = ""
 	$('document').ready(function(){
 		scriptEditor=CodeMirror.fromTextArea(document.getElementsByClassName('page_contents')[0],{
 			mode:"htmlmixed",
@@ -947,6 +957,7 @@ if($footer!==null){
 			url:"/admin/pages/list",
 			type:"post",
 			data:{
+				"filter":page_filter,
 				"_token":"{{csrf_token()}}"
 			},
 			success:function(ret){
@@ -1001,6 +1012,7 @@ if($footer!==null){
 		}else{
 			ih += "<div class='simpl-page-list' data-idx='-1' style='height:50px;'><span class='simpl-page-list-new'>New</span></div>";
 		}
+		ih += "<div class='input-group' style='margin:1px 0;'><input class='form-control page-filter' placeholder='Filter' value='"+page_filter+"'><div class='input-group-append'><button class='btn btn-primary' onclick='javscript:changeFilter()'><i class='fas fa-search'></i></button></div></div>";
 		ih += "<input class='form-control' value='"+folder+"' readonly>";
 		for(var i=0 ; i<folders.length ; i++){
 			ih+="<div class='simpl-page-folder-list' data-folder='"+folders[i]+"'><i class='far fa-folder-open' style='margin-right:5px;'></i>"+folders[i]+"</div>";
@@ -2725,6 +2737,14 @@ $(".simpl_wysiwyg_input").keypress(function(e){
   function selectTheme() {
 	var theme = $("#select").find("option:selected").val();
 	scriptEditor.setOption("theme", theme);
+  }
+  function selectFontsize(){
+	  var fontsize = $("#select-font").find("option:selected").val();
+	  $(".script-main-wrapper").css("font-size", fontsize);
+  }
+  function changeFilter(){
+	page_filter = $(".page-filter").val();
+	getPageList();
   }
 //Wysiwyg
 </script>

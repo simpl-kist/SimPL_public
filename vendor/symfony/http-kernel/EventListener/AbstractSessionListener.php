@@ -37,7 +37,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 abstract class AbstractSessionListener implements EventSubscriberInterface
 {
-    const NO_AUTO_CACHE_CONTROL_HEADER = 'Symfony-Session-NoAutoCacheControl';
+    public const NO_AUTO_CACHE_CONTROL_HEADER = 'Symfony-Session-NoAutoCacheControl';
 
     protected $container;
     private $sessionUsageStack = [];
@@ -55,12 +55,9 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
 
         $session = null;
         $request = $event->getRequest();
-        if ($request->hasSession()) {
-            // no-op
-        } elseif (method_exists($request, 'setSessionFactory')) {
-            $request->setSessionFactory(function () { return $this->getSession(); });
-        } elseif ($session = $this->getSession()) {
-            $request->setSession($session);
+        if (!$request->hasSession()) {
+            $sess = null;
+            $request->setSessionFactory(function () use (&$sess) { return $sess ?? $sess = $this->getSession(); });
         }
 
         $session = $session ?? ($this->container && $this->container->has('initialized_session') ? $this->container->get('initialized_session') : null);
@@ -85,6 +82,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
         if ($session instanceof Session ? $session->getUsageIndex() !== end($this->sessionUsageStack) : $session->isStarted()) {
             if ($autoCacheControl) {
                 $response
+                    ->setExpires(new \DateTime())
                     ->setPrivate()
                     ->setMaxAge(0)
                     ->headers->addCacheControlDirective('must-revalidate');
@@ -106,7 +104,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
              *    the one above. But by saving the session before long-running things in the terminate event,
              *    we ensure the session is not blocked longer than needed.
              *  * When regenerating the session ID no locking is involved in PHPs session design. See
-             *    https://bugs.php.net/bug.php?id=61470 for a discussion. So in this case, the session must
+             *    https://bugs.php.net/61470 for a discussion. So in this case, the session must
              *    be saved anyway before sending the headers with the new session ID. Otherwise session
              *    data could get lost again for concurrent requests with the new ID. One result could be
              *    that you get logged out after just logging in.
