@@ -79,12 +79,20 @@ def register(username, remocon_url):
     subprocess.check_output("mkdir /data/repos/server", shell=True)
   if not os.path.isdir("/data/repos/userpic"):
     subprocess.check_output("mkdir /data/repos/userpic", shell=True)
+  if not os.path.isdir("/data/SimPL"):
+    subprocess.check_output("mkdir /data/SimPL", shell=True)
+  if not os.path.isdir("/data/SimPL/recover"):
+    subprocess.check_output("mkdir /data/SimPL/recover", shell=True)
+  if not os.path.isdir("/data/SimPL/backup"):
+    subprocess.check_output("mkdir /data/SimPL/backup", shell=True)
 
 #mkdir
   subprocess.check_output("cp -r /var/www/SimPL/SimPL/init/web/* /data/repos/web/.", shell=True)
   subprocess.check_output("cp -r /var/www/SimPL/SimPL/init/server/* /data/repos/server/.", shell=True)
 #copyfile
   subprocess.check_output("chown SimPL.SimPL /data/repos/ -R", shell=True)
+  subprocess.check_output("chown SimPL.SimPL /data/SimPL/ -R", shell=True)
+  subprocess.check_output("chown SimPL.SimPL /data/jobs/ -R", shell=True)
 #change owner
   subprocess.check_output("mysql --user=simpl --password=1111 simpl < /var/www/SimPL/SimPL/init/simpl_init.sql", shell=True)
 #db init
