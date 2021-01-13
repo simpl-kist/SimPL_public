@@ -488,7 +488,7 @@ class PluginController extends Controller
 			$id = $request->input('id');
 		}
 		$job = Job::findOrNew($id);
-		$fields = ['qinfo','status','pluginId','pluginAlias','jobBefore','jobNext','input','output','name','jobdir','owner',"parent","project"];
+		$fields = ['qinfo','status','pluginId','pluginAlias','jobBefore','jobNext','input','output','name','jobdir','owner',"parent","project","newowner"];
 		$job->project = 1;
 		foreach($fields as $field){
 			if( $request->has($field) ){
@@ -499,6 +499,11 @@ class PluginController extends Controller
 					}
 				}else{
 					$job->$field = $request->input($field);
+					if($field === "newowner"){
+						$job->owner = $request->input($field);
+					}else{
+						$job->$field = $request->input($field);
+					}
 				}
 			}
 		}
