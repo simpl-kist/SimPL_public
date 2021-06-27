@@ -498,7 +498,7 @@ class PluginController extends Controller
 						$job->pluginId = $pl->id;
 					}
 				}else{
-					$job->$field = $request->input($field);
+//					$job->$field = $request->input($field);
 					if($field === "newowner"){
 						$job->owner = $request->input($field);
 					}else{
