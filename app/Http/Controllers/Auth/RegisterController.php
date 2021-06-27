@@ -88,16 +88,30 @@ class RegisterController extends Controller
 			$this->init();
 		}
 		Log::debug($policy);
+		Log::debug($data);
 		$verification_code = $this->make_rand(25);
 		while(User::where("verification_code", $verification_code)->count() >0){
 			$verification_code = $this->make_rand(25);
 		}
+
+		$affiliation = "";
+		if(isset($data["affiliation"])){
+			$affiliation = $data["affiliation"];
+		}
+
+		$phone = "";
+		if(isset($data["phone"])){
+			$phone = $data["phone"];
+		}
+
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-			'verification_code' => $verification_code,
+	    'verification_code' => $verification_code,
             'password' => Hash::make($data['password']),
-			'policy' => $policy
+	    'policy' => $policy,
+	    'affiliation' => $affiliation,
+	    'phone' => $phone
         ]);
     }
 	protected function init(){

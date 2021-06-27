@@ -31,6 +31,17 @@
 					</td colspan=3>
 				</tr>
 				<tr>
+					<th class="simpl-general-label">Required subscription</th>
+					<td colspan=3>
+						<label class="mr-2">
+							<input type="checkbox" class="mr-1 req_affil" > Affiliation
+						</label>
+						<label>
+							<input type="checkbox" class="mr-1 req_phone"> Cell phone
+						</label>
+					</td>
+				</tr>
+				<tr>
 					<th class="simpl-general-label">Repository Folder</th>
 					<td colspan=3><input class="form-control storage"></td>
 				</tr>
@@ -151,6 +162,8 @@ $(document).ready(function(){
 	for(var e  in env){
 		var target = $("."+e);
 		switch(e){
+			case "req_affil":
+			case "req_phone":
 			case "allow_api_run":
 			case "leave_test_file":
 				if(+env[e] === 0){
@@ -187,6 +200,8 @@ function updateGeneral(){
 	var qstat=$(".qstat").val();
 	var qdel=$(".qdel").val();
 	var storage=$(".storage").val();
+	var req_affil = $(".req_affil").prop("checked") ? 1 : 0;
+	var req_phone = $(".req_phone").prop("checked") ? 1 : 0;
 	$.ajax({
 		url:"/admin/general/update",
 		type:"post",
@@ -209,7 +224,9 @@ function updateGeneral(){
 			qsub:qsub,
 			qstat:qstat,
 			qdel:qdel,
-			storage:storage
+			storage:storage,
+			req_affil:req_affil,
+			req_phone:req_phone
 		},
 		success:function(ret){
 			alert(ret.message);

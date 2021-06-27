@@ -23,7 +23,7 @@ class PlatformController extends Controller
 		return $env;
 	}
 	public function updateEnvironment(Request $request){
-		$Env = ["url","logo","default_policy","repo_upload_permission","allow_api_run","leave_test_file","header","footer","jobdir","python2","python3","mpirun","ex_jobdir","qname","qsub","qstat","qdel","storage"];
+		$Env = ["url","logo","default_policy","repo_upload_permission","allow_api_run","leave_test_file","header","footer","jobdir","python2","python3","mpirun","ex_jobdir","qname","qsub","qstat","qdel","storage","req_affil", "req_phone"];
 		$data = [];
 		foreach($Env as $e){
 			if($request->input($e) !== null){
