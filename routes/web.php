@@ -11,6 +11,7 @@ Route::group(['prefix'=>'admin','middleware'=>['auth', 'onlyEditor']], function(
 		Route::post("/update","PlatformController@updateEnvironment");
 		Route::post("/backup","PlatformController@backup");
 		Route::post("/recover","PlatformController@recover");
+		Route::post("/connect","PlatformController@connectQueue");
 	});
 	Route::group(['prefix'=>'solvers'], function(){
 		Route::get('/','ViewController@solvers');

@@ -93,7 +93,14 @@
 				</tr>
 				<tr>
 					<th class="simpl-general-label">External Username</th>
-					<td><input class="form-control ex_username" readonly></td>
+					<td>
+						<div class="input-group">
+							<input class="form-control ex_username" readonly>
+							<div class="input-group-append">
+								<button class="btn btn-primary" onclick="connect_queue()">Connect</button>
+							</div>
+						</div>
+					</td>
 				</tr>
 				<tr>
 					<th class="simpl-general-label">External Job Directory</th>
@@ -263,6 +270,21 @@ function recover(){
 			alert(ret.message);
 		}
 	});
+}
+function connect_queue(){
+	$.ajax({
+		url:"/admin/general/connect",
+			type:"post",
+			data:{
+			_token:"{{csrf_token()}}",
+		},
+		success:function(ret){
+			alert(ret.message);
+		},
+		error:function(ret){
+			console.log(ret);
+		}
+	})
 }
 </script>
 @endsection

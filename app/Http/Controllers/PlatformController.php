@@ -305,4 +305,49 @@ class PlatformController extends Controller
 			exit();
 		}
 	}
+	public function connectQueue(){
+		$username = CmsEnv::where("var_key", "ex_username")->first();
+
+		if(!isset($username) || $username == ""){
+			return ["message"=>"Invalid username", "status"=>"failed"];
+		}
+		$username = $username->var_value;
+
+		$address = CmsEnv::where("var_key", "pumat_address")->first();
+
+		if(!isset($address)){
+			return ["message"=>"Invalid address", "status"=>"failed"];
+		}
+		$address = $address->var_value;
+
+		Log::debug($username);
+		Log::debug($address);
+		$data=["user"=>$username];
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $address."/user/register");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		$s = curl_exec($ch);
+		$st = $s;
+		$s = json_decode($s, true);
+		if($s["status"]==="success"){
+			$key = $s["message"][2];
+		}
+		curl_close($ch);
+
+		if(isset($key)){
+			$a=CmsEnv::where("var_key", "pumat_key")->first();
+			if(!isset($a)){
+				$a=new CmsEnv;
+				$a->var_key = "pumat_key";
+			}
+			$a->var_value = $key;
+			$a->save();
+		}else{
+			return $st;
+		}
+		return ["message"=>"Success", "status"=>"success"];
+	}
 }
